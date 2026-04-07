@@ -5,6 +5,15 @@ using UnityEngine.Events;
 // Using Finite State Machine (FSM) to make sure guard is only ever doing exactly one behavior at a time
 public class GuardStateMachine : MonoBehaviour
 {
+    // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
+
+    public enum State
+    {
+        Patrolling,
+        Alerted,
+        Chasing
+    }
+
     public float patrolSpeed = 2.5f;
 
     public float chaseSpeed = 5f;
@@ -18,9 +27,12 @@ public class GuardStateMachine : MonoBehaviour
 
     public UnityEvent OnPlayerLost;
 
+    // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
+
+    public State currentState;
+
     private NavMeshAgent agent;
 
-    private State currentState;
     private float loseTimer;
     private GuardPatrol patrol;
     private VisionCone visionCone;
@@ -106,20 +118,38 @@ public class GuardStateMachine : MonoBehaviour
     {
         if (visionCone.playerRef == null) return;
 
-        if (visionCone.canSeePlayer)
+        // Ignore cone vision (FOV) and Check Line of Sight (LoS) once to decide what to do
+        Vector3 eye = transform.position + Vector3.up * 1.5f;
+        Vector3 target = visionCone.playerRef.transform.position + Vector3.up * 1f;
+        float dist = Vector3.Distance(eye, target);
+    
+        // Is there a wall between us?
+        bool hasLoS = !Physics.Raycast(eye, (target - eye).normalized, dist, visionCone.obstructionMask);
+
+        // Stay "locked on" if you're visible and within range
+        if (hasLoS && dist < visionCone.radius * 1.2f) 
         {
-            // PLAYER IS IN SIGHT: Chase them and increase the global Game Over bar
+            // PLAYER SEEN: Update destination to your current feet and reset timer
             agent.SetDestination(visionCone.playerRef.transform.position);
             loseTimer = 0f;
-            SuspicionMeter.Instance.ModifySuspicion(suspicionIncreaseRate * Time.deltaTime);
+        
+            SuspicionMeter.Instance?.ModifySuspicion(suspicionIncreaseRate * Time.deltaTime);
         }
         else
         {
-            // PLAYER IS NOT IN SIGHT: Start the "Give up" timer and drain the global Game Over bar
-            loseTimer += Time.deltaTime;
-            SuspicionMeter.Instance.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
+            // LOST SIGHT OF PLAYER: Keep walking to the last place I saw you
+            SuspicionMeter.Instance?.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
 
-            if (loseTimer >= losePlayerTime) GiveUpChase();
+            // Check if we've arrived at the last spot or got stuck on a wall
+            bool reachedSpot = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.5f;
+            bool isStuck = agent.velocity.sqrMagnitude < 0.1f;
+
+            if (reachedSpot || isStuck)
+            {
+                // 3. I'M AT THE LAST KNOWN SPOT: Now I start looking around/giving up
+                loseTimer += Time.deltaTime;
+                if (loseTimer >= losePlayerTime) GiveUpChase();
+            }
         }
     }
 
@@ -128,12 +158,5 @@ public class GuardStateMachine : MonoBehaviour
         loseTimer = 0f;
         OnPlayerLost.Invoke();
         EnterPatrol();
-    }
-
-    private enum State
-    {
-        Patrolling,
-        Alerted,
-        Chasing
     }
 }
