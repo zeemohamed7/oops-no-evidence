@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyAI : MonoBehaviour
+public class GuardPatrol : MonoBehaviour
 {
     // Waypoints
     public Transform[] waypoints;
@@ -19,12 +19,23 @@ public class EnemyAI : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        // If reached, update]
+        // If reached, update
         if (Vector3.Distance(transform.position, target) < 1)
         {
             IterateWaypointIndex();
             UpdateDestination();
         }
+    }
+
+    public void StopPatrol()
+    {
+        agent.isStopped = true;
+    }
+
+    public void ResumePatrol()
+    {
+        agent.isStopped = false;
+        UpdateDestination();
     }
 
     // Update target position and set agent's destination to that target
