@@ -119,20 +119,20 @@ public class GuardStateMachine : MonoBehaviour
         if (visionCone.playerRef == null) return;
 
         // Ignore cone vision (FOV) and Check Line of Sight (LoS) once to decide what to do
-        Vector3 eye = transform.position + Vector3.up * 1.5f;
-        Vector3 target = visionCone.playerRef.transform.position + Vector3.up * 1f;
-        float dist = Vector3.Distance(eye, target);
-    
+        var eye = transform.position + Vector3.up * 1.5f;
+        var target = visionCone.playerRef.transform.position + Vector3.up * 1f;
+        var dist = Vector3.Distance(eye, target);
+
         // Is there a wall between us?
-        bool hasLoS = !Physics.Raycast(eye, (target - eye).normalized, dist, visionCone.obstructionMask);
+        var hasLoS = !Physics.Raycast(eye, (target - eye).normalized, dist, visionCone.obstructionMask);
 
         // Stay "locked on" if you're visible and within range
-        if (hasLoS && dist < visionCone.radius * 1.2f) 
+        if (hasLoS && dist < visionCone.radius * 1.2f)
         {
             // PLAYER SEEN: Update destination to your current feet and reset timer
             agent.SetDestination(visionCone.playerRef.transform.position);
             loseTimer = 0f;
-        
+
             SuspicionMeter.Instance?.ModifySuspicion(suspicionIncreaseRate * Time.deltaTime);
         }
         else
@@ -141,12 +141,12 @@ public class GuardStateMachine : MonoBehaviour
             SuspicionMeter.Instance?.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
 
             // Check if we've arrived at the last spot or got stuck on a wall
-            bool reachedSpot = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.5f;
-            bool isStuck = agent.velocity.sqrMagnitude < 0.1f;
+            var reachedSpot = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.5f;
+            var isStuck = agent.velocity.sqrMagnitude < 0.1f;
 
             if (reachedSpot || isStuck)
             {
-                // 3. I'M AT THE LAST KNOWN SPOT: Now I start looking around/giving up
+                // REACHED AT THE LAST KNOWN SPOT: Now I start looking around/giving up
                 loseTimer += Time.deltaTime;
                 if (loseTimer >= losePlayerTime) GiveUpChase();
             }
