@@ -839,11 +839,7 @@ PlayerSettings:
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: oops-no-evidence
-<<<<<<< HEAD
   metroPackageVersion: 1.0.0.0
-=======
-  metroPackageVersion: 
->>>>>>> 80277af1f0fbca5302ec096f4f6db86e7cb7785d
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -851,11 +847,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: oops-no-evidence
   wsaImages: {}
-<<<<<<< HEAD
   metroTileShortName: oops-no-evidence
-=======
-  metroTileShortName: 
->>>>>>> 80277af1f0fbca5302ec096f4f6db86e7cb7785d
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
