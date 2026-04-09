@@ -118,13 +118,18 @@ public class GuardStateMachine : MonoBehaviour
     {
         if (visionCone.playerRef == null) return;
 
+
         // Ignore cone vision (FOV) and Check Line of Sight (LoS) once to decide what to do
         var eye = transform.position + Vector3.up * 1.5f;
         var target = visionCone.playerRef.transform.position + Vector3.up * 1f;
         var dist = Vector3.Distance(eye, target);
 
+
         // Is there a wall between us?
         var hasLoS = !Physics.Raycast(eye, (target - eye).normalized, dist, visionCone.obstructionMask);
+
+        Debug.DrawLine(eye, target, hasLoS ? Color.red : Color.green);
+
 
         // Stay "locked on" if you're visible and within range
         if (hasLoS && dist < visionCone.radius * 1.2f)
