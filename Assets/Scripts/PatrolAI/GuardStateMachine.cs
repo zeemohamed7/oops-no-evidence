@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
@@ -32,12 +33,20 @@ public class GuardStateMachine : MonoBehaviour
     public float searchTurnSpeed = 2f;
     public float searchAngle = 60f; // How far left/right they look
 
+    public Color patrolColor = new(0, 0, 0, 0);
+    public Color alertedColor = Color.yellow;
+    public Color chasingColor = Color.red;
+    public Color searchingColor = new(1f, 0.5f, 0f);
+
+
     // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
 
     public State currentState;
 
-    private NavMeshAgent agent;
 
+    [Header("Visual Feedback")] public TextMeshProUGUI alertText;
+
+    private NavMeshAgent agent;
     private GuardPatrol patrol;
     private Quaternion searchStartRotation;
     private float searchTimer;
@@ -64,10 +73,22 @@ public class GuardStateMachine : MonoBehaviour
         }
     }
 
+    private void UpdateVisuals(string text, Color color)
+    {
+        if (alertText == null) return;
+
+        alertText.text = text;
+        alertText.color = color;
+
+        // Hide the text entirely if it's empty
+        alertText.gameObject.SetActive(!string.IsNullOrEmpty(text));
+    }
+
     // --- STATE 1: PATROLLING ---
     private void EnterPatrol()
     {
         currentState = State.Patrolling;
+        UpdateVisuals("", Color.white);
         agent.isStopped = false;
         agent.speed = patrolSpeed;
         if (patrol != null) patrol.ResumePatrol();
@@ -92,7 +113,7 @@ public class GuardStateMachine : MonoBehaviour
     private void EnterAlerted()
     {
         currentState = State.Alerted;
-
+        UpdateVisuals("?", alertedColor);
         if (patrol != null) patrol.StopPatrol();
         agent.isStopped = true;
 
@@ -116,6 +137,7 @@ public class GuardStateMachine : MonoBehaviour
     private void EnterChasing()
     {
         currentState = State.Chasing;
+        UpdateVisuals("!", chasingColor);
         agent.isStopped = false;
         agent.speed = chaseSpeed;
     }
@@ -171,6 +193,7 @@ public class GuardStateMachine : MonoBehaviour
     private void EnterSearching()
     {
         currentState = State.Searching;
+        UpdateVisuals("?", searchingColor);
         agent.isStopped = true; // Stop walking
         searchTimer = 0f;
         searchStartRotation = transform.rotation; // Remember which way we were facing
