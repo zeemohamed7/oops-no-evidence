@@ -13,12 +13,19 @@ public class GuardPatrol : MonoBehaviour
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+
+        // Safety check: wait until the end of the frame or check if placed
+        if (agent.isOnNavMesh) UpdateDestination();
+
         UpdateDestination();
     }
 
     // Update is called once per frame
     private void Update()
     {
+        // If the state machine is busy chasing or alerted, stop waypoint logic
+        if (GetComponent<GuardStateMachine>().currentState != GuardStateMachine.State.Patrolling) return;
+
         // If reached, update
         if (Vector3.Distance(transform.position, target) < 1)
         {
