@@ -47,6 +47,7 @@ public class GuardPatrol : MonoBehaviour
         if (agent != null)
         {
             agent.isStopped = false;
+            SetClosestWaypoint();
             UpdateDestination();
         }
     }
@@ -65,5 +66,28 @@ public class GuardPatrol : MonoBehaviour
     {
         waypointIndex++;
         if (waypointIndex >= waypoints.Length) waypointIndex = 0;
+    }
+
+    private void SetClosestWaypoint()
+    {
+        if (waypoints == null || waypoints.Length == 0) return;
+
+        var closestDistance = Mathf.Infinity;
+        var closestIndex = 0;
+
+        // Loop through all waypoints to find the one with the smallest distance
+        for (var i = 0; i < waypoints.Length; i++)
+        {
+            var distance = Vector3.Distance(transform.position, waypoints[i].position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestIndex = i;
+            }
+        }
+
+        // Set our current path to the one we found
+        waypointIndex = closestIndex;
     }
 }
