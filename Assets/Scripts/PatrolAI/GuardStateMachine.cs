@@ -120,15 +120,22 @@ public class GuardStateMachine : MonoBehaviour
 
 
         // Ignore cone vision (FOV) and Check Line of Sight (LoS) once to decide what to do
-        var eye = transform.position + Vector3.up * 1.5f;
-        var target = visionCone.playerRef.transform.position + Vector3.up * 1f;
+        var eye = transform.position + Vector3.up * 0.8f;
+        var target = visionCone.playerRef.transform.position + Vector3.up * 0.5f;
         var dist = Vector3.Distance(eye, target);
 
+        // If you hit a wall, player or closet, stop and say what you hit
+        var combinedMask = visionCone.obstructionMask | LayerMask.GetMask("Target") | LayerMask.GetMask("Interactable");
 
-        // Is there a wall between us?
-        var hasLoS = !Physics.Raycast(eye, (target - eye).normalized, dist, visionCone.obstructionMask);
+        RaycastHit hit;
+        var hasLoS = false;
 
-        Debug.DrawLine(eye, target, hasLoS ? Color.red : Color.green);
+        if (Physics.Raycast(eye, (target - eye).normalized, out hit, dist + 0.5f, combinedMask))
+            // If the laser hit Player, hasLoS is true otherwise if it's hit obstruction or closet, LoS stays false
+            if (hit.collider.CompareTag("Player"))
+                hasLoS = true;
+
+        Debug.DrawLine(eye, target, hasLoS ? Color.red : Color.green); // DEBUGGING
 
 
         // Stay "locked on" if you're visible and within range
@@ -137,18 +144,15 @@ public class GuardStateMachine : MonoBehaviour
             // PLAYER SEEN: Update destination to your current feet and reset timer
             agent.SetDestination(visionCone.playerRef.transform.position);
             loseTimer = 0f;
-
             SuspicionMeter.Instance?.ModifySuspicion(suspicionIncreaseRate * Time.deltaTime);
         }
         else
         {
             // LOST SIGHT OF PLAYER: Keep walking to the last place I saw you
             SuspicionMeter.Instance?.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
-
             // Check if we've arrived at the last spot or got stuck on a wall
             var reachedSpot = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.5f;
             var isStuck = agent.velocity.sqrMagnitude < 0.1f;
-
             if (reachedSpot || isStuck)
             {
                 // REACHED AT THE LAST KNOWN SPOT: Now I start looking around/giving up

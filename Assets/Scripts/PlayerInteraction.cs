@@ -3,41 +3,44 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    public InputActionReference interactAction;
+    [Header("Input Setup")] public InputActionReference interactAction; // Optimal: Allows rebinding & multi-device
+
     public float reach = 3f;
-    public Camera cam;
 
     private void Update()
     {
-        if (interactAction.action.triggered) PerformRaycast();
+        // Safety check
+        if (interactAction == null) return;
+
+        // WasPressedThisFrame is the most optimized check for a single tap
+        if (interactAction.action.WasPressedThisFrame()) PerformProximityCheck();
     }
 
     private void OnEnable()
     {
-        interactAction.action.Enable();
+        // 1. Enable the specific action
+        interactAction?.action.Enable();
+
+        // 2. Optimal: Enable the entire Action Map (e.g., the "Player" map)
+        // This prevents the key from being ignored if the map is asleep
+        interactAction?.action.actionMap.Enable();
     }
 
     private void OnDisable()
     {
-        interactAction.action.Disable();
+        interactAction?.action.Disable();
     }
 
-    private void PerformRaycast()
+    private void PerformProximityCheck()
     {
-        RaycastHit hit;
-        // Shoot a line from the center of the screen
-        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, reach))
-            // 1. Check for Hiding Spot
-            if (hit.collider.TryGetComponent(out HidingSpot spot))
-                spot.ToggleHide(gameObject);
-        // 2. Check for Body (For later)
-        /*
-            if (hit.collider.TryGetComponent(out BodyDragger body))
+        var mask = LayerMask.GetMask("Interactable");
+        var hitColliders = Physics.OverlapSphere(transform.position, reach, mask);
+
+        foreach (var hitCollider in hitColliders)
+            if (hitCollider.TryGetComponent(out HidingSpot spot))
             {
-                body.StartDragging();
+                spot.ToggleHide(gameObject);
                 return;
             }
-            */
-        // 3. Check for Doors, etc.
     }
 }
