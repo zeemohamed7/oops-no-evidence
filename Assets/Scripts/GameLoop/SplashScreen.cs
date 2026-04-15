@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SplashScreen  —  entry point of the game
@@ -43,7 +44,9 @@ public class SplashScreen : MonoBehaviour
     private void Update()
     {
         // Any key press or mouse click skips to the lobby immediately.
-        if (!skipped && (Input.anyKeyDown || Input.GetMouseButtonDown(0)))
+        bool anyKey   = Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame;
+        bool anyClick = Mouse.current    != null && Mouse.current.leftButton.wasPressedThisFrame;
+        if (!skipped && (anyKey || anyClick))
         {
             skipped = true;
             StopAllCoroutines();
