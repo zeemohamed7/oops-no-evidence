@@ -16,9 +16,9 @@ TagManager:
   - Target
   - Obstruction
   - Interactable
-  - 
-  - 
-  - 
+  - NavMesh
+  - BackgroundImage
+  - DistantHotspot
   - 
   - 
   - 
