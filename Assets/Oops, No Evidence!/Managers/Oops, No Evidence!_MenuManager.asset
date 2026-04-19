@@ -336,9 +336,9 @@ MonoBehaviour:
   _isLocked: 0
   id: 16
   title: LobbyMenu
-  manualSize: {x: 100, y: 5}
+  manualSize: {x: 151.64252, y: 9.754335}
   positionType: 1
-  manualPosition: {x: 302, y: 36.609997}
+  manualPosition: {x: 303.5, y: 67.5}
   positionSmoothing: 0
   alignment: 1
   toggleKey: 
@@ -356,7 +356,6 @@ MonoBehaviour:
   visibleElements:
   - {fileID: -3325870080127961922}
   - {fileID: -1825363490095434841}
-  - {fileID: 2863537682048128178}
   - {fileID: -6478335696412077729}
   transitionProgress: 0
   appearType: 0
@@ -374,10 +373,10 @@ MonoBehaviour:
   - {fileID: -1825363490095434841}
   - {fileID: 2863537682048128178}
   - {fileID: -6478335696412077729}
-  spacing: 0.5
-  sizeType: 1
+  spacing: 2
+  sizeType: 0
   autoSizeEveryFrame: 0
-  orientation: 1
+  orientation: 0
   transitionType: 4
   panDirection: 0
   panMovement: 0
@@ -413,13 +412,13 @@ MonoBehaviour:
   speechProximityLimit: 0
   speechProximityDistance: 10
   deleteUIWhenTurnOff: 0
-  biggestElementSize: {x: 213.70999, y: 70.2}
+  biggestElementSize: {x: 908.3301, y: 122.86}
   rect:
     serializedVersion: 2
-    x: 193.63501
+    x: -156.73505
     y: 0
-    width: 216.73
-    height: 73.21999
+    width: 920.4701
+    height: 135
   showInFilter: 1
 --- !u!114 &-8822593206307792756
 MonoBehaviour:
@@ -1073,14 +1072,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 4
   title: P4_CharacterSelect
-  slotSize: {x: 20.481789, y: 1.0498555}
-  sizeType: 0
+  slotSize: {x: 100, y: 8}
+  sizeType: 1
   positionType: 0
   slotSpacing: 0
   lineID: -1
   alternativeInputButton: 
-  font: {fileID: 0}
-  fontScaleFactor: 2
+  font: {fileID: 12800000, guid: 86c95e24cad1f457193772d2521f9ebc, type: 3}
+  fontScaleFactor: 4
   fontColor: {r: 1, g: 1, b: 1, a: 1}
   fontHighlightColor: {r: 1, g: 1, b: 1, a: 1}
   isVisible: 1
@@ -1098,8 +1097,8 @@ MonoBehaviour:
   maxAutoWidthFactor: 0.5
   relativeRect:
     serializedVersion: 2
-    x: 3.02
-    y: 55.67
+    x: 784.62006
+    y: 12.14
     width: 123.71
     height: 14.53
   relativePosition: {x: 0, y: 0}
@@ -1107,11 +1106,11 @@ MonoBehaviour:
   uiButton: {fileID: 0}
   uiDropdown: {fileID: 0}
   actionListOnClick: {fileID: 11400000, guid: 99facb2e4eed247b28c4c504970a8110, type: 2}
-  label: Cycle
-  labelSuffix: ' : '
+  label: 'Character:'
+  labelSuffix: 
   textEffects: 0
   outlineSize: 2
-  anchor: 3
+  anchor: 4
   selected: 0
   optionsArray: []
   cycleType: 2
@@ -1120,7 +1119,7 @@ MonoBehaviour:
   uiSelectableHideStyle: 0
   cycleUIBasis: 0
   optionTextures: []
-  rightClickGoesBack: 0
+  rightClickGoesBack: 1
 --- !u!114 &-6040993151324883961
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2517,23 +2516,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 1
   title: P1_CharacterSelect
-  slotSize: {x: 15, y: 100}
+  slotSize: {x: 100, y: 8}
   sizeType: 1
   positionType: 0
   slotSpacing: 0
   lineID: -1
   alternativeInputButton: 
-  font: {fileID: 0}
-  fontScaleFactor: 2
+  font: {fileID: 12800000, guid: 86c95e24cad1f457193772d2521f9ebc, type: 3}
+  fontScaleFactor: 4
   fontColor: {r: 1, g: 1, b: 1, a: 1}
   fontHighlightColor: {r: 1, g: 1, b: 1, a: 1}
   isVisible: 1
   isClickable: 1
   orientation: 1
   gridWidth: 3
-  backgroundTexture: {fileID: 2800000, guid: 90fc7017cb85f42529e06a6b82e80639, type: 3}
+  backgroundTexture: {fileID: 0}
   singleSlotBackgrounds: 0
-  highlightTexture: {fileID: 2800000, guid: 90fc7017cb85f42529e06a6b82e80639, type: 3}
+  highlightTexture: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
   changeCursor: 0
@@ -2542,17 +2541,17 @@ MonoBehaviour:
   maxAutoWidthFactor: 0.5
   relativeRect:
     serializedVersion: 2
-    x: 90
-    y: 0
-    width: 123.71
-    height: 14.53
-  relativePosition: {x: 0, y: 5}
+    x: 12.14
+    y: 12.14
+    width: 607
+    height: 110.72
+  relativePosition: {x: 0, y: 0}
   numSlots: 1
   uiButton: {fileID: 0}
   uiDropdown: {fileID: 0}
   actionListOnClick: {fileID: 11400000, guid: 81f4e8991585e468a98472213953122d, type: 2}
-  label: Cycle
-  labelSuffix: ' : '
+  label: 'Character:'
+  labelSuffix: 
   textEffects: 0
   outlineSize: 2
   anchor: 4
@@ -2564,7 +2563,7 @@ MonoBehaviour:
   uiSelectableHideStyle: 0
   cycleUIBasis: 0
   optionTextures: []
-  rightClickGoesBack: 0
+  rightClickGoesBack: 1
 --- !u!114 &-3276049064346121168
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3110,14 +3109,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 2
   title: P2_CharacterSelect
-  slotSize: {x: 20.481789, y: 1.0498555}
-  sizeType: 0
+  slotSize: {x: 100, y: 8}
+  sizeType: 1
   positionType: 0
   slotSpacing: 0
   lineID: -1
   alternativeInputButton: 
-  font: {fileID: 0}
-  fontScaleFactor: 2
+  font: {fileID: 12800000, guid: 86c95e24cad1f457193772d2521f9ebc, type: 3}
+  fontScaleFactor: 4
   fontColor: {r: 1, g: 1, b: 1, a: 1}
   fontHighlightColor: {r: 1, g: 1, b: 1, a: 1}
   isVisible: 1
@@ -3135,20 +3134,20 @@ MonoBehaviour:
   maxAutoWidthFactor: 0.5
   relativeRect:
     serializedVersion: 2
-    x: 3.02
-    y: 20.57
-    width: 123.71
-    height: 14.53
+    x: 631.28
+    y: 12.14
+    width: 141.2
+    height: 28.240002
   relativePosition: {x: 0, y: 0}
   numSlots: 1
   uiButton: {fileID: 0}
   uiDropdown: {fileID: 0}
   actionListOnClick: {fileID: 11400000, guid: 20d80f2b01aee46298a3dab3e94c964d, type: 2}
-  label: Cycle
-  labelSuffix: ' : '
+  label: 'Character:'
+  labelSuffix: 
   textEffects: 0
   outlineSize: 2
-  anchor: 3
+  anchor: 4
   selected: 0
   optionsArray: []
   cycleType: 2
@@ -3157,7 +3156,7 @@ MonoBehaviour:
   uiSelectableHideStyle: 0
   cycleUIBasis: 0
   optionTextures: []
-  rightClickGoesBack: 0
+  rightClickGoesBack: 1
 --- !u!114 &-1791295659999513484
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4599,17 +4598,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 3
   title: P3_CharacterSelect
-  slotSize: {x: 20.481789, y: 1.0498555}
-  sizeType: 0
+  slotSize: {x: 100, y: 8}
+  sizeType: 1
   positionType: 0
   slotSpacing: 0
   lineID: -1
   alternativeInputButton: 
-  font: {fileID: 0}
-  fontScaleFactor: 2
+  font: {fileID: 12800000, guid: 86c95e24cad1f457193772d2521f9ebc, type: 3}
+  fontScaleFactor: 4
   fontColor: {r: 1, g: 1, b: 1, a: 1}
   fontHighlightColor: {r: 1, g: 1, b: 1, a: 1}
-  isVisible: 1
+  isVisible: 0
   isClickable: 1
   orientation: 1
   gridWidth: 3
@@ -4633,8 +4632,8 @@ MonoBehaviour:
   uiButton: {fileID: 0}
   uiDropdown: {fileID: 0}
   actionListOnClick: {fileID: 11400000, guid: 7b79bea71203d492cbb3564d30bdedbe, type: 2}
-  label: Cycle
-  labelSuffix: ' : '
+  label: 'Character:'
+  labelSuffix: 
   textEffects: 0
   outlineSize: 2
   anchor: 3
@@ -4646,7 +4645,7 @@ MonoBehaviour:
   uiSelectableHideStyle: 0
   cycleUIBasis: 0
   optionTextures: []
-  rightClickGoesBack: 0
+  rightClickGoesBack: 1
 --- !u!114 &3355165935461003978
 MonoBehaviour:
   m_ObjectHideFlags: 1
