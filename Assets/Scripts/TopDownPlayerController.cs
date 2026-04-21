@@ -28,6 +28,11 @@ public class TopDownPlayerController : MonoBehaviour
         if (playerCamera == null) playerCamera = Camera.main;
     }
 
+    private void Start()
+    {
+        DynamicCamera.Instance?.RegisterPlayer(transform);
+    }
+
     private void Update()
     {
         // Safety checks without the log spam
