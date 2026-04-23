@@ -22,6 +22,13 @@ public class TopDownPlayerController : MonoBehaviour
 
     private CharacterController controller;
 
+    //malak
+    [Header("Weight Penalty")]
+    public bool isCarrying = false;
+    [Range(0.1f, 1f)]
+    public float carryMultiplier = 0.5f;
+
+    
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -40,6 +47,8 @@ public class TopDownPlayerController : MonoBehaviour
 
         HandleMovement();
         HandleRotation();
+
+
     }
 
     private void OnEnable()
@@ -61,6 +70,13 @@ public class TopDownPlayerController : MonoBehaviour
         // 1. Determine Speed & Height
         var currentSpeed = walkSpeed;
 
+        //malak
+        // Apply weight penalty FIRST
+        if (isCarrying)
+        {
+            currentSpeed *= carryMultiplier;
+        }
+
         if (crouchAction.action.IsPressed())
         {
             controller.height = crouchingHeight;
@@ -81,6 +97,8 @@ public class TopDownPlayerController : MonoBehaviour
 
         // 4. Gravity (Constant downward force)
         controller.Move(Vector3.down * 20f * Time.deltaTime);
+
+        
     }
 
     private void HandleRotation()
