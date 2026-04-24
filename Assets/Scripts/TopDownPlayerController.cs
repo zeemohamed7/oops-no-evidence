@@ -42,6 +42,11 @@ public class TopDownPlayerController : MonoBehaviour
 
     private void Update()
     {
+        // NEW: If we are in the Lobby scene, DON'T move or rotate.
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Lobby") 
+        {
+            return; 
+        }
         // Safety checks without the log spam
         if (playerCamera == null || Mouse.current == null) return;
 
