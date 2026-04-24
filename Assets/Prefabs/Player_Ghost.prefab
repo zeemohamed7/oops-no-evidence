@@ -162,7 +162,7 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: f0cdbe9a-398e-40c7-a6de-29a752c094ac
     m_ActionName: 'Lobby/Back[/Keyboard/escape]'
-  m_NeverAutoSwitchControlSchemes: 0
+  m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: Lobby
   m_SplitScreenIndex: -1

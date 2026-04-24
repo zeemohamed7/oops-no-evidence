@@ -31,10 +31,20 @@ public class LobbyGhost : MonoBehaviour
 
     private void Awake()
     {
+        // 1. Switch the map to "Lobby" so this ghost doesn't use Gameplay actions
+        var pInput = GetComponent<PlayerInput>();
+        if (pInput != null) pInput.SwitchCurrentActionMap("Lobby");
         _playerInput = GetComponent<PlayerInput>();
         _lobbyManager = FindFirstObjectByType<LobbyManager>();
-    }
 
+        // 2. DISABLE the movement script so it stops calling HandleMovement()
+        var controllerScript = GetComponent<TopDownPlayerController>(); 
+        if (controllerScript != null) 
+        {
+            controllerScript.enabled = false;
+            Debug.Log("TopDownPlayerController disabled for the Lobby!");
+        }
+    }
     private void Start()
     {
         if (_lobbyManager == null)
@@ -89,7 +99,6 @@ public class LobbyGhost : MonoBehaviour
         if (_navCooldown > 0f) return;
 
         Vector2 dir = value.Get<Vector2>();
-        Debug.Log($"Navigate input: {dir}");
 
         if (Mathf.Abs(dir.x) > 0.5f)
         {
@@ -100,7 +109,6 @@ public class LobbyGhost : MonoBehaviour
 
             _navCooldown = NavCooldownTime;
 
-            Debug.Log($"New index: {_characterIndex}");
 
             _claimedSlot?.SetCharacter(
                 SelectedCharacterId,
