@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2739016838828355998}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Holdpoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,9 +45,9 @@ GameObject:
   - component: {fileID: 8883300017618040386}
   - component: {fileID: 4732691420122826481}
   - component: {fileID: 7506477137112495180}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Zainab
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -181,9 +181,113 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6907254937176507752}
     m_Modifications:
+    - target: {fileID: 250395819773338621, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 324502158279856198, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 332420454783324981, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 635339717733326840, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 662020952541096898, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 695780592980811864, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 754661056924975244, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 985491038217898553, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1220992158461615207, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527289170513844184, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1805026263494481974, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2324131517402233597, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2605820774557480251, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2871609028289677618, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3268698670256735379, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3624040164514440955, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
       propertyPath: m_Name
       value: Meshy_AI_zee_biped_Animation_Walking_withSkin
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624040164514440955, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3904300745872843259, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4872502557984792626, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5117131592302576556, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5264169196785823965, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5352470715587641007, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5558138824036228644, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6558943175752380030, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7754269306398565194, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7957094806347250118, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8878056832846110671, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 9018405711677505767, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
       propertyPath: m_LocalPosition.x
@@ -224,6 +328,10 @@ PrefabInstance:
     - target: {fileID: 9018405711677505767, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9138532846674612513, guid: 1523e169f195140d0b4fbb2d7e1805ee, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
