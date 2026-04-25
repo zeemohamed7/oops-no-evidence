@@ -3,17 +3,19 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
 
+[RequireComponent(typeof(AudioSource))]
 // Using Finite State Machine (FSM) to make sure guard is only ever doing exactly one behavior at a time
 public class GuardStateMachine : MonoBehaviour
 {
     // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
-
+    private Animator anim;
     public enum State
     {
         Patrolling,
         Alerted,
         Chasing,
-        Searching
+        Searching,
+        Evicting
     }
 
     public float patrolSpeed = 2.5f;
@@ -21,6 +23,10 @@ public class GuardStateMachine : MonoBehaviour
     public float chaseSpeed = 5f;
     public float losePlayerTime = 3f;
 
+    [Header("Grace Period")]
+    public float postEvictionGrace = 3f; // 3 seconds of safety
+    private float graceTimer;
+    
     [Header("Global Suspicion Rates")] public float suspicionIncreaseRate = 25f;
 
     public float suspicionDrainRate = 10f;
@@ -38,7 +44,18 @@ public class GuardStateMachine : MonoBehaviour
     public Color chasingColor = Color.red;
     public Color searchingColor = new(1f, 0.5f, 0f);
 
-
+    [Header("Eviction Settings")]
+    public string playerTag = "Player"; 
+    public Transform kickOutPoint;      
+    public float evictionDelay = 1.0f; 
+    private float evictionTimer;
+    private GameObject playerToEvict;
+    
+    [Header("Specific Barks")]
+    public AudioSource audioSource;
+    public AudioClip spotSound;    // The "Huh?"
+    public AudioClip giveUpSound;  // The "Sigh"
+    public AudioClip[] chaseBarks; // Chasing
     // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
 
     public State currentState;
@@ -56,13 +73,15 @@ public class GuardStateMachine : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         visionCone = GetComponent<VisionCone>();
-        patrol = GetComponent<GuardPatrol>(); // Automatically looks for GuardPatrol.cs
-
+        patrol = GetComponent<GuardPatrol>(); 
+        audioSource = GetComponent<AudioSource>();
+        anim = GetComponentInChildren<Animator>();
         EnterPatrol();
     }
 
     private void Update()
     {
+        if (graceTimer > 0) graceTimer -= Time.deltaTime;
         switch (currentState)
         {
             // States to make sure it's only doing one thing at a time
@@ -70,6 +89,17 @@ public class GuardStateMachine : MonoBehaviour
             case State.Alerted: UpdateAlerted(); break;
             case State.Chasing: UpdateChasing(); break;
             case State.Searching: UpdateSearching(); break;
+            case State.Evicting: UpdateEvicting(); break;
+        }
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        // If we catch the player and we aren't already evicting someone
+        if (other.CompareTag(playerTag) && currentState != State.Evicting)
+        {
+            playerToEvict = other.gameObject;
+            EnterEvicting();
         }
     }
 
@@ -83,10 +113,20 @@ public class GuardStateMachine : MonoBehaviour
         // Hide the text entirely if it's empty
         alertText.gameObject.SetActive(!string.IsNullOrEmpty(text));
     }
+    
+    private void PlayRandomBark(AudioClip[] clips)
+    {
+        if (clips == null || clips.Length == 0) return; 
+    
+        audioSource.clip = clips[Random.Range(0, clips.Length)];
+        audioSource.Play();
+    }
 
     // --- STATE 1: PATROLLING ---
     private void EnterPatrol()
     {
+        CancelInvoke(); // Stop the guard from jumping into Chasing if he was just Alerted
+        if(anim != null) anim.SetBool("isChasing", false);
         currentState = State.Patrolling;
         UpdateVisuals("", Color.white);
         agent.isStopped = false;
@@ -96,8 +136,7 @@ public class GuardStateMachine : MonoBehaviour
 
     private void UpdatePatrol()
     {
-        // Player is seen, freak out!!
-        if (visionCone.canSeePlayer)
+        if (visionCone.canSeePlayer && graceTimer <= 0)
         {
             EnterAlerted();
         }
@@ -117,10 +156,17 @@ public class GuardStateMachine : MonoBehaviour
         if (patrol != null) patrol.StopPatrol();
         agent.isStopped = true;
 
-        OnPlayerDetected.Invoke();
-        Invoke(nameof(EnterChasing), 0.6f); // Wait 0.6 seconds in shock before running
-    }
+        if (spotSound != null) 
+        {
+            audioSource.clip = spotSound;
+            audioSource.Play();
+        }
 
+        OnPlayerDetected.Invoke();
+    
+        Invoke(nameof(EnterChasing), 1.0f); 
+    }
+    
     private void UpdateAlerted()
     {
         if (visionCone.playerRef == null) return;
@@ -136,8 +182,10 @@ public class GuardStateMachine : MonoBehaviour
     // --- STATE 3: CHASING ---
     private void EnterChasing()
     {
+        if(anim != null) anim.SetBool("isChasing", true);
         currentState = State.Chasing;
         UpdateVisuals("!", chasingColor);
+        PlayRandomBark(chaseBarks);
         agent.isStopped = false;
         agent.speed = chaseSpeed;
     }
@@ -160,7 +208,7 @@ public class GuardStateMachine : MonoBehaviour
 
         if (Physics.Raycast(eye, (target - eye).normalized, out hit, dist + 0.5f, combinedMask))
             // If the laser hit Player, hasLoS is true otherwise if it's hit obstruction or closet, LoS stays false
-            if (hit.collider.CompareTag("Player"))
+            if (hit.collider.CompareTag(playerTag))
                 hasLoS = true;
 
         Debug.DrawLine(eye, target, hasLoS ? Color.red : Color.green); // DEBUGGING
@@ -218,11 +266,74 @@ public class GuardStateMachine : MonoBehaviour
         // 3. Time's up, give up
         if (searchTimer >= searchDuration) GiveUpChase();
     }
+    // --- STATE 55: EVICTING ---
 
+    private void EnterEvicting()
+    {
+        CancelInvoke();
+        currentState = State.Evicting;
+        UpdateVisuals("GOTCHA!", Color.red);
+    
+        agent.isStopped = false;
+        agent.speed = patrolSpeed; 
+        agent.SetDestination(kickOutPoint.position);
+
+        // 2. Disable the player so they can't fight back
+        if (playerToEvict != null)
+        {
+            var controller = playerToEvict.GetComponent<CharacterController>();
+            if (controller != null) controller.enabled = false;
+            
+            var playerScript = playerToEvict.GetComponent<TopDownPlayerController>();
+            if (playerScript != null) playerScript.enabled = false;
+        }
+        
+
+    }
+
+    private void UpdateEvicting()
+    {
+        if (playerToEvict == null) { EnterPatrol(); return; }
+
+        // 1. Keep the player "stuck" to the guard's front
+        Vector3 holdPosition = transform.position + transform.forward * 0.6f; 
+        playerToEvict.transform.position = holdPosition;
+    
+        // Make the player look the same way as the guard
+        playerToEvict.transform.rotation = transform.rotation;
+
+        // 2. Check if we arrived at the Eviction Point
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.2f)
+        {
+            ReleasePlayer();
+        }
+    }
+    
+    private void ReleasePlayer()
+    {
+        if (playerToEvict != null)
+        {
+            var controller = playerToEvict.GetComponent<CharacterController>();
+            if (controller != null) controller.enabled = true; 
+
+            var playerScript = playerToEvict.GetComponent<TopDownPlayerController>();
+            if (playerScript != null) playerScript.enabled = true;
+        }
+
+        graceTimer = postEvictionGrace; 
+        playerToEvict = null;
+        EnterPatrol();
+    }
+    
 
     private void GiveUpChase()
     {
         searchTimer = 0f;
+        if (giveUpSound != null) 
+        {
+            audioSource.clip = giveUpSound;
+            audioSource.Play();
+        }
         OnPlayerLost.Invoke();
         EnterPatrol();
     }
