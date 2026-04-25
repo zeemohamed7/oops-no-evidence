@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MopCleaner : MonoBehaviour
@@ -8,9 +8,35 @@ public class MopCleaner : MonoBehaviour
     public Material drawMaterial;
     public Texture initialTexture;
 
+    [Header("Mop Dirt System")]
+    public float mopDirt = 0f;
+    public float maxDirt = 100f;
+    public float dirtIncreaseRate = 30f;
+    public float cleanThreshold = 50f;
+
     private InputSystem_Actions input;
     private bool isPainting;
 
+
+    void Start()
+    {
+        if (renderTexture == null || initialTexture == null)
+        {
+            Debug.LogError("Missing references!");
+            return;
+        }
+
+        // Initialize RT
+        RenderTexture.active = renderTexture;
+        GL.Clear(true, true, Color.black);
+        Graphics.Blit(initialTexture, renderTexture);
+        RenderTexture.active = null;
+
+        // 🔥 THIS IS THE MISSING PART
+        GetComponent<Renderer>().material.SetTexture("_MaskTex", renderTexture);
+
+        Debug.Log("BloodRT initialized and assigned!");
+    }
     void Awake()
     {
         input = new InputSystem_Actions();
@@ -19,37 +45,25 @@ public class MopCleaner : MonoBehaviour
     void OnEnable()
     {
         input.Player.Enable();
-
-        input.Player.Attack.performed += OnPaintStart;
-        input.Player.Attack.canceled += OnPaintStop;
+        input.Player.Attack.performed += _ => isPainting = true;
+        input.Player.Attack.canceled += _ => isPainting = false;
     }
 
     void OnDisable()
     {
-        input.Player.Attack.performed -= OnPaintStart;
-        input.Player.Attack.canceled -= OnPaintStop;
-
         input.Player.Disable();
-    }
-
-    void Start()
-    {
-        Graphics.Blit(initialTexture, renderTexture);
     }
 
     void Update()
     {
-        if (isPainting)
+        if (!isPainting) return;
+
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = cam.ScreenPointToRay(mousePos);
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Vector2 mousePos = Mouse.current.position.ReadValue();
-
-            Ray ray = cam.ScreenPointToRay(mousePos);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                Paint(hit.textureCoord);
-            }
+            Paint(hit.textureCoord);
         }
     }
 
@@ -57,6 +71,20 @@ public class MopCleaner : MonoBehaviour
     {
         drawMaterial.SetVector("_Coordinate", new Vector4(uv.x, uv.y, 0, 0));
         drawMaterial.SetFloat("_Size", 0.05f);
+
+        if (mopDirt < cleanThreshold)
+        {
+            // CLEAN
+            drawMaterial.SetFloat("_Strength", -1f);
+            mopDirt += dirtIncreaseRate * Time.deltaTime;
+        }
+        else
+        {
+            // SPREAD BLOOD
+            drawMaterial.SetFloat("_Strength", 1f);
+        }
+
+        mopDirt = Mathf.Clamp(mopDirt, 0f, maxDirt);
 
         RenderTexture temp = RenderTexture.GetTemporary(renderTexture.width, renderTexture.height);
 
@@ -66,21 +94,9 @@ public class MopCleaner : MonoBehaviour
         RenderTexture.ReleaseTemporary(temp);
     }
 
-    public void OnInteract(InputAction.CallbackContext context)
+    public void ResetMop()
     {
-        if (context.performed)
-        {
-            Debug.Log("Interact pressed!");
-        }
-    }
-
-    void OnPaintStart(InputAction.CallbackContext context)
-    {
-        isPainting = true;
-    }
-
-    void OnPaintStop(InputAction.CallbackContext context)
-    {
-        isPainting = false;
+        mopDirt = 0f;
+        Debug.Log("Mop cleaned!");
     }
 }

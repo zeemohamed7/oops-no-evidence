@@ -1,12 +1,14 @@
-﻿Shader "Custom/BrushShader"
+﻿Shader "Custom/DrawShader"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _MainTex ("Base", 2D) = "white" {}
         _Coordinate ("Coordinate", Vector) = (0,0,0,0)
-        _Size ("Size", Float) = 0.1
+        _Size ("Size", Float) = 0.05
+        _Strength ("Strength", Float) = 1
     }
-        SubShader
+
+    SubShader
     {
         Tags { "RenderType"="Opaque" }
         Pass
@@ -20,6 +22,7 @@
             sampler2D _MainTex;
             float4 _Coordinate;
             float _Size;
+            float _Strength;
 
             struct appdata
             {
@@ -33,7 +36,7 @@
                 float4 vertex : SV_POSITION;
             };
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -41,22 +44,24 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                float2 p = abs(i.uv - _Coordinate.xy);
+                float dist = distance(i.uv, _Coordinate.xy);
 
-                float2 size = float2(_Size * 1.0, _Size * 0.4);     
+                // base circle
+                float circle = smoothstep(_Size, _Size * 0.5, dist);
 
-                float2 d = p - size;
-                float dist = max(d.x, d.y);
+                // 🔥 add noise effect (break the circle)
+                float noise = frac(sin(dot(i.uv * 100, float2(12.9898,78.233))) * 43758.5453);
 
-                float strength = saturate(1.0 - smoothstep(0.0, 0.02, dist));
+                float splatter = (1 - circle) * step(0.3, noise);
 
-                float4 current = tex2D(_MainTex, i.uv);
+                float4 col = tex2D(_MainTex, i.uv);
 
-                current.rgb *= (1.0 - strength * 0.5);
+                float paint = splatter * _Strength * 0.2;
+                col.r = saturate(col.r + paint);
 
-                return current;
+                return col;
             }
             ENDCG
         }
