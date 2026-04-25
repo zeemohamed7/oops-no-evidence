@@ -17,26 +17,6 @@ public class MopCleaner : MonoBehaviour
     private InputSystem_Actions input;
     private bool isPainting;
 
-
-    void Start()
-    {
-        if (renderTexture == null || initialTexture == null)
-        {
-            Debug.LogError("Missing references!");
-            return;
-        }
-
-        // Initialize RT
-        RenderTexture.active = renderTexture;
-        GL.Clear(true, true, Color.black);
-        Graphics.Blit(initialTexture, renderTexture);
-        RenderTexture.active = null;
-
-        // 🔥 THIS IS THE MISSING PART
-        GetComponent<Renderer>().material.SetTexture("_MaskTex", renderTexture);
-
-        Debug.Log("BloodRT initialized and assigned!");
-    }
     void Awake()
     {
         input = new InputSystem_Actions();
@@ -54,12 +34,20 @@ public class MopCleaner : MonoBehaviour
         input.Player.Disable();
     }
 
+    void Start()
+    {
+        RenderTexture.active = renderTexture;
+        GL.Clear(true, true, Color.black);
+
+        Graphics.Blit(initialTexture, renderTexture);
+        RenderTexture.active = null;
+    }
+
     void Update()
     {
         if (!isPainting) return;
 
-        Vector2 mousePos = Mouse.current.position.ReadValue();
-        Ray ray = cam.ScreenPointToRay(mousePos);
+        Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -70,25 +58,31 @@ public class MopCleaner : MonoBehaviour
     void Paint(Vector2 uv)
     {
         drawMaterial.SetVector("_Coordinate", new Vector4(uv.x, uv.y, 0, 0));
-        drawMaterial.SetFloat("_Size", 0.05f);
+        drawMaterial.SetFloat("_Size", 0.1f);
+
+        float strength;
 
         if (mopDirt < cleanThreshold)
         {
-            // CLEAN
-            drawMaterial.SetFloat("_Strength", -1f);
+            strength = -0.0005f;
             mopDirt += dirtIncreaseRate * Time.deltaTime;
         }
         else
         {
-            // SPREAD BLOOD
-            drawMaterial.SetFloat("_Strength", 1f);
+            strength = 0.01f;
         }
 
+        drawMaterial.SetFloat("_Strength", strength);
         mopDirt = Mathf.Clamp(mopDirt, 0f, maxDirt);
 
         RenderTexture temp = RenderTexture.GetTemporary(renderTexture.width, renderTexture.height);
 
+        // COPY current texture
         Graphics.Blit(renderTexture, temp);
+
+        // 🔥 THIS IS THE FIX:
+        drawMaterial.SetTexture("_BaseMap", temp);
+        // APPLY shader using previous texture
         Graphics.Blit(temp, renderTexture, drawMaterial);
 
         RenderTexture.ReleaseTemporary(temp);
@@ -97,6 +91,5 @@ public class MopCleaner : MonoBehaviour
     public void ResetMop()
     {
         mopDirt = 0f;
-        Debug.Log("Mop cleaned!");
     }
 }
