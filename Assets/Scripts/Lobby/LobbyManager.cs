@@ -22,6 +22,10 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerInputManager))]
 public class LobbyManager : MonoBehaviour
 {
+    [Header("UI Panels")]
+    [SerializeField] private GameObject _mainMenuPanel;     
+    // [SerializeField] private GameObject _settingsPanel;
+    
     // ── Inspector ──────────────────────────────────────────────────────────
     [Header("Input")]
     [SerializeField] private InputActionAsset _lobbyInputAsset;
@@ -194,8 +198,8 @@ public class LobbyManager : MonoBehaviour
 
         if (allReady && _activeGhosts.Count >= 1)
         {
-            Debug.Log("[LobbyManager] All players ready — committing selections.");
-            CommitAndLoad();
+            Debug.Log($"[Lobby] {ghost.PlayerIndex} is ready. Checking for Start Button...");
+            
         }
     }
 
@@ -250,4 +254,32 @@ public class LobbyManager : MonoBehaviour
 
         SceneManager.LoadScene(_combatSceneName);
     }
+    
+// ── UI Logic ──────────────────────────────────────────────────────────
+
+    public void OnStartButtonClicked()
+    {
+        // 1. Check if at least one player has joined
+        if (_activeGhosts.Count == 0)
+        {
+            Debug.LogWarning("[Lobby] Cannot start: No players have joined!");
+            return;
+        }
+
+        // 2. Only allow start if everyone who joined is 'Ready'
+        bool allReady = _activeGhosts.Values
+            .Where(g => g != null)
+            .All(g => g.IsReady);
+
+        if (allReady)
+        {
+            Debug.Log("[Lobby] Start Button pressed. Moving to Level Selection...");
+            CommitAndLoad(); 
+        }
+        else
+        {
+            Debug.LogWarning("[Lobby] Cannot start: Someone is not ready yet!");
+        }
+    }
+    
 }
