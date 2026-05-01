@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-
+using UnityEngine.UI;
 /// <summary>
 /// Manages the lobby lifecycle:
 ///   1. Listens for join inputs via a dedicated "join listener" PlayerInput.
@@ -22,6 +22,24 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerInputManager))]
 public class LobbyManager : MonoBehaviour
 {
+    [Header("UI Panels")]
+    [SerializeField] private GameObject _mainMenuPanel;     
+    [SerializeField] private GameObject _creditsPanel;
+    [SerializeField] private GameObject _settingsPanel;
+    
+    public void OpenCredits() => SwitchPanel(_creditsPanel);
+    public void OpenSettings() => SwitchPanel(_settingsPanel);
+    public void BackToMain() => SwitchPanel(_mainMenuPanel);
+
+    private void SwitchPanel(GameObject target)
+    {
+        _mainMenuPanel.SetActive(false);
+        if (_creditsPanel) _creditsPanel.SetActive(false);
+        if (_settingsPanel) _settingsPanel.SetActive(false);
+
+        target.SetActive(true);
+    }
+    
     // ── Inspector ──────────────────────────────────────────────────────────
     [Header("Input")]
     [SerializeField] private InputActionAsset _lobbyInputAsset;
@@ -47,9 +65,24 @@ public class LobbyManager : MonoBehaviour
     private const string SchemeKeyboard = "KeyboardWASD";
     private const string SchemeGamepad  = "Gamepad";   // prefix; actual names: Gamepad1, Gamepad2…
 
+    [SerializeField] private Slider _volumeSlider; // Drag your Volume Slider here in Inspector
+
+    void Start()
+    {
+        // 1. Set the actual game volume to 100%
+        AudioListener.volume = 1f;
+
+        // 2. Make sure the UI slider matches that 100%
+        if (_volumeSlider != null)
+        {
+            _volumeSlider.value = 1f;
+        }
+        
+    }
+    
     // ── Unity lifecycle ────────────────────────────────────────────────────
     private void Awake()
-    {
+    { 
         _pim = GetComponent<PlayerInputManager>();
 
         // Double-check join behavior is set correctly at runtime
@@ -194,8 +227,8 @@ public class LobbyManager : MonoBehaviour
 
         if (allReady && _activeGhosts.Count >= 1)
         {
-            Debug.Log("[LobbyManager] All players ready — committing selections.");
-            CommitAndLoad();
+            Debug.Log($"[Lobby] {ghost.PlayerIndex} is ready. Checking for Start Button...");
+            
         }
     }
 
@@ -250,4 +283,53 @@ public class LobbyManager : MonoBehaviour
 
         SceneManager.LoadScene(_combatSceneName);
     }
+    
+// ── UI Logic ──────────────────────────────────────────────────────────
+
+    public void OnStartButtonClicked()
+    {
+        // 1. Check if at least one player has joined
+        if (_activeGhosts.Count == 0)
+        {
+            Debug.LogWarning("[Lobby] Cannot start: No players have joined!");
+            return;
+        }
+
+        // 2. Only allow start if everyone who joined is 'Ready'
+        bool allReady = _activeGhosts.Values
+            .Where(g => g != null)
+            .All(g => g.IsReady);
+
+        if (allReady)
+        {
+            Debug.Log("[Lobby] Start Button pressed. Moving to Level Selection...");
+            CommitAndLoad(); 
+        }
+        else
+        {
+            Debug.LogWarning("[Lobby] Cannot start: Someone is not ready yet!");
+        }
+    }
+    
+    // ── Settings Logic ──────────────────────────────────────────────
+    public void SetVolume(float value)
+    {
+        // This sets the master volume (0.0 to 1.0)
+        AudioListener.volume = value; 
+        Debug.Log($"Volume set to: {value}");
+    }
+    
+    public void SetFullscreen(bool isFullscreen)
+    {
+        Screen.fullScreen = isFullscreen;
+    }
+    
+
+    public void SetResolution(int index)
+    {
+        if (index == 0) Screen.SetResolution(1920, 1080, true);
+        else if (index == 1) Screen.SetResolution(1280, 720, true);
+        else if (index == 2) Screen.SetResolution(854, 480, true);
+    }
+    
 }
