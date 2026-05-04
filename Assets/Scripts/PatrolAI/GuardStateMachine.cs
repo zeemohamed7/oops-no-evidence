@@ -1,8 +1,9 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
-
+using System.Collections.Generic;
 [RequireComponent(typeof(AudioSource))]
 // Using Finite State Machine (FSM) to make sure guard is only ever doing exactly one behavior at a time
 public class GuardStateMachine : MonoBehaviour
@@ -15,7 +16,8 @@ public class GuardStateMachine : MonoBehaviour
         Alerted,
         Chasing,
         Searching,
-        Evicting
+        Evicting,
+        Suspicious
     }
 
     public float patrolSpeed = 2.5f;
@@ -56,8 +58,16 @@ public class GuardStateMachine : MonoBehaviour
     public AudioClip spotSound;    // The "Huh?"
     public AudioClip giveUpSound;  // The "Sigh"
     public AudioClip[] chaseBarks; // Chasing
+    
+    [Header("Footprint Suspicion")]
+    public float footprintDetectionRadius = 3f;
+    public float suspicionPerPrint = 15f;
+    public float stopDuration = 2.0f;
+    public AudioClip ewSound; // Assign an "Ew" sound here
+    private float stopTimer;
+    private HashSet<GameObject> reactedPrints = new HashSet<GameObject>(); // ensures they react once, wait 2 seconds, and then keep walking.
+    
     // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
-
     public State currentState;
 
 
@@ -90,6 +100,7 @@ public class GuardStateMachine : MonoBehaviour
             case State.Chasing: UpdateChasing(); break;
             case State.Searching: UpdateSearching(); break;
             case State.Evicting: UpdateEvicting(); break;
+            case State.Suspicious: UpdateSuspicious(); break;
         }
     }
     
@@ -142,9 +153,24 @@ public class GuardStateMachine : MonoBehaviour
         }
         else
         {
+            CheckForFootprints();
             // Cool down if patrolling again
             if (SuspicionMeter.Instance != null && SuspicionMeter.Instance.globalSuspicion > 0)
                 SuspicionMeter.Instance.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
+        }
+    }
+    
+    private void CheckForFootprints()
+    {
+        // Look for footprints in a small circle around the guard
+        Collider[] hits = Physics.OverlapSphere(transform.position, footprintDetectionRadius);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Footprint") && !reactedPrints.Contains(hit.gameObject))
+            {
+                EnterSuspicious(hit.gameObject);
+                break;
+            }
         }
     }
 
@@ -325,7 +351,54 @@ public class GuardStateMachine : MonoBehaviour
         EnterPatrol();
     }
     
+    // --- STATE 6: SUSPICIOUS ---
+    
+    private void EnterSuspicious(GameObject footprint)
+    {
+        currentState = State.Suspicious;
+        UpdateVisuals("EW!", alertedColor);
+        
+        agent.isStopped = true;
+        stopTimer = stopDuration;
 
+        // Play "Ew" Sound
+        if (ewSound != null)
+        {
+            audioSource.PlayOneShot(ewSound);
+        }
+
+        // Increase Global Suspicion
+        SuspicionMeter.Instance?.ModifySuspicion(suspicionPerPrint);
+
+        // Prevent reacting to this exact print again for 10 seconds
+        StartCoroutine(IgnorePrintTemporary(footprint));
+        
+    }
+
+    private void UpdateSuspicious()
+    {
+        stopTimer -= Time.deltaTime;
+
+        // If the guard sees the player while looking at a footprint, stop being "disgusted" and start chasing!
+        if (visionCone.canSeePlayer && graceTimer <= 0)
+        {
+            EnterAlerted();
+            return;
+        }
+
+        if (stopTimer <= 0)
+        {
+            EnterPatrol();
+        }
+    }
+
+    private IEnumerator IgnorePrintTemporary(GameObject print)
+    {
+        reactedPrints.Add(print);
+        yield return new WaitForSeconds(10f); // How long before he reacts to this spot again
+        reactedPrints.Remove(print);
+    }
+    
     private void GiveUpChase()
     {
         searchTimer = 0f;
