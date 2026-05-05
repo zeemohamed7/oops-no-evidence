@@ -81,17 +81,17 @@ public class GameHUD : MonoBehaviour
         RefreshCounter();
 
         // Panels off
-        pausePanel.SetActive(false);
-        resultPanel.SetActive(false);
+        if (pausePanel  != null) pausePanel.SetActive(false);
+        if (resultPanel != null) resultPanel.SetActive(false);
 
         // Buttons
-        pauseButton.onClick.AddListener(TogglePause);
-        resumeButton.onClick.AddListener(Resume);
-        restartButton.onClick.AddListener(RestartLevel);
-        quitToMapButton.onClick.AddListener(QuitToMap);
-        quitResultButton.onClick.AddListener(QuitToMap);
-        nextLevelButton.onClick.AddListener(LoadNextLevel);
-        retryButton.onClick.AddListener(RestartLevel);
+        if (pauseButton     != null) pauseButton.onClick.AddListener(TogglePause);
+        if (resumeButton    != null) resumeButton.onClick.AddListener(Resume);
+        if (restartButton   != null) restartButton.onClick.AddListener(RestartLevel);
+        if (quitToMapButton != null) quitToMapButton.onClick.AddListener(QuitToMap);
+        if (quitResultButton!= null) quitResultButton.onClick.AddListener(QuitToMap);
+        if (nextLevelButton != null) nextLevelButton.onClick.AddListener(LoadNextLevel);
+        if (retryButton     != null) retryButton.onClick.AddListener(RestartLevel);
 
         // Game events
         if (GameManager.Instance != null)
@@ -215,16 +215,16 @@ public class GameHUD : MonoBehaviour
 
     void TogglePause()
     {
-        if (resultPanel.activeSelf) return;
+        if (resultPanel != null && resultPanel.activeSelf) return;
         isPaused = !isPaused;
-        pausePanel.SetActive(isPaused);
+        if (pausePanel != null) pausePanel.SetActive(isPaused);
         Time.timeScale = isPaused ? 0f : 1f;
     }
 
     void Resume()
     {
         isPaused = false;
-        pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false);
         Time.timeScale = 1f;
     }
 
@@ -236,6 +236,7 @@ public class GameHUD : MonoBehaviour
 
     void ShowWinScreen()
     {
+        if (resultPanel == null) return;
         resultPanel.SetActive(true);
         Time.timeScale = 0f;
 
@@ -253,6 +254,7 @@ public class GameHUD : MonoBehaviour
 
     void ShowLossScreen()
     {
+        if (resultPanel == null) return;
         resultPanel.SetActive(true);
         Time.timeScale = 0f;
 
