@@ -3,9 +3,6 @@ using UnityEngine;
 public class PlayerAnimationDriver : MonoBehaviour
 {
     [SerializeField] private Animator animator;
-    [SerializeField] private float walkThreshold = 0.01f;
-
-    private Vector3 lastPosition;
 
     private bool isCarrying;
     private bool hasMop;
@@ -16,52 +13,52 @@ public class PlayerAnimationDriver : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    private void Start()
+    public void SetWalking(bool value)
     {
-        lastPosition = transform.position;
-    }
-
-    private void Update()
-    {
-        Vector3 movement = transform.position - lastPosition;
-        movement.y = 0f;
-
-        bool isWalking = movement.magnitude > walkThreshold;
-
-        animator.SetBool("IsWalking", isWalking);
-        animator.SetBool("IsCarrying", isCarrying);
-        animator.SetBool("HasMop", hasMop);
-        animator.SetBool("HasFlashlight", hasFlashlight);
-
-        lastPosition = transform.position;
+        animator.SetBool("IsWalking", value);
     }
 
     public void SetCarrying(bool value)
     {
         isCarrying = value;
+        animator.SetBool("IsCarrying", value);
     }
 
     public void SelectMop()
     {
         hasMop = true;
         hasFlashlight = false;
+
+        animator.SetBool("HasMop", true);
+        animator.SetBool("HasFlashlight", false);
     }
 
     public void SelectFlashlight()
     {
         hasMop = false;
         hasFlashlight = true;
+
+        animator.SetBool("HasMop", false);
+        animator.SetBool("HasFlashlight", true);
     }
 
     public void ClearSelectedItem()
     {
         hasMop = false;
         hasFlashlight = false;
+
+        animator.SetBool("HasMop", false);
+        animator.SetBool("HasFlashlight", false);
     }
 
-    public void PlayPickUp()
+    public void PlayPickUpObject()
     {
-        animator.SetTrigger("PickUp");
+        animator.SetTrigger("PickUpObject");
+    }
+
+    public void PlayPickUpBody()
+    {
+        animator.SetTrigger("PickUpBody");
     }
 
     public void PlayDrop()
