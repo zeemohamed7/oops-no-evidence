@@ -1,8 +1,9 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System.Collections.Generic;
 
 public class GameHUD : MonoBehaviour
 {
@@ -21,15 +22,29 @@ public class GameHUD : MonoBehaviour
 
     [Header("HUD - Suspicion")]
     public Slider suspicionSlider;
-    public RectTransform suspicionIcon; // The moving icon
-    public TextMeshProUGUI suspicionStatusText; // The "Big Boss is watching" text
+    public Image suspicionFillImage;        // drag the slider's Fill Area > Fill image here
+    public RectTransform suspicionIcon;
+    public TextMeshProUGUI suspicionStatusText;
     float suspicionVisual;
 
+    [Header("Suspicion State Colors")]
+    public Color calmColor       = new Color(0.3f, 0.85f, 0.3f);
+    public Color suspiciousColor = new Color(1f,   0.85f, 0f);
+    public Color alertColor      = new Color(1f,   0.5f,  0f);
+    public Color panicColor      = new Color(0.9f, 0.1f,  0.1f);
+
     [Header("Suspicion Messages")]
-    public string[] lowSuspicionMsgs = { "All quiet...", "Keep it clean." };
-    public string[] midSuspicionMsgs = { "They're looking!", "Watch out!" };
+    public string[] lowSuspicionMsgs  = { "All quiet...", "Keep it clean." };
+    public string[] midSuspicionMsgs  = { "They're looking!", "Watch out!" };
     public string[] highSuspicionMsgs = { "GET OUT!", "THEY KNOW!" };
     private int currentSuspicionStage = -1;
+
+    [Header("Timer Warning")]
+    public float timerWarningThreshold  = 60f;
+    public float timerCriticalThreshold = 30f;
+    public Color timerNormalColor   = Color.white;
+    public Color timerWarningColor  = new Color(1f, 0.85f, 0f);
+    public Color timerCriticalColor = new Color(0.9f, 0.1f, 0.1f);
     
     [Header("HUD - Checklist")]
     public Transform checklistContainer;   // Vertical Layout Group parent
@@ -88,6 +103,10 @@ public class GameHUD : MonoBehaviour
             GameManager.Instance.OnWin.AddListener(ShowWinScreen);
             GameManager.Instance.OnLoss.AddListener(ShowLossScreen);
         }
+
+        // Wire suspicion state → bar color
+        if (SuspicionMeter.Instance != null)
+            SuspicionMeter.Instance.OnStateChangedEvent.AddListener(OnSuspicionStateChanged);
     }
 
     private void Update()
@@ -97,7 +116,13 @@ public class GameHUD : MonoBehaviour
 
         // 1. Update Timer
         if (timerText != null)
+        {
             timerText.text = GameManager.Instance.FormatTime(GameManager.Instance.TimeRemaining);
+            float t = GameManager.Instance.TimeRemaining;
+            timerText.color = t <= timerCriticalThreshold ? timerCriticalColor
+                            : t <= timerWarningThreshold  ? timerWarningColor
+                            : timerNormalColor;
+        }
 
         // 2. Update Stylized Suspicion
         if (suspicionSlider != null && SuspicionMeter.Instance != null)
@@ -177,8 +202,38 @@ public class GameHUD : MonoBehaviour
         task.isCompleted = true;
         RefreshTaskRow(task);
 
+        if (task.uiRow != null)
+            StartCoroutine(BounceRow(task.uiRow.transform));
+
         if (AllTasksDone())
             Debug.Log("All tasks done — waiting for players to reach the van.");
+    }
+
+    IEnumerator BounceRow(Transform target)
+    {
+        Vector3 original = target.localScale;
+        float elapsed = 0f, duration = 0.3f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float s = 1f + Mathf.Sin(elapsed / duration * Mathf.PI) * 0.25f;
+            target.localScale = original * s;
+            yield return null;
+        }
+        target.localScale = original;
+    }
+
+    void OnSuspicionStateChanged(SuspicionMeter.SuspicionState state)
+    {
+        if (suspicionFillImage == null) return;
+        suspicionFillImage.color = state switch
+        {
+            SuspicionMeter.SuspicionState.Calm       => calmColor,
+            SuspicionMeter.SuspicionState.Suspicious => suspiciousColor,
+            SuspicionMeter.SuspicionState.Alert      => alertColor,
+            SuspicionMeter.SuspicionState.Panic      => panicColor,
+            _ => calmColor
+        };
     }
 
     public void UpdateTaskProgress(string taskName, string newProgress)
