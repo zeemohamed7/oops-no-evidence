@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// FootprintTracker — attach to Player only.
 ///
 /// When the player walks through blood they pick it up on their shoes.
-/// For the next few steps they leave red footprint decals that fade out.
-/// After [maxPrintSteps] steps the shoes are clean and no more prints appear.
+/// For the next few steps they leave red footprint decals.
+/// Footprints persist until mopped — they never auto-destroy.
 /// </summary>
 public class FootprintTracker : MonoBehaviour
 {
@@ -15,9 +16,6 @@ public class FootprintTracker : MonoBehaviour
              "Assign a material using Custom/Footprint shader.")]
     public GameObject footprintPrefab;
 
-    [Tooltip("How long each footprint stays visible before being destroyed (seconds).")]
-    public float footprintLifetime = 15f;
-
     [Tooltip("World-space size of each footprint decal.")]
     public float footprintSize = 0.25f;
 
@@ -25,27 +23,34 @@ public class FootprintTracker : MonoBehaviour
     [Tooltip("Distance walked between each footprint stamp (world units).")]
     [Range(0.2f, 1f)] public float stepDistance = 0.45f;
 
-    [Tooltip("How many footprint steps the player leaves after walking through blood. " +
-             "Prints fade out across these steps.")]
+    [Tooltip("How many footprint steps the player leaves after walking through blood.")]
     [Range(1, 20)] public int maxPrintSteps = 8;
 
     [Header("Blood Detection")]
     [Tooltip("How often to check if the player is standing on blood (seconds).")]
     [Range(0.05f, 0.3f)] public float sampleInterval = 0.1f;
 
-    [Tooltip("Minimum blood value at player feet to pick up blood on shoes (0–1).")]
+    [Tooltip("Minimum blood value at player feet to pick up blood on shoes (0-1).")]
     [Range(0.05f, 0.5f)] public float bloodPickupThreshold = 0.15f;
 
+    [Header("Floor Detection")]
+    [Tooltip("Set this to the layer your floor Plane is on. " +
+             "Prevents footprints from snapping to the player collider.")]
+    public LayerMask floorLayerMask = ~0;
+
     // ── Private ────────────────────────────────────────────────────────────
-    int _stepsRemaining;      // how many more prints to leave
-    bool _leftFoot = true;     // alternate feet
-    float _distAccum;           // distance walked since last step
+    int _stepsRemaining;
+    bool _leftFoot = true;
+    float _distAccum;
     Vector3 _lastPos;
     float _sampleTimer;
 
     BloodPool[] _allPools;
     float _poolRefreshTimer;
     const float POOL_REFRESH = 0.3f;
+
+    // ── Static list — MopCleaner reads this to find footprints ────────────
+    public static List<GameObject> ActiveFootprints = new List<GameObject>();
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -57,11 +62,9 @@ public class FootprintTracker : MonoBehaviour
 
     void Update()
     {
-        // Refresh pool list occasionally
         _poolRefreshTimer -= Time.deltaTime;
         if (_poolRefreshTimer <= 0f) RefreshPools();
 
-        // Sample blood under feet
         _sampleTimer -= Time.deltaTime;
         if (_sampleTimer <= 0f)
         {
@@ -69,20 +72,24 @@ public class FootprintTracker : MonoBehaviour
             CheckBloodUnderFeet();
         }
 
-        // Track distance walked
         float moved = Vector3.Distance(transform.position, _lastPos);
         _lastPos = transform.position;
 
-        if (moved < 0.001f) return;   // standing still — no footprint
+        if (moved < 0.001f) return;
         _distAccum += moved;
 
-        // Time for a new footprint?
         if (_distAccum >= stepDistance && _stepsRemaining > 0)
         {
             _distAccum = 0f;
             SpawnFootprint();
             _stepsRemaining--;
         }
+    }
+
+    void OnDestroy()
+    {
+        // Clean up null entries when player object is destroyed
+        ActiveFootprints.RemoveAll(fp => fp == null);
     }
 
     // ── Blood detection ────────────────────────────────────────────────────
@@ -96,7 +103,6 @@ public class FootprintTracker : MonoBehaviour
             float blood = pool.SampleBloodAt(transform.position);
             if (blood >= bloodPickupThreshold)
             {
-                // Player stepped in blood — reset step counter
                 _stepsRemaining = maxPrintSteps;
                 break;
             }
@@ -109,7 +115,6 @@ public class FootprintTracker : MonoBehaviour
     {
         if (footprintPrefab == null) return;
 
-        // Alternate left / right foot with a small lateral offset
         float side = _leftFoot ? -0.12f : 0.12f;
         _leftFoot = !_leftFoot;
         Vector3 right = transform.right;
@@ -117,45 +122,44 @@ public class FootprintTracker : MonoBehaviour
         right.Normalize();
 
         Vector3 spawnPos = transform.position + right * side;
-        spawnPos.y = GetFloorY(spawnPos) + 0.01f;   // tiny lift to avoid z-fight
 
-        // Rotate to match player's facing direction, flat on the floor
+        // Snap to floor surface — ray only hits floor layer, never player
+        spawnPos.y = 0.001f;
         Quaternion rot = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
 
         GameObject fp = Instantiate(footprintPrefab, spawnPos, rot);
-
-        // Scale
         fp.transform.localScale = Vector3.one * footprintSize;
+        fp.tag = "Footprint";
 
-        // ── CRITICAL: remove any collider so the player doesn't get stuck ──
+        // Disable colliders so player never trips on them
         foreach (Collider c in fp.GetComponentsInChildren<Collider>())
-        {
-            c.enabled = false;   // disable it — safest option
-            // alternatively: c.isTrigger = true;
-        }
+            c.enabled = false;
 
-        // Fade alpha based on how many steps remain (more steps = darker print)
+        // Fade alpha: more steps remaining = darker/more visible print
         float alpha = (float)_stepsRemaining / maxPrintSteps;
         Renderer r = fp.GetComponentInChildren<Renderer>();
         if (r != null)
         {
-            // Instance the material so we don't mutate the shared asset
             Material mat = r.material;
             Color col = mat.color;
             col.a = alpha;
             mat.color = col;
         }
 
-        Destroy(fp, footprintLifetime);
+        // ── No Destroy call — footprint stays until player mops it ──
+        ActiveFootprints.Add(fp);
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
     float GetFloorY(Vector3 pos)
     {
-        if (Physics.Raycast(pos + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 2f))
+        // Cast from high above downward, only hitting floor layer
+        Vector3 origin = new Vector3(pos.x, 10f, pos.z); // start well above
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 20f, floorLayerMask))
             return hit.point.y;
-        return transform.position.y;
+
+        return 0f; // fallback — floor at zero
     }
 
     void RefreshPools()
@@ -169,4 +173,14 @@ public class FootprintTracker : MonoBehaviour
 
     /// <summary>True if the player currently has bloody shoes.</summary>
     public bool HasBloodyShoes => _stepsRemaining > 0;
+
+    /// <summary>Called by MopCleaner to remove a specific footprint.</summary>
+    public static void RemoveFootprint(GameObject fp)
+    {
+        ActiveFootprints.Remove(fp);
+        Destroy(fp);
+    }
+
+    /// <summary>Returns how many footprints are currently on the floor.</summary>
+    public static int FootprintCount => ActiveFootprints.Count;
 }
