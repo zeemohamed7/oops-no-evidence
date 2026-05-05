@@ -35081,6 +35081,60 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116862543}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &116930456
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 116930458}
+  - component: {fileID: 116930457}
+  m_Layer: 0
+  m_Name: SUS
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &116930457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116930456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 765ee259faaf1462dabdfd557359d44f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  globalSuspicion: 0
+  maxSuspicion: 100
+  passiveDecayRate: 2
+  decayDelay: 2
+  OnGameOver:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStateChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &116930458
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116930456}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 994.91656, y: 694.7279, z: -26.76965}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &117108222
 GameObject:
   m_ObjectHideFlags: 0
@@ -121221,6 +121275,57 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 447134983}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &447208919
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 447208921}
+  - component: {fileID: 447208920}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &447208920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447208919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b697451370e5e4d7aa4e7bb318266f42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelDuration: 180
+  OnWin:
+    m_PersistentCalls:
+      m_Calls: []
+  OnLoss:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &447208921
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447208919}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 994.91656, y: 694.7279, z: -26.76965}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &447220595
 GameObject:
   m_ObjectHideFlags: 0
@@ -383410,6 +383515,7 @@ GameObject:
   - component: {fileID: 1470523584}
   - component: {fileID: 1470523583}
   - component: {fileID: 1470523582}
+  - component: {fileID: 1470523586}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -383502,6 +383608,59 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1470523586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1470523581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2bb02f099e3649a0a4a2a0e341a47a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeText: {fileID: 2101934838}
+  levelDurationOverride: 180
+  timerNormal: {r: 1, g: 1, b: 1, a: 1}
+  timerWarning: {r: 1, g: 0.85, b: 0, a: 1}
+  timerCritical: {r: 0.9, g: 0.1, b: 0.1, a: 1}
+  susFill: {fileID: 1943789886}
+  susText: {fileID: 216833858}
+  colorCalm: {r: 0.3, g: 0.85, b: 0.3, a: 1}
+  colorSuspicious: {r: 1, g: 0.85, b: 0, a: 1}
+  colorAlert: {r: 1, g: 0.5, b: 0, a: 1}
+  colorPanic: {r: 0.9, g: 0.1, b: 0.1, a: 1}
+  calmMsgs:
+  - All quiet...
+  - Keep it clean.
+  midMsgs:
+  - They're looking!
+  - Watch out!
+  highMsgs:
+  - GET OUT!
+  - THEY KNOW!
+  taskTexts:
+  - {fileID: 252417262}
+  - {fileID: 625661181}
+  - {fileID: 1138213351}
+  counterText: {fileID: 1363233509}
+  taskDoneColor: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  pauseButton: {fileID: 0}
+  pausePanel: {fileID: 0}
+  resumeButton: {fileID: 0}
+  restartButton: {fileID: 0}
+  quitToMapButton: {fileID: 0}
+  resultPanel: {fileID: 0}
+  resultHeader: {fileID: 0}
+  gradeText: {fileID: 0}
+  scoreText: {fileID: 0}
+  finalTimeText: {fileID: 0}
+  nextLevelButton: {fileID: 0}
+  retryButton: {fileID: 0}
+  quitResultButton: {fileID: 0}
+  winColor: {r: 0.2, g: 0.8, b: 0.3, a: 1}
+  loseColor: {r: 0.9, g: 0.2, b: 0.2, a: 1}
 --- !u!1 &1470629763
 GameObject:
   m_ObjectHideFlags: 0
@@ -590846,3 +591005,5 @@ SceneRoots:
   - {fileID: 7043169722637603964}
   - {fileID: 1470523585}
   - {fileID: 166271131}
+  - {fileID: 447208921}
+  - {fileID: 116930458}
