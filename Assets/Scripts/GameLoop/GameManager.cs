@@ -28,12 +28,29 @@ public class GameManager : MonoBehaviour
     {
         TimeRemaining = levelDuration;
         State = GameState.Playing;
-
-        // Hook into the existing suspicion system
-        if (SuspicionMeter.Instance != null)
-            SuspicionMeter.Instance.OnGameOver.AddListener(TriggerLoss);
+        
     }
 
+    private void OnEnable()
+    {
+        TryHookSuspicion();
+    }
+    
+    private void OnDisable()
+    {
+        if (SuspicionMeter.Instance != null)
+            SuspicionMeter.Instance.OnGameOver.RemoveListener(TriggerLoss);
+    }
+
+    void TryHookSuspicion()
+    {
+        if (SuspicionMeter.Instance != null)
+        {
+            SuspicionMeter.Instance.OnGameOver.AddListener(TriggerLoss);
+        }
+    }
+    
+    
     private void Update()
     {
         if (!IsPlaying) return;
