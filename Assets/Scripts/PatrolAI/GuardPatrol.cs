@@ -10,9 +10,12 @@ public class GuardPatrol : MonoBehaviour
     private int waypointIndex;
 
     // Awake happens BEFORE Start, ensuring the agent is found immediately
+    private GuardStateMachine stateMachine;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        stateMachine = GetComponent<GuardStateMachine>(); 
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -27,8 +30,7 @@ public class GuardPatrol : MonoBehaviour
     {
         if (agent == null) return;
         // If the state machine is busy chasing or alerted, stop waypoint logic
-        if (GetComponent<GuardStateMachine>().currentState != GuardStateMachine.State.Patrolling) return;
-
+        if (stateMachine.currentState != GuardStateMachine.State.Patrolling) return;
         // If reached, update
         if (Vector3.Distance(transform.position, target) < 1)
         {

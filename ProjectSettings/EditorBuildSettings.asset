@@ -9,15 +9,19 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
+<<<<<<< HEAD
     path: Assets/Scenes/Splash.unity
     guid: 3e0e29fcae9670a4da9cfa34258f394b
   - enabled: 1
+=======
+>>>>>>> main
     path: Assets/Scenes/Lobby.unity
     guid: 9e95022efbe3643ffbe6fa47e4403236
   - enabled: 1
     path: Assets/Scenes/Malak/LevelSelection.unity
     guid: 715bcdd8995325e4f91ac4525c965272
   - enabled: 1
+<<<<<<< HEAD
     path: Assets/Scenes/Storylines/Level1_Intro.unity
     guid: acefa81c3324a814f98214db9dbf85c8
   - enabled: 1
@@ -56,6 +60,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Level_PoolVilla.unity
     guid: e4e1e280ac4a544fd8dc2223b87cb0f3
+=======
+    path: Assets/Scenes/Mariam_Levels/Level1_ShawarmaShop.unity
+    guid: cf080679a870d47bc80a3cf7771fdc58
+>>>>>>> main
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

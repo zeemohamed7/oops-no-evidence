@@ -1,19 +1,23 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
-
+using System.Collections.Generic;
+[RequireComponent(typeof(AudioSource))]
 // Using Finite State Machine (FSM) to make sure guard is only ever doing exactly one behavior at a time
 public class GuardStateMachine : MonoBehaviour
 {
     // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
-
+    private Animator anim;
     public enum State
     {
         Patrolling,
         Alerted,
         Chasing,
-        Searching
+        Searching,
+        Evicting,
+        Suspicious
     }
 
     public float patrolSpeed = 2.5f;
@@ -21,6 +25,10 @@ public class GuardStateMachine : MonoBehaviour
     public float chaseSpeed = 5f;
     public float losePlayerTime = 3f;
 
+    [Header("Grace Period")]
+    public float postEvictionGrace = 3f; // 3 seconds of safety
+    private float graceTimer;
+    
     [Header("Global Suspicion Rates")] public float suspicionIncreaseRate = 25f;
 
     public float suspicionDrainRate = 10f;
@@ -38,9 +46,28 @@ public class GuardStateMachine : MonoBehaviour
     public Color chasingColor = Color.red;
     public Color searchingColor = new(1f, 0.5f, 0f);
 
-
+    [Header("Eviction Settings")]
+    public string playerTag = "Player"; 
+    public Transform kickOutPoint;      
+    public float evictionDelay = 1.0f; 
+    private float evictionTimer;
+    private GameObject playerToEvict;
+    
+    [Header("Specific Barks")]
+    public AudioSource audioSource;
+    public AudioClip spotSound;    // The "Huh?"
+    public AudioClip giveUpSound;  // The "Sigh"
+    public AudioClip[] chaseBarks; // Chasing
+    
+    [Header("Footprint Suspicion")]
+    public float footprintDetectionRadius = 3f;
+    public float suspicionPerPrint = 15f;
+    public float stopDuration = 2.0f;
+    public AudioClip ewSound; // Assign an "Ew" sound here
+    private float stopTimer;
+    private HashSet<GameObject> reactedPrints = new HashSet<GameObject>(); // ensures they react once, wait 2 seconds, and then keep walking.
+    
     // TEMP FOR DEBUGGING - CHANGE TO PRIVATE
-
     public State currentState;
 
 
@@ -56,13 +83,15 @@ public class GuardStateMachine : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         visionCone = GetComponent<VisionCone>();
-        patrol = GetComponent<GuardPatrol>(); // Automatically looks for GuardPatrol.cs
-
+        patrol = GetComponent<GuardPatrol>(); 
+        audioSource = GetComponent<AudioSource>();
+        anim = GetComponentInChildren<Animator>();
         EnterPatrol();
     }
 
     private void Update()
     {
+        if (graceTimer > 0) graceTimer -= Time.deltaTime;
         switch (currentState)
         {
             // States to make sure it's only doing one thing at a time
@@ -70,6 +99,18 @@ public class GuardStateMachine : MonoBehaviour
             case State.Alerted: UpdateAlerted(); break;
             case State.Chasing: UpdateChasing(); break;
             case State.Searching: UpdateSearching(); break;
+            case State.Evicting: UpdateEvicting(); break;
+            case State.Suspicious: UpdateSuspicious(); break;
+        }
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        // If we catch the player and we aren't already evicting someone
+        if (other.CompareTag(playerTag) && currentState != State.Evicting)
+        {
+            playerToEvict = other.gameObject;
+            EnterEvicting();
         }
     }
 
@@ -83,10 +124,20 @@ public class GuardStateMachine : MonoBehaviour
         // Hide the text entirely if it's empty
         alertText.gameObject.SetActive(!string.IsNullOrEmpty(text));
     }
+    
+    private void PlayRandomBark(AudioClip[] clips)
+    {
+        if (clips == null || clips.Length == 0) return; 
+    
+        audioSource.clip = clips[Random.Range(0, clips.Length)];
+        audioSource.Play();
+    }
 
     // --- STATE 1: PATROLLING ---
     private void EnterPatrol()
     {
+        CancelInvoke(); // Stop the guard from jumping into Chasing if he was just Alerted
+        if(anim != null) anim.SetBool("isChasing", false);
         currentState = State.Patrolling;
         UpdateVisuals("", Color.white);
         agent.isStopped = false;
@@ -96,16 +147,30 @@ public class GuardStateMachine : MonoBehaviour
 
     private void UpdatePatrol()
     {
-        // Player is seen, freak out!!
-        if (visionCone.canSeePlayer)
+        if (visionCone.canSeePlayer && graceTimer <= 0)
         {
             EnterAlerted();
         }
         else
         {
+            CheckForFootprints();
             // Cool down if patrolling again
             if (SuspicionMeter.Instance != null && SuspicionMeter.Instance.globalSuspicion > 0)
                 SuspicionMeter.Instance.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
+        }
+    }
+    
+    private void CheckForFootprints()
+    {
+        // Look for footprints in a small circle around the guard
+        Collider[] hits = Physics.OverlapSphere(transform.position, footprintDetectionRadius);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Footprint") && !reactedPrints.Contains(hit.gameObject))
+            {
+                EnterSuspicious(hit.gameObject);
+                break;
+            }
         }
     }
 
@@ -117,10 +182,17 @@ public class GuardStateMachine : MonoBehaviour
         if (patrol != null) patrol.StopPatrol();
         agent.isStopped = true;
 
-        OnPlayerDetected.Invoke();
-        Invoke(nameof(EnterChasing), 0.6f); // Wait 0.6 seconds in shock before running
-    }
+        if (spotSound != null) 
+        {
+            audioSource.clip = spotSound;
+            audioSource.Play();
+        }
 
+        OnPlayerDetected.Invoke();
+    
+        Invoke(nameof(EnterChasing), 1.0f); 
+    }
+    
     private void UpdateAlerted()
     {
         if (visionCone.playerRef == null) return;
@@ -136,8 +208,10 @@ public class GuardStateMachine : MonoBehaviour
     // --- STATE 3: CHASING ---
     private void EnterChasing()
     {
+        if(anim != null) anim.SetBool("isChasing", true);
         currentState = State.Chasing;
         UpdateVisuals("!", chasingColor);
+        PlayRandomBark(chaseBarks);
         agent.isStopped = false;
         agent.speed = chaseSpeed;
     }
@@ -160,7 +234,7 @@ public class GuardStateMachine : MonoBehaviour
 
         if (Physics.Raycast(eye, (target - eye).normalized, out hit, dist + 0.5f, combinedMask))
             // If the laser hit Player, hasLoS is true otherwise if it's hit obstruction or closet, LoS stays false
-            if (hit.collider.CompareTag("Player"))
+            if (hit.collider.CompareTag(playerTag))
                 hasLoS = true;
 
         Debug.DrawLine(eye, target, hasLoS ? Color.red : Color.green); // DEBUGGING
@@ -218,11 +292,121 @@ public class GuardStateMachine : MonoBehaviour
         // 3. Time's up, give up
         if (searchTimer >= searchDuration) GiveUpChase();
     }
+    // --- STATE 55: EVICTING ---
 
+    private void EnterEvicting()
+    {
+        CancelInvoke();
+        currentState = State.Evicting;
+        UpdateVisuals("GOTCHA!", Color.red);
+    
+        agent.isStopped = false;
+        agent.speed = patrolSpeed; 
+        agent.SetDestination(kickOutPoint.position);
 
+        // 2. Disable the player so they can't fight back
+        if (playerToEvict != null)
+        {
+            var controller = playerToEvict.GetComponent<CharacterController>();
+            if (controller != null) controller.enabled = false;
+            
+            var playerScript = playerToEvict.GetComponent<TopDownPlayerController>();
+            if (playerScript != null) playerScript.enabled = false;
+        }
+        
+
+    }
+
+    private void UpdateEvicting()
+    {
+        if (playerToEvict == null) { EnterPatrol(); return; }
+
+        // 1. Keep the player "stuck" to the guard's front
+        Vector3 holdPosition = transform.position + transform.forward * 0.6f; 
+        playerToEvict.transform.position = holdPosition;
+    
+        // Make the player look the same way as the guard
+        playerToEvict.transform.rotation = transform.rotation;
+
+        // 2. Check if we arrived at the Eviction Point
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.2f)
+        {
+            ReleasePlayer();
+        }
+    }
+    
+    private void ReleasePlayer()
+    {
+        if (playerToEvict != null)
+        {
+            var controller = playerToEvict.GetComponent<CharacterController>();
+            if (controller != null) controller.enabled = true; 
+
+            var playerScript = playerToEvict.GetComponent<TopDownPlayerController>();
+            if (playerScript != null) playerScript.enabled = true;
+        }
+
+        graceTimer = postEvictionGrace; 
+        playerToEvict = null;
+        EnterPatrol();
+    }
+    
+    // --- STATE 6: SUSPICIOUS ---
+    
+    private void EnterSuspicious(GameObject footprint)
+    {
+        currentState = State.Suspicious;
+        UpdateVisuals("EW!", alertedColor);
+        
+        agent.isStopped = true;
+        stopTimer = stopDuration;
+
+        // Play "Ew" Sound
+        if (ewSound != null)
+        {
+            audioSource.PlayOneShot(ewSound);
+        }
+
+        // Increase Global Suspicion
+        SuspicionMeter.Instance?.ModifySuspicion(suspicionPerPrint);
+
+        // Prevent reacting to this exact print again for 10 seconds
+        StartCoroutine(IgnorePrintTemporary(footprint));
+        
+    }
+
+    private void UpdateSuspicious()
+    {
+        stopTimer -= Time.deltaTime;
+
+        // If the guard sees the player while looking at a footprint, stop being "disgusted" and start chasing!
+        if (visionCone.canSeePlayer && graceTimer <= 0)
+        {
+            EnterAlerted();
+            return;
+        }
+
+        if (stopTimer <= 0)
+        {
+            EnterPatrol();
+        }
+    }
+
+    private IEnumerator IgnorePrintTemporary(GameObject print)
+    {
+        reactedPrints.Add(print);
+        yield return new WaitForSeconds(10f); // How long before he reacts to this spot again
+        reactedPrints.Remove(print);
+    }
+    
     private void GiveUpChase()
     {
         searchTimer = 0f;
+        if (giveUpSound != null) 
+        {
+            audioSource.clip = giveUpSound;
+            audioSource.Play();
+        }
         OnPlayerLost.Invoke();
         EnterPatrol();
     }
