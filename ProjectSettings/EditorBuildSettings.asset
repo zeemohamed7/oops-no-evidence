@@ -9,14 +9,61 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
+<<<<<<< HEAD
+    path: Assets/Scenes/Splash.unity
+    guid: 3e0e29fcae9670a4da9cfa34258f394b
+  - enabled: 1
+=======
+>>>>>>> main
     path: Assets/Scenes/Lobby.unity
     guid: 9e95022efbe3643ffbe6fa47e4403236
   - enabled: 1
     path: Assets/Scenes/Malak/LevelSelection.unity
     guid: 715bcdd8995325e4f91ac4525c965272
   - enabled: 1
+<<<<<<< HEAD
+    path: Assets/Scenes/Storylines/Level1_Intro.unity
+    guid: acefa81c3324a814f98214db9dbf85c8
+  - enabled: 1
     path: Assets/Scenes/Mariam_Levels/Level1_ShawarmaShop.unity
     guid: cf080679a870d47bc80a3cf7771fdc58
+  - enabled: 1
+    path: Assets/Scenes/Storylines/Level2_Intro.unity
+    guid: 0df4ae1d3c9c9ab458e5285e87480c34
+  - enabled: 1
+    path: Assets/Scenes/Mariam_Levels/Hajar-home.unity
+    guid: 347debe5bd8689c418fd08634e56597b
+  - enabled: 1
+    path: Assets/Scenes/Storylines/Level3_Intro.unity
+    guid: 344fe94df4ecb1b46ba518118966cb79
+  - enabled: 1
+    path: Assets/Scenes/noora-level4.unity
+    guid: 0c34ad528885d1c49a9424bfa6519296
+  - enabled: 1
+    path: Assets/Scenes/Storylines/Level4_Intro.unity
+    guid: 0218feba3cfcaaf41af4b59d01bb56f1
+  - enabled: 1
+    path: Assets/Scenes/Mariam_Levels/Hajar-office-final.unity
+    guid: cb9f16c52bf17de4fb5f84967911ef1b
+  - enabled: 0
+    path: Assets/Scenes/TitleScreen/TitleScreen.unity
+    guid: 69b69f1928ec348ec9aa328b507ddd95
+  - enabled: 0
+    path: Assets/Scenes/Level_Office.unity
+    guid: ad49627d79a2142a08655e319782f9ef
+  - enabled: 0
+    path: Assets/Scenes/LevelSelection.unity
+    guid: 1003b4c586ad24a518437d45fda25198
+  - enabled: 0
+    path: Assets/Scenes/Level_Shawarma.unity
+    guid: 1b8bbd374fd7e4cc2bdb6f6c770a47d6
+  - enabled: 0
+    path: Assets/Scenes/Level_PoolVilla.unity
+    guid: e4e1e280ac4a544fd8dc2223b87cb0f3
+=======
+    path: Assets/Scenes/Mariam_Levels/Level1_ShawarmaShop.unity
+    guid: cf080679a870d47bc80a3cf7771fdc58
+>>>>>>> main
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
