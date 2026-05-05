@@ -7,24 +7,22 @@ using TMPro;
 
 public class GameHUD : MonoBehaviour
 {
-    [System.Serializable]
-    public class ChecklistTask
-    {
-        public string taskName;         // e.g. "DISPOSE OF BODY"
-        public string progressLabel;    // e.g. "(1/1)" or "(Ongoing)"
-        public bool isCompleted;
-        [HideInInspector] public GameObject uiRow; // assigned at runtime
-    }
+    public static GameHUD Instance;
+    private void Awake() { Instance = this; }
 
-    // ── HUD ──────────────────────────────────────────────────────────────
-    [Header("HUD - Timer")]
-    public TextMeshProUGUI timerText;
+    // ── TIMER ─────────────────────────────────────────────────────────────
+    [Header("Timer")]
+    public TextMeshProUGUI timerText;           // TimePanel > time
+    public float timerWarningThreshold  = 60f;
+    public float timerCriticalThreshold = 30f;
+    public Color timerNormalColor   = Color.white;
+    public Color timerWarningColor  = new Color(1f, 0.85f, 0f);
+    public Color timerCriticalColor = new Color(0.9f, 0.1f, 0.1f);
 
-    [Header("HUD - Suspicion")]
-    public Slider suspicionSlider;
-    public Image suspicionFillImage;        // drag the slider's Fill Area > Fill image here
-    public RectTransform suspicionIcon;
-    public TextMeshProUGUI suspicionStatusText;
+    // ── SUSPICION ─────────────────────────────────────────────────────────
+    [Header("Suspicion Bar")]
+    public Image suspicionFill;             // susPanel > fill  (set Image Type → Filled, Horizontal)
+    public TextMeshProUGUI suspicionText;   // susPanel > text
     float suspicionVisual;
 
     [Header("Suspicion State Colors")]
@@ -37,55 +35,50 @@ public class GameHUD : MonoBehaviour
     public string[] lowSuspicionMsgs  = { "All quiet...", "Keep it clean." };
     public string[] midSuspicionMsgs  = { "They're looking!", "Watch out!" };
     public string[] highSuspicionMsgs = { "GET OUT!", "THEY KNOW!" };
-    private int currentSuspicionStage = -1;
+    int currentSuspicionStage = -1;
 
-    [Header("Timer Warning")]
-    public float timerWarningThreshold  = 60f;
-    public float timerCriticalThreshold = 30f;
-    public Color timerNormalColor   = Color.white;
-    public Color timerWarningColor  = new Color(1f, 0.85f, 0f);
-    public Color timerCriticalColor = new Color(0.9f, 0.1f, 0.1f);
-    
-    [Header("HUD - Checklist")]
-    public Transform checklistContainer;   // Vertical Layout Group parent
-    public GameObject checklistRowPrefab;  // Prefab: checkbox Image + taskName TMP + progress TMP
-    public List<ChecklistTask> tasks = new List<ChecklistTask>();
+    // ── TASKS ─────────────────────────────────────────────────────────────
+    [System.Serializable]
+    public class TaskEntry
+    {
+        public string taskName;     // must match what other scripts pass to CompleteTask()
+        public GameObject row;      // drag task-1 / task-2 / task-3 here
+        [HideInInspector] public bool isCompleted;
+    }
 
-    [Header("HUD - Pause Button")]
+    [Header("Tasks")]
+    public List<TaskEntry> tasks = new List<TaskEntry>();
+    public TextMeshProUGUI taskCountText;   // TaskPanel > count  (shows "0/3")
+    public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
+
+    // ── PAUSE ─────────────────────────────────────────────────────────────
+    [Header("Pause")]
     public Button pauseButton;
-
-    // ── PAUSE MENU ────────────────────────────────────────────────────────
-    [Header("Pause Menu")]
     public GameObject pauseMenuPanel;
     public Button resumeButton;
     public Button restartButton;
     public Button quitToMapButton;
+    bool isPaused;
 
     // ── RESULT SCREEN ─────────────────────────────────────────────────────
     [Header("Result Screen")]
     public GameObject resultPanel;
-    public TextMeshProUGUI resultHeaderText;    // "WIN" or "LOSE"
-    public TextMeshProUGUI gradeText;           // "S" / "F"
-    public TextMeshProUGUI scoreLineText;       // "SCORE: S" / "Tasks Complete!"
-    public TextMeshProUGUI finalTimerText;      // "TIME REMAINING: 02:15" or "TIME EXPIRED: 00:00"
-    public Slider finalSuspicionSlider;
+    public TextMeshProUGUI resultHeaderText;
+    public TextMeshProUGUI gradeText;
+    public TextMeshProUGUI scoreLineText;
+    public TextMeshProUGUI finalTimerText;
     public Button nextLevelButton;
     public Button retryButton;
     public Button quitResultButton;
 
-    // ── Colors ────────────────────────────────────────────────────────────
     [Header("Colors")]
-    public Color winColor = new Color(0.2f, 0.8f, 0.3f);
+    public Color winColor  = new Color(0.2f, 0.8f, 0.3f);
     public Color loseColor = new Color(0.9f, 0.2f, 0.2f);
-
-    private bool isPaused = false;
 
     // ─────────────────────────────────────────────────────────────────────
 
-    private void Start()
+    void Start()
     {
-        BuildChecklist();
-
         pauseMenuPanel.SetActive(false);
         resultPanel.SetActive(false);
 
@@ -97,117 +90,109 @@ public class GameHUD : MonoBehaviour
         nextLevelButton.onClick.AddListener(LoadNextLevel);
         retryButton.onClick.AddListener(RestartLevel);
 
-        // Listen for win/loss from GameManager
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnWin.AddListener(ShowWinScreen);
             GameManager.Instance.OnLoss.AddListener(ShowLossScreen);
         }
 
-        // Wire suspicion state → bar color
         if (SuspicionMeter.Instance != null)
             SuspicionMeter.Instance.OnStateChangedEvent.AddListener(OnSuspicionStateChanged);
+
+        RefreshTaskCount();
     }
 
-    private void Update()
+    void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         if (GameManager.Instance == null) return;
 
-        // 1. Update Timer
-        if (timerText != null)
-        {
-            timerText.text = GameManager.Instance.FormatTime(GameManager.Instance.TimeRemaining);
-            float t = GameManager.Instance.TimeRemaining;
-            timerText.color = t <= timerCriticalThreshold ? timerCriticalColor
-                            : t <= timerWarningThreshold  ? timerWarningColor
-                            : timerNormalColor;
-        }
-
-        // 2. Update Stylized Suspicion
-        if (suspicionSlider != null && SuspicionMeter.Instance != null)
-        {
-            float target = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
-        
-            // Smooth transition (Lerp) for the bar
-            suspicionVisual = Mathf.Lerp(suspicionVisual, target, Time.deltaTime * 6f);
-            suspicionSlider.value = suspicionVisual;
-
-            // Move the Mop/Icon (Matches LoadingCleanBar logic)
-            if (suspicionIcon != null) {
-                float barWidth = suspicionSlider.GetComponent<RectTransform>().rect.width;
-                float startX = -barWidth / 2;
-                float endX = barWidth / 2;
-                float xPos = Mathf.Lerp(startX, endX, suspicionVisual);
-                suspicionIcon.anchoredPosition = new Vector2(xPos, suspicionIcon.anchoredPosition.y);
-            }
-
-            // Update Warning Text Stages
-            UpdateSuspicionText(suspicionVisual);
-        }
+        UpdateTimer();
+        UpdateSuspicionBar();
     }
 
-    void UpdateSuspicionText(float progress) {
-        if (suspicionStatusText == null) return;
+    // ── Timer ─────────────────────────────────────────────────────────────
 
-        int stage = (progress < 0.33f) ? 0 : (progress < 0.66f) ? 1 : 2;
-
-        if (stage != currentSuspicionStage) {
-            currentSuspicionStage = stage;
-            string[] currentArray = stage == 0 ? lowSuspicionMsgs : stage == 1 ? midSuspicionMsgs : highSuspicionMsgs;
-            suspicionStatusText.text = currentArray[Random.Range(0, currentArray.Length)];
-        }
-    }
-
-    // ── Checklist ─────────────────────────────────────────────────────────
-
-    void BuildChecklist()
+    void UpdateTimer()
     {
-        foreach (var task in tasks)
-        {
-            GameObject row = Instantiate(checklistRowPrefab, checklistContainer);
-            task.uiRow = row;
-            RefreshTaskRow(task);
-        }
+        if (timerText == null) return;
+        float t = GameManager.Instance.TimeRemaining;
+        timerText.text  = GameManager.Instance.FormatTime(t);
+        timerText.color = t <= timerCriticalThreshold ? timerCriticalColor
+                        : t <= timerWarningThreshold  ? timerWarningColor
+                        : timerNormalColor;
     }
 
-    void RefreshTaskRow(ChecklistTask task)
+    // ── Suspicion ─────────────────────────────────────────────────────────
+
+    void UpdateSuspicionBar()
     {
-        if (task.uiRow == null) return;
+        if (suspicionFill == null || SuspicionMeter.Instance == null) return;
 
-        // Expects prefab children: [0] = checkbox Image, [1] = taskName TMP, [2] = progress TMP
-        var images = task.uiRow.GetComponentsInChildren<Image>();
-        var texts  = task.uiRow.GetComponentsInChildren<TextMeshProUGUI>();
+        float target = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
+        suspicionVisual = Mathf.Lerp(suspicionVisual, target, Time.deltaTime * 6f);
 
-        if (texts.Length >= 2)
-        {
-            texts[0].text = task.taskName;
-            texts[1].text = task.progressLabel;
-        }
+        // fillAmount only works if Image Type is set to Filled > Horizontal in Inspector
+        suspicionFill.fillAmount = suspicionVisual;
 
-        // Tick / untick checkbox (first Image is the checkbox)
-        if (images.Length >= 1)
-            images[0].color = task.isCompleted ? winColor : Color.white;
+        UpdateSuspicionText(suspicionVisual);
     }
 
-    // Call this from other scripts when a task is done:
-    // GameHUD.Instance.CompleteTask("DISPOSE OF BODY");
-    public static GameHUD Instance;
-    private void Awake() { Instance = this; }
+    void UpdateSuspicionText(float progress)
+    {
+        if (suspicionText == null) return;
+        int stage = progress < 0.33f ? 0 : progress < 0.66f ? 1 : 2;
+        if (stage == currentSuspicionStage) return;
+        currentSuspicionStage = stage;
+        string[] pool = stage == 0 ? lowSuspicionMsgs : stage == 1 ? midSuspicionMsgs : highSuspicionMsgs;
+        suspicionText.text = pool[Random.Range(0, pool.Length)];
+    }
 
+    void OnSuspicionStateChanged(SuspicionMeter.SuspicionState state)
+    {
+        if (suspicionFill == null) return;
+        suspicionFill.color = state switch
+        {
+            SuspicionMeter.SuspicionState.Calm       => calmColor,
+            SuspicionMeter.SuspicionState.Suspicious => suspiciousColor,
+            SuspicionMeter.SuspicionState.Alert      => alertColor,
+            SuspicionMeter.SuspicionState.Panic      => panicColor,
+            _ => calmColor
+        };
+    }
+
+    // ── Tasks ─────────────────────────────────────────────────────────────
+
+    // Call from any script: GameHUD.Instance.CompleteTask("DISPOSE OF BODY");
     public void CompleteTask(string taskName)
     {
-        var task = tasks.Find(t => t.taskName == taskName);
-        if (task == null) return;
-        task.isCompleted = true;
-        RefreshTaskRow(task);
+        var entry = tasks.Find(t => t.taskName == taskName);
+        if (entry == null || entry.isCompleted) return;
 
-        if (task.uiRow != null)
-            StartCoroutine(BounceRow(task.uiRow.transform));
+        entry.isCompleted = true;
+
+        // Tint the row green and bounce it
+        if (entry.row != null)
+        {
+            foreach (var tmp in entry.row.GetComponentsInChildren<TextMeshProUGUI>())
+                tmp.color = taskDoneColor;
+            StartCoroutine(BounceRow(entry.row.transform));
+        }
+
+        RefreshTaskCount();
 
         if (AllTasksDone())
             Debug.Log("All tasks done — waiting for players to reach the van.");
     }
+
+    void RefreshTaskCount()
+    {
+        if (taskCountText == null) return;
+        int done  = tasks.FindAll(t => t.isCompleted).Count;
+        taskCountText.text = $"{done}/{tasks.Count}";
+    }
+
+    public bool AllTasksDone() => tasks.TrueForAll(t => t.isCompleted);
 
     IEnumerator BounceRow(Transform target)
     {
@@ -223,37 +208,11 @@ public class GameHUD : MonoBehaviour
         target.localScale = original;
     }
 
-    void OnSuspicionStateChanged(SuspicionMeter.SuspicionState state)
-    {
-        if (suspicionFillImage == null) return;
-        suspicionFillImage.color = state switch
-        {
-            SuspicionMeter.SuspicionState.Calm       => calmColor,
-            SuspicionMeter.SuspicionState.Suspicious => suspiciousColor,
-            SuspicionMeter.SuspicionState.Alert      => alertColor,
-            SuspicionMeter.SuspicionState.Panic      => panicColor,
-            _ => calmColor
-        };
-    }
-
-    public void UpdateTaskProgress(string taskName, string newProgress)
-    {
-        var task = tasks.Find(t => t.taskName == taskName);
-        if (task == null) return;
-        task.progressLabel = newProgress;
-        RefreshTaskRow(task);
-    }
-
-    public bool AllTasksDone()
-    {
-        return tasks.TrueForAll(t => t.isCompleted);
-    }
-
     // ── Pause ─────────────────────────────────────────────────────────────
 
     void TogglePause()
     {
-        if (resultPanel.activeSelf) return; // don't pause on result screen
+        if (resultPanel.activeSelf) return;
         isPaused = !isPaused;
         pauseMenuPanel.SetActive(isPaused);
         Time.timeScale = isPaused ? 0f : 1f;
@@ -275,15 +234,13 @@ public class GameHUD : MonoBehaviour
     void QuitToMap()
     {
         Time.timeScale = 1f;
-        // Replace "OverworldMap" with your actual map scene name when ready
         SceneManager.LoadScene("OverworldMap");
     }
 
     void LoadNextLevel()
     {
         Time.timeScale = 1f;
-        int next = SceneManager.GetActiveScene().buildIndex + 1;
-        SceneManager.LoadScene(next);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     // ── Result Screens ────────────────────────────────────────────────────
@@ -293,18 +250,15 @@ public class GameHUD : MonoBehaviour
         resultPanel.SetActive(true);
         Time.timeScale = 0f;
 
-        string grade = GameManager.Instance != null ? GameManager.Instance.CalculateGrade() : "S";
-        float timeLeft = GameManager.Instance != null ? GameManager.Instance.TimeRemaining : 0f;
+        string grade  = GameManager.Instance?.CalculateGrade() ?? "S";
+        float timeLeft = GameManager.Instance?.TimeRemaining ?? 0f;
 
-        resultHeaderText.text = "WIN";
+        resultHeaderText.text  = "WIN";
         resultHeaderText.color = winColor;
-        gradeText.text = grade;
+        gradeText.text  = grade;
         gradeText.color = winColor;
-        scoreLineText.text = $"SCORE: {grade}\nTasks Complete!";
+        scoreLineText.text  = $"SCORE: {grade}\nTasks Complete!";
         finalTimerText.text = $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
-
-        if (finalSuspicionSlider != null && SuspicionMeter.Instance != null)
-            finalSuspicionSlider.value = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
 
         nextLevelButton.gameObject.SetActive(true);
         retryButton.gameObject.SetActive(false);
@@ -315,20 +269,16 @@ public class GameHUD : MonoBehaviour
         resultPanel.SetActive(true);
         Time.timeScale = 0f;
 
-        string grade = "F";
-        float timeLeft = GameManager.Instance != null ? GameManager.Instance.TimeRemaining : 0f;
+        float timeLeft = GameManager.Instance?.TimeRemaining ?? 0f;
 
-        resultHeaderText.text = "LOSE";
+        resultHeaderText.text  = "LOSE";
         resultHeaderText.color = loseColor;
-        gradeText.text = grade;
+        gradeText.text  = "F";
         gradeText.color = loseColor;
-        scoreLineText.text = $"SCORE: {grade}";
+        scoreLineText.text  = "SCORE: F";
         finalTimerText.text = timeLeft <= 0f
             ? "TIME EXPIRED: 00:00"
             : $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
-
-        if (finalSuspicionSlider != null && SuspicionMeter.Instance != null)
-            finalSuspicionSlider.value = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
 
         nextLevelButton.gameObject.SetActive(false);
         retryButton.gameObject.SetActive(true);
