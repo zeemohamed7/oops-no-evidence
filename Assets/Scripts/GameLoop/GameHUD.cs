@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -11,67 +10,61 @@ public class GameHUD : MonoBehaviour
     private void Awake() { Instance = this; }
 
     // ── TIMER ─────────────────────────────────────────────────────────────
-    [Header("Timer")]
-    public TextMeshProUGUI timerText;           // TimePanel > time
-    public float timerWarningThreshold  = 60f;
-    public float timerCriticalThreshold = 30f;
-    public Color timerNormalColor   = Color.white;
-    public Color timerWarningColor  = new Color(1f, 0.85f, 0f);
-    public Color timerCriticalColor = new Color(0.9f, 0.1f, 0.1f);
+    [Header("Timer  (TimePanel > timeText)")]
+    public TextMeshProUGUI timeText;
+    public float levelDurationOverride = 180f; // 3 min for level 1 — set per level in Inspector
 
-    // ── SUSPICION ─────────────────────────────────────────────────────────
-    [Header("Suspicion Bar")]
-    public Image suspicionFill;             // susPanel > fill  (set Image Type → Filled, Horizontal)
-    public TextMeshProUGUI suspicionText;   // susPanel > text
-    float suspicionVisual;
+    [Header("Timer Warning Colors")]
+    public Color timerNormal   = Color.white;
+    public Color timerWarning  = new Color(1f, 0.85f, 0f);   // yellow  < 60s
+    public Color timerCritical = new Color(0.9f, 0.1f, 0.1f); // red     < 30s
 
-    [Header("Suspicion State Colors")]
-    public Color calmColor       = new Color(0.3f, 0.85f, 0.3f);
-    public Color suspiciousColor = new Color(1f,   0.85f, 0f);
-    public Color alertColor      = new Color(1f,   0.5f,  0f);
-    public Color panicColor      = new Color(0.9f, 0.1f,  0.1f);
+    // ── SUSPICION BAR ──────────────────────────────────────────────────────
+    [Header("Suspicion Bar  (susPanel children)")]
+    public Image susFill;               // susPanel > fill
+    public TextMeshProUGUI susText;     // susPanel > text
+    float susVisual;
+    int susStage = -1;
 
-    [Header("Suspicion Messages")]
-    public string[] lowSuspicionMsgs  = { "All quiet...", "Keep it clean." };
-    public string[] midSuspicionMsgs  = { "They're looking!", "Watch out!" };
-    public string[] highSuspicionMsgs = { "GET OUT!", "THEY KNOW!" };
-    int currentSuspicionStage = -1;
+    [Header("Sus Bar Colors  (fill image color)")]
+    public Color colorCalm       = new Color(0.3f, 0.85f, 0.3f);  // green
+    public Color colorSuspicious = new Color(1f,   0.85f, 0f);    // yellow
+    public Color colorAlert      = new Color(1f,   0.5f,  0f);    // orange
+    public Color colorPanic      = new Color(0.9f, 0.1f,  0.1f);  // red
 
-    // ── TASKS ─────────────────────────────────────────────────────────────
-    [System.Serializable]
-    public class TaskEntry
-    {
-        public string taskName;     // must match what other scripts pass to CompleteTask()
-        public GameObject row;      // drag task-1 / task-2 / task-3 here
-        [HideInInspector] public bool isCompleted;
-    }
+    [Header("Sus Status Messages")]
+    public string[] calmMsgs  = { "All quiet...", "Keep it clean." };
+    public string[] midMsgs   = { "They're looking!", "Watch out!" };
+    public string[] highMsgs  = { "GET OUT!", "THEY KNOW!" };
 
-    [Header("Tasks")]
-    public List<TaskEntry> tasks = new List<TaskEntry>();
-    public TextMeshProUGUI taskCountText;   // TaskPanel > count  (shows "0/3")
+    // ── TASKS ──────────────────────────────────────────────────────────────
+    [Header("Tasks  (TaskPanel children)")]
+    public TextMeshProUGUI[] taskTexts;   // drag the 3 task TMP objects here
+    public TextMeshProUGUI counterText;   // TaskPanel > counter
     public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
+    bool[] taskDone;
 
-    // ── PAUSE ─────────────────────────────────────────────────────────────
+    // ── PAUSE ──────────────────────────────────────────────────────────────
     [Header("Pause")]
     public Button pauseButton;
-    public GameObject pauseMenuPanel;
+    public GameObject pausePanel;
     public Button resumeButton;
     public Button restartButton;
     public Button quitToMapButton;
     bool isPaused;
 
-    // ── RESULT SCREEN ─────────────────────────────────────────────────────
+    // ── RESULT SCREEN ──────────────────────────────────────────────────────
     [Header("Result Screen")]
     public GameObject resultPanel;
-    public TextMeshProUGUI resultHeaderText;
-    public TextMeshProUGUI gradeText;
-    public TextMeshProUGUI scoreLineText;
-    public TextMeshProUGUI finalTimerText;
+    public TextMeshProUGUI resultHeader;   // WIN / LOSE
+    public TextMeshProUGUI gradeText;      // S / F
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI finalTimeText;
     public Button nextLevelButton;
     public Button retryButton;
     public Button quitResultButton;
 
-    [Header("Colors")]
+    [Header("Result Colors")]
     public Color winColor  = new Color(0.2f, 0.8f, 0.3f);
     public Color loseColor = new Color(0.9f, 0.2f, 0.2f);
 
@@ -79,9 +72,19 @@ public class GameHUD : MonoBehaviour
 
     void Start()
     {
-        pauseMenuPanel.SetActive(false);
+        // Override GameManager duration for this level
+        if (GameManager.Instance != null)
+            GameManager.Instance.levelDuration = levelDurationOverride;
+
+        // Tasks
+        taskDone = new bool[taskTexts.Length];
+        RefreshCounter();
+
+        // Panels off
+        pausePanel.SetActive(false);
         resultPanel.SetActive(false);
 
+        // Buttons
         pauseButton.onClick.AddListener(TogglePause);
         resumeButton.onClick.AddListener(Resume);
         restartButton.onClick.AddListener(RestartLevel);
@@ -90,6 +93,7 @@ public class GameHUD : MonoBehaviour
         nextLevelButton.onClick.AddListener(LoadNextLevel);
         retryButton.onClick.AddListener(RestartLevel);
 
+        // Game events
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnWin.AddListener(ShowWinScreen);
@@ -97,9 +101,7 @@ public class GameHUD : MonoBehaviour
         }
 
         if (SuspicionMeter.Instance != null)
-            SuspicionMeter.Instance.OnStateChangedEvent.AddListener(OnSuspicionStateChanged);
-
-        RefreshTaskCount();
+            SuspicionMeter.Instance.OnStateChangedEvent.AddListener(OnSusStateChanged);
     }
 
     void Update()
@@ -108,104 +110,105 @@ public class GameHUD : MonoBehaviour
         if (GameManager.Instance == null) return;
 
         UpdateTimer();
-        UpdateSuspicionBar();
+        UpdateSusBar();
     }
 
     // ── Timer ─────────────────────────────────────────────────────────────
 
     void UpdateTimer()
     {
-        if (timerText == null) return;
+        if (timeText == null) return;
         float t = GameManager.Instance.TimeRemaining;
-        timerText.text  = GameManager.Instance.FormatTime(t);
-        timerText.color = t <= timerCriticalThreshold ? timerCriticalColor
-                        : t <= timerWarningThreshold  ? timerWarningColor
-                        : timerNormalColor;
+        timeText.text  = GameManager.Instance.FormatTime(t);
+        timeText.color = t <= 30f ? timerCritical : t <= 60f ? timerWarning : timerNormal;
     }
 
     // ── Suspicion ─────────────────────────────────────────────────────────
 
-    void UpdateSuspicionBar()
+    void UpdateSusBar()
     {
-        if (suspicionFill == null || SuspicionMeter.Instance == null) return;
+        if (susFill == null || SuspicionMeter.Instance == null) return;
 
         float target = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
-        suspicionVisual = Mathf.Lerp(suspicionVisual, target, Time.deltaTime * 6f);
+        susVisual = Mathf.Lerp(susVisual, target, Time.deltaTime * 6f);
 
-        // fillAmount only works if Image Type is set to Filled > Horizontal in Inspector
-        suspicionFill.fillAmount = suspicionVisual;
+        // Requires: susFill Image Type = Filled, Fill Method = Horizontal, Fill Origin = Left
+        susFill.fillAmount = susVisual;
 
-        UpdateSuspicionText(suspicionVisual);
-    }
-
-    void UpdateSuspicionText(float progress)
-    {
-        if (suspicionText == null) return;
-        int stage = progress < 0.33f ? 0 : progress < 0.66f ? 1 : 2;
-        if (stage == currentSuspicionStage) return;
-        currentSuspicionStage = stage;
-        string[] pool = stage == 0 ? lowSuspicionMsgs : stage == 1 ? midSuspicionMsgs : highSuspicionMsgs;
-        suspicionText.text = pool[Random.Range(0, pool.Length)];
-    }
-
-    void OnSuspicionStateChanged(SuspicionMeter.SuspicionState state)
-    {
-        if (suspicionFill == null) return;
-        suspicionFill.color = state switch
+        // Status text
+        if (susText != null)
         {
-            SuspicionMeter.SuspicionState.Calm       => calmColor,
-            SuspicionMeter.SuspicionState.Suspicious => suspiciousColor,
-            SuspicionMeter.SuspicionState.Alert      => alertColor,
-            SuspicionMeter.SuspicionState.Panic      => panicColor,
-            _ => calmColor
+            int stage = susVisual < 0.33f ? 0 : susVisual < 0.66f ? 1 : 2;
+            if (stage != susStage)
+            {
+                susStage = stage;
+                string[] pool = stage == 0 ? calmMsgs : stage == 1 ? midMsgs : highMsgs;
+                susText.text = pool[Random.Range(0, pool.Length)];
+            }
+        }
+    }
+
+    void OnSusStateChanged(SuspicionMeter.SuspicionState state)
+    {
+        if (susFill == null) return;
+        susFill.color = state switch
+        {
+            SuspicionMeter.SuspicionState.Calm       => colorCalm,
+            SuspicionMeter.SuspicionState.Suspicious => colorSuspicious,
+            SuspicionMeter.SuspicionState.Alert      => colorAlert,
+            SuspicionMeter.SuspicionState.Panic      => colorPanic,
+            _ => colorCalm
         };
     }
 
     // ── Tasks ─────────────────────────────────────────────────────────────
 
-    // Call from any script: GameHUD.Instance.CompleteTask("DISPOSE OF BODY");
-    public void CompleteTask(string taskName)
+    // Call from gameplay scripts:  GameHUD.Instance.CompleteTask(0);  (0, 1, or 2)
+    public void CompleteTask(int index)
     {
-        var entry = tasks.Find(t => t.taskName == taskName);
-        if (entry == null || entry.isCompleted) return;
+        if (index < 0 || index >= taskTexts.Length) return;
+        if (taskDone[index]) return;
 
-        entry.isCompleted = true;
+        taskDone[index] = true;
 
-        // Tint the row green and bounce it
-        if (entry.row != null)
+        if (taskTexts[index] != null)
         {
-            foreach (var tmp in entry.row.GetComponentsInChildren<TextMeshProUGUI>())
-                tmp.color = taskDoneColor;
-            StartCoroutine(BounceRow(entry.row.transform));
+            taskTexts[index].color = taskDoneColor;
+            StartCoroutine(BounceText(taskTexts[index].transform));
         }
 
-        RefreshTaskCount();
+        RefreshCounter();
 
         if (AllTasksDone())
-            Debug.Log("All tasks done — waiting for players to reach the van.");
+            Debug.Log("All tasks done — head to the van!");
     }
 
-    void RefreshTaskCount()
+    void RefreshCounter()
     {
-        if (taskCountText == null) return;
-        int done  = tasks.FindAll(t => t.isCompleted).Count;
-        taskCountText.text = $"{done}/{tasks.Count}";
+        if (counterText == null) return;
+        int done = 0;
+        foreach (var d in taskDone) if (d) done++;
+        counterText.text = $"{done}/{taskTexts.Length}";
     }
 
-    public bool AllTasksDone() => tasks.TrueForAll(t => t.isCompleted);
-
-    IEnumerator BounceRow(Transform target)
+    public bool AllTasksDone()
     {
-        Vector3 original = target.localScale;
-        float elapsed = 0f, duration = 0.3f;
-        while (elapsed < duration)
+        foreach (var d in taskDone) if (!d) return false;
+        return true;
+    }
+
+    IEnumerator BounceText(Transform t)
+    {
+        Vector3 orig = t.localScale;
+        float elapsed = 0f;
+        while (elapsed < 0.3f)
         {
             elapsed += Time.unscaledDeltaTime;
-            float s = 1f + Mathf.Sin(elapsed / duration * Mathf.PI) * 0.25f;
-            target.localScale = original * s;
+            float s = 1f + Mathf.Sin(elapsed / 0.3f * Mathf.PI) * 0.25f;
+            t.localScale = orig * s;
             yield return null;
         }
-        target.localScale = original;
+        t.localScale = orig;
     }
 
     // ── Pause ─────────────────────────────────────────────────────────────
@@ -214,34 +217,20 @@ public class GameHUD : MonoBehaviour
     {
         if (resultPanel.activeSelf) return;
         isPaused = !isPaused;
-        pauseMenuPanel.SetActive(isPaused);
+        pausePanel.SetActive(isPaused);
         Time.timeScale = isPaused ? 0f : 1f;
     }
 
     void Resume()
     {
         isPaused = false;
-        pauseMenuPanel.SetActive(false);
+        pausePanel.SetActive(false);
         Time.timeScale = 1f;
     }
 
-    void RestartLevel()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    void QuitToMap()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("OverworldMap");
-    }
-
-    void LoadNextLevel()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-    }
+    void RestartLevel() { Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
+    void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("OverworldMap"); }
+    void LoadNextLevel(){ Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); }
 
     // ── Result Screens ────────────────────────────────────────────────────
 
@@ -250,15 +239,13 @@ public class GameHUD : MonoBehaviour
         resultPanel.SetActive(true);
         Time.timeScale = 0f;
 
-        string grade  = GameManager.Instance?.CalculateGrade() ?? "S";
+        string grade   = GameManager.Instance?.CalculateGrade() ?? "S";
         float timeLeft = GameManager.Instance?.TimeRemaining ?? 0f;
 
-        resultHeaderText.text  = "WIN";
-        resultHeaderText.color = winColor;
-        gradeText.text  = grade;
-        gradeText.color = winColor;
-        scoreLineText.text  = $"SCORE: {grade}\nTasks Complete!";
-        finalTimerText.text = $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
+        resultHeader.text  = "WIN";  resultHeader.color = winColor;
+        gradeText.text     = grade;  gradeText.color    = winColor;
+        scoreText.text     = $"SCORE: {grade} — Tasks Complete!";
+        finalTimeText.text = $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
 
         nextLevelButton.gameObject.SetActive(true);
         retryButton.gameObject.SetActive(false);
@@ -271,14 +258,11 @@ public class GameHUD : MonoBehaviour
 
         float timeLeft = GameManager.Instance?.TimeRemaining ?? 0f;
 
-        resultHeaderText.text  = "LOSE";
-        resultHeaderText.color = loseColor;
-        gradeText.text  = "F";
-        gradeText.color = loseColor;
-        scoreLineText.text  = "SCORE: F";
-        finalTimerText.text = timeLeft <= 0f
-            ? "TIME EXPIRED: 00:00"
-            : $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
+        resultHeader.text  = "LOSE";  resultHeader.color = loseColor;
+        gradeText.text     = "F";     gradeText.color    = loseColor;
+        scoreText.text     = "SCORE: F";
+        finalTimeText.text = timeLeft <= 0f ? "TIME EXPIRED: 00:00"
+                           : $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
 
         nextLevelButton.gameObject.SetActive(false);
         retryButton.gameObject.SetActive(true);
