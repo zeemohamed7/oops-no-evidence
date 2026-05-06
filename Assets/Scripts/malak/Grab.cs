@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class Grab : MonoBehaviour
 {
+    //new
+    [Header("Input")]
+    public InputActionReference grabAction;
+    //
     [Header("Setup")]
     public Transform holdPoint;
     public float grabRange = 2f;
@@ -18,7 +22,10 @@ public class Grab : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (grabAction == null || grabAction.action == null)
+            return;
+
+        if (grabAction.action.WasPressedThisFrame())
         {
             if (heldObject == null)
                 TryGrab();
@@ -26,6 +33,20 @@ public class Grab : MonoBehaviour
                 Drop();
         }
     }
+
+    //
+    void OnEnable()
+    {
+        if (grabAction != null && grabAction.action != null)
+            grabAction.action.Enable();
+    }
+
+    void OnDisable()
+    {
+        if (grabAction != null && grabAction.action != null)
+            grabAction.action.Disable();
+    }
+    //
 
     void TryGrab()
     {
@@ -39,24 +60,30 @@ public class Grab : MonoBehaviour
         {
             Debug.Log("Found: " + hit.name + " | Tag: " + hit.tag);
 
-            if (hit.CompareTag("Grabbable"))
+            //here
+            GrabbableObject grabbable = hit.GetComponent<GrabbableObject>();
+            if (grabbable != null) //here
             {
                 Debug.Log("Grabbable object detected!");
 
                 Rigidbody rb = hit.GetComponent<Rigidbody>();
-                GrabbableObject grabbable = hit.GetComponent<GrabbableObject>();
+                //GrabbableObject grabbable = hit.GetComponent<GrabbableObject>();
 
                 if (rb == null)
                 {
                     Debug.LogError("Object has NO Rigidbody!");
-                    return;
+                    continue;//
                 }
 
-               
-                if (grabbable != null && !grabbable.TryGrab(gameObject))
+
+
+                if (grabbable != null)
                 {
-                    Debug.Log("Already grabbed by another player");
-                    return;
+                    if (!grabbable.TryGrab(gameObject))
+                    {
+                        Debug.Log("Already grabbed by another player");
+                        continue;
+                    }
                 }
 
                 joint = gameObject.AddComponent<FixedJoint>();
@@ -70,7 +97,7 @@ public class Grab : MonoBehaviour
                     playerController.isCarrying = true;
 
                 Debug.Log("GRAB SUCCESS");
-                return;
+                continue; //it was return
             }
         }
 
@@ -80,15 +107,13 @@ public class Grab : MonoBehaviour
     void Drop()
     {
         if (heldObject == null)
-        {
-            Debug.Log("Nothing to drop");
             return;
-        }
-
-        Debug.Log("Dropping: " + heldObject.name);
 
         GrabbableObject grabbable = heldObject.GetComponent<GrabbableObject>();
-        grabbable?.Release();
+        if (grabbable != null && grabbable.currentHolder == gameObject)
+        {
+            grabbable.Release();
+        }
 
         if (joint != null)
             Destroy(joint);
@@ -97,22 +122,7 @@ public class Grab : MonoBehaviour
 
         if (playerController != null)
             playerController.isCarrying = false;
-
-        Debug.Log("Drop successful");
     }
-
-    // Called by TrashDispose to cleanly release before destroying the held object
-    public void ForceRelease()
-    {
-        if (heldObject == null) return;
-        heldObject.GetComponent<GrabbableObject>()?.Release();
-        if (joint != null) Destroy(joint);
-        heldObject = null;
-        if (playerController != null) playerController.isCarrying = false;
-    }
-
-    public GameObject HeldObject => heldObject;
-
     void OnDrawGizmosSelected()
     {
         if (holdPoint != null)
@@ -123,3 +133,4 @@ public class Grab : MonoBehaviour
     }
 
 }
+
