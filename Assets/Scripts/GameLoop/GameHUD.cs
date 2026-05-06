@@ -21,7 +21,16 @@ public class GameHUD : MonoBehaviour
 
     [Header("HUD - Suspicion")]
     public Slider suspicionSlider;
+    public RectTransform suspicionIcon; // The moving icon
+    public TextMeshProUGUI suspicionStatusText; // The "Big Boss is watching" text
+    float suspicionVisual;
 
+    [Header("Suspicion Messages")]
+    public string[] lowSuspicionMsgs = { "All quiet...", "Keep it clean." };
+    public string[] midSuspicionMsgs = { "They're looking!", "Watch out!" };
+    public string[] highSuspicionMsgs = { "GET OUT!", "THEY KNOW!" };
+    private int currentSuspicionStage = -1;
+    
     [Header("HUD - Checklist")]
     public Transform checklistContainer;   // Vertical Layout Group parent
     public GameObject checklistRowPrefab;  // Prefab: checkbox Image + taskName TMP + progress TMP
@@ -83,18 +92,46 @@ public class GameHUD : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            TogglePause();
-
+        if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         if (GameManager.Instance == null) return;
 
-        // Update timer
+        // 1. Update Timer
         if (timerText != null)
             timerText.text = GameManager.Instance.FormatTime(GameManager.Instance.TimeRemaining);
 
-        // Update suspicion bar
+        // 2. Update Stylized Suspicion
         if (suspicionSlider != null && SuspicionMeter.Instance != null)
-            suspicionSlider.value = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
+        {
+            float target = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
+        
+            // Smooth transition (Lerp) for the bar
+            suspicionVisual = Mathf.Lerp(suspicionVisual, target, Time.deltaTime * 6f);
+            suspicionSlider.value = suspicionVisual;
+
+            // Move the Mop/Icon (Matches LoadingCleanBar logic)
+            if (suspicionIcon != null) {
+                float barWidth = suspicionSlider.GetComponent<RectTransform>().rect.width;
+                float startX = -barWidth / 2;
+                float endX = barWidth / 2;
+                float xPos = Mathf.Lerp(startX, endX, suspicionVisual);
+                suspicionIcon.anchoredPosition = new Vector2(xPos, suspicionIcon.anchoredPosition.y);
+            }
+
+            // Update Warning Text Stages
+            UpdateSuspicionText(suspicionVisual);
+        }
+    }
+
+    void UpdateSuspicionText(float progress) {
+        if (suspicionStatusText == null) return;
+
+        int stage = (progress < 0.33f) ? 0 : (progress < 0.66f) ? 1 : 2;
+
+        if (stage != currentSuspicionStage) {
+            currentSuspicionStage = stage;
+            string[] currentArray = stage == 0 ? lowSuspicionMsgs : stage == 1 ? midSuspicionMsgs : highSuspicionMsgs;
+            suspicionStatusText.text = currentArray[Random.Range(0, currentArray.Length)];
+        }
     }
 
     // ── Checklist ─────────────────────────────────────────────────────────
