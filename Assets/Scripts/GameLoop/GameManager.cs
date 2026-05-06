@@ -113,13 +113,7 @@ public class GameManager : MonoBehaviour
     
     public void OnTruckStopped()
     {
-        // 1. Tell the LobbyManager to teleport the players here
-        if (LobbyManager.Instance != null)
-        {
-            LobbyManager.Instance.SpawnAllPlayers(truckSpawnPoint);
-        }
-
-        // 2. Set the state to 'Playing' so the timer starts
+        LobbyManager.Instance.SpawnAllPlayers(truckSpawnPoint);
         StartLevel();
     }
     

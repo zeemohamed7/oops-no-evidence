@@ -41,6 +41,14 @@ public class LobbyManager : MonoBehaviour
         target.SetActive(true);
     }
     
+    [System.Serializable]
+    public struct CharacterMap {
+        public string id;
+        public GameObject prefab;
+    }
+
+    public List<CharacterMap> characterPrefabs = new List<CharacterMap>();
+    
     [Header("Level Selection")]
     public string selectedLevelName = "Level1_ShawarmaShop"; // Default level
     
@@ -52,7 +60,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private List<LobbySlotUI> _slots = new();
 
     [Header("Scene")]
-    [SerializeField] private string _combatSceneName = "CombatScene";
+    [SerializeField] private string _levelSelection = "LevelSelection";
 
     [Header("Debug")]
     [SerializeField] private bool _allowKeyboardWASD = true;
@@ -63,9 +71,11 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject _ghostPrefab;
 
     // Maps deviceId → ghost, so we never double-join the same device
-    private readonly Dictionary<int, LobbyGhost> _activeGhosts = new();
-    public List<PlayerSelectionData> playersToSpawn = new List<PlayerSelectionData>();
+    private readonly Dictionary<int, LobbyGhost> _activeGhosts = new(); // The ghosts in the lobby, destroyed when level is loaded
+    public List<PlayerSelectionData> playersToSpawn = new List<PlayerSelectionData>(); // Doesn't get destroyed, persists actual players data
 
+    // Flag for when switching to scene
+    private bool _isTransitioning = false;
     // Control scheme names — must match exactly what's in your .inputactions asset
     private const string SchemeKeyboard = "KeyboardWASD";
     private const string SchemeGamepad  = "Gamepad";   // prefix; actual names: Gamepad1, Gamepad2…
@@ -187,6 +197,8 @@ public class LobbyManager : MonoBehaviour
 
     private void OnPlayerJoined(PlayerInput pi)
     {
+        if (_isTransitioning) return;
+        
         InputDevice device = pi.devices.Count > 0 ? pi.devices[0] : null;
 
         if (device != null)
@@ -205,6 +217,9 @@ public class LobbyManager : MonoBehaviour
 
     private void OnPlayerLeft(PlayerInput pi)
     {
+        // If we are changing scenes, DO NOT run this logic!
+        if (_isTransitioning) return;
+        
         var ghost = pi.GetComponent<LobbyGhost>();
         if (ghost != null) ghost.ReleaseSlot();
 
@@ -279,9 +294,11 @@ public class LobbyManager : MonoBehaviour
 
     private void CommitAndLoad()
     {
+        // Ignore playeres leaving
+        _isTransitioning = true;
+        
+        // 1. Save the data to our permanent list FIRST
         playersToSpawn.Clear();
-
-        // 3. Save the current players into our simple list
         foreach (var ghost in _activeGhosts.Values.Where(g => g != null))
         {
             playersToSpawn.Add(new PlayerSelectionData
@@ -293,20 +310,84 @@ public class LobbyManager : MonoBehaviour
             });
         }
 
+        // 2. CRUCIAL: Stop listening to the Input Manager
+        _pim.onPlayerJoined -= OnPlayerJoined;
+        _pim.onPlayerLeft -= OnPlayerLeft;
+        _joinAction.performed -= OnJoinPerformed;
+
+        // 3. Now load the scene safely
         // SceneManager.LoadScene("LevelSelection");
         SceneManager.LoadScene(selectedLevelName);
     }
     
-    public void SpawnAllPlayers(Transform spawnPoint)
+public void SpawnAllPlayers(Transform spawnPoint)
+{
+    if (playersToSpawn.Count == 0)
     {
-        foreach (var data in playersToSpawn)
+        Debug.LogWarning("[LobbyManager] No players in list to spawn!");
+        return;
+    }
+
+    _isTransitioning = true; 
+    int index = 0;
+
+    // 1. Get the Camera's "Forward" and "Right" but keep them flat on the ground
+    Vector3 camForward = Camera.main.transform.forward;
+    camForward.y = 0;
+    camForward.Normalize();
+
+    Vector3 camRight = Camera.main.transform.right;
+    camRight.y = 0;
+    camRight.Normalize();
+
+    foreach (var data in playersToSpawn)
+    {
+        // 2. Lookup the correct prefab (Zainab, Hajar, etc.)
+        GameObject prefabToSpawn = _ghostPrefab; // Fallback
+        foreach (var map in characterPrefabs) 
         {
-            InputDevice device = InputSystem.GetDeviceById(data.deviceId);
-            PlayerInput pi = PlayerInput.Instantiate(_ghostPrefab, pairWithDevice: device, controlScheme: data.controlScheme);
-            pi.transform.position = spawnPoint.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+            if (map.id == data.characterId) 
+            {
+                prefabToSpawn = map.prefab;
+                break;
+            }
+        }
+
+        // 3. Spawn the player and pair their controller
+        InputDevice device = InputSystem.GetDeviceById(data.deviceId);
+        PlayerInput pi = PlayerInput.Instantiate(prefabToSpawn, pairWithDevice: device, controlScheme: data.controlScheme);
+
+        if (pi != null)
+        {
+            // 1. GET the Character Controller
+            CharacterController cc = pi.GetComponent<CharacterController>();
+    
+            // 2. DISABLE it temporarily (This is the secret sauce!)
+            if (cc != null) cc.enabled = false;
+
+            // 3. SET the position and rotation (now it won't fight you)
+            float xOffset = (index - (playersToSpawn.Count - 1) / 2f) * 1.2f;
+            Vector3 finalPos = spawnPoint.position + (Camera.main.transform.right * xOffset);
+    
+            pi.transform.position = finalPos;
+            pi.transform.rotation = Quaternion.LookRotation(camForward);
+
+            // 4. RE-ENABLE it so they can walk
+            if (cc != null) cc.enabled = true;
+
+            // 5. Everything else stays the same
+            pi.camera = Camera.main;
+            pi.SwitchCurrentActionMap("Player");
+    
+            LobbyGhost lg = pi.GetComponent<LobbyGhost>();
+            if (lg != null) lg.enabled = false;
+
+            index++;
         }
     }
     
+    _isTransitioning = false;
+}
 // ── UI Logic ──────────────────────────────────────────────────────────
 
     public void OnStartButtonClicked()
