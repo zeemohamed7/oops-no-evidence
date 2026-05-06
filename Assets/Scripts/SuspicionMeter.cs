@@ -4,7 +4,7 @@ using UnityEngine.Events;
 public class SuspicionMeter : MonoBehaviour
 {
     public static SuspicionMeter Instance;
-    
+
     public enum SuspicionState
     {
         Calm,
@@ -12,7 +12,7 @@ public class SuspicionMeter : MonoBehaviour
         Alert,
         Panic
     }
-    
+
     public SuspicionState CurrentState { get; private set; }
 
     [Header("Global Meter")]
@@ -21,10 +21,11 @@ public class SuspicionMeter : MonoBehaviour
 
     [Header("Tuning")]
     public float passiveDecayRate = 2f;
-    public float decayDelay = 2f; // time after last increase before decay starts
+    public float decayDelay = 2f;
 
     [Header("Events")]
     public UnityEvent OnGameOver;
+    public UnityEvent<SuspicionState> OnStateChangedEvent;
 
     private bool hasTriggeredGameOver = false;
     private float lastIncreaseTime;
@@ -52,6 +53,7 @@ public class SuspicionMeter : MonoBehaviour
 
     private void Update()
     {
+        
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return;
 
@@ -84,6 +86,7 @@ public class SuspicionMeter : MonoBehaviour
     void OnStateChanged()
     {
         Debug.Log($"Suspicion State: {CurrentState}");
+        OnStateChangedEvent?.Invoke(CurrentState);
 
         switch (CurrentState)
         {
