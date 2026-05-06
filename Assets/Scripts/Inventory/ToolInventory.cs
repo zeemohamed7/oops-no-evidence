@@ -42,18 +42,45 @@ public class ToolInventory : MonoBehaviour
         else if (scroll < 0) { selectedSlot++; if (selectedSlot > 4) selectedSlot = 1; HighlightSlot(selectedSlot); }
     }
 
-    void ToggleBucket()
+ void ToggleBucket()
+{
+    bucketVisible = !bucketVisible;
+    if (bucketTool != null) bucketTool.SetActive(bucketVisible);
+    HighlightSlot(2);
+
+    // Try these directions in order: right, forward, left, back
+    Vector3[] directions = {
+        transform.right,
+        transform.forward,
+        -transform.right,
+        -transform.forward
+    };
+
+    float bucketRadius = 0.3f;
+    float placeDistance = 1f;
+    Vector3 chosenPos = transform.position; // fallback
+
+    foreach (Vector3 dir in directions)
     {
-        bucketVisible = !bucketVisible;
-        if (bucketTool != null) bucketTool.SetActive(bucketVisible);
-        HighlightSlot(2);
-        Vector3 offset = transform.right * 1f; // place to the right of player
-        bucketTool.transform.position = new Vector3(
-            transform.position.x + offset.x,
-            bucketTool.transform.position.y, // keep original Y (floor level)
-            transform.position.z + offset.z
+        Vector3 candidate = new Vector3(
+            transform.position.x + dir.x * placeDistance,
+            bucketTool.transform.position.y,
+            transform.position.z + dir.z * placeDistance
         );
+
+        // Raycast from player toward candidate to check for walls
+        Vector3 rayOrigin = new Vector3(transform.position.x, candidate.y, transform.position.z);
+        bool wallInWay = Physics.SphereCast(rayOrigin, bucketRadius, dir, out _, placeDistance);
+
+        if (!wallInWay)
+        {
+            chosenPos = candidate;
+            break; // use first clear direction
+        }
     }
+
+    bucketTool.transform.position = chosenPos;
+}
 
 
     void ToggleHandTool(int slot, GameObject toolObj)

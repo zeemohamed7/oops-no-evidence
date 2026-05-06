@@ -53,10 +53,10 @@ public class BloodPool : MonoBehaviour
 
     Shader _blitShader;
 
-    static readonly int ID_HitUV = Shader.PropertyToID("_HitUV");
-    static readonly int ID_Radius = Shader.PropertyToID("_Radius");
+    static readonly int ID_HitUV    = Shader.PropertyToID("_HitUV");
+    static readonly int ID_Radius   = Shader.PropertyToID("_Radius");
     static readonly int ID_Strength = Shader.PropertyToID("_Strength");
-    static readonly int ID_MaskTex = Shader.PropertyToID("_MaskTex");
+    static readonly int ID_MaskTex  = Shader.PropertyToID("_MaskTex");
 
     // ── Bounds helpers ─────────────────────────────────────────────────────
     // We derive world bounds from this GameObject's Renderer bounds at Start.
