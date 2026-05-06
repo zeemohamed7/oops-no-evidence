@@ -1,2 +1,17 @@
 fileFormatVersion: 2
 guid: 0e378bf9c604f314fa12790291463148
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - mopMaterial: {fileID: 2100000, guid: 398c9cda8109d4b428a438a341394ffd, type: 2}
+  - bloodRT: {fileID: 8400000, guid: f49f9d10718c2724eaa88cd6f8302f26, type: 2}
+  - initialBloodMask: {fileID: 2800000, guid: 792a50c7c33b77b42afc22a3fcfcbc68, type: 3}
+  - floorRenderer: {instanceID: 0}
+  - playerCamera: {instanceID: 0}
+  - inventory: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
