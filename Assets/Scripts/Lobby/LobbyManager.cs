@@ -41,6 +41,9 @@ public class LobbyManager : MonoBehaviour
         target.SetActive(true);
     }
     
+    [Header("Level Selection")]
+    public string selectedLevelName = "Level1_ShawarmaShop"; // Default level
+    
     // ── Inspector ──────────────────────────────────────────────────────────
     [Header("Input")]
     [SerializeField] private InputActionAsset _lobbyInputAsset;
@@ -61,12 +64,13 @@ public class LobbyManager : MonoBehaviour
 
     // Maps deviceId → ghost, so we never double-join the same device
     private readonly Dictionary<int, LobbyGhost> _activeGhosts = new();
+    public List<PlayerSelectionData> playersToSpawn = new List<PlayerSelectionData>();
 
     // Control scheme names — must match exactly what's in your .inputactions asset
     private const string SchemeKeyboard = "KeyboardWASD";
     private const string SchemeGamepad  = "Gamepad";   // prefix; actual names: Gamepad1, Gamepad2…
 
-    [SerializeField] private Slider _volumeSlider; // Drag your Volume Slider here in Inspector
+    [SerializeField] private Slider _volumeSlider;
 
     void Start()
     {
@@ -275,21 +279,32 @@ public class LobbyManager : MonoBehaviour
 
     private void CommitAndLoad()
     {
-        GlobalPlayerManager.ClearAll();
+        playersToSpawn.Clear();
 
+        // 3. Save the current players into our simple list
         foreach (var ghost in _activeGhosts.Values.Where(g => g != null))
         {
-            var data = new PlayerSelectionData
+            playersToSpawn.Add(new PlayerSelectionData
             {
-                playerIndex   = ghost.PlayerIndex,
-                characterId   = ghost.SelectedCharacterId,
+                playerIndex = ghost.PlayerIndex,
+                characterId = ghost.SelectedCharacterId,
                 controlScheme = ghost.ControlScheme,
-                deviceId      = ghost.DeviceId,
-            };
-            GlobalPlayerManager.SavePlayerSelection(data);
+                deviceId = ghost.DeviceId,
+            });
         }
 
-        SceneManager.LoadScene(_combatSceneName);
+        // SceneManager.LoadScene("LevelSelection");
+        SceneManager.LoadScene(selectedLevelName);
+    }
+    
+    public void SpawnAllPlayers(Transform spawnPoint)
+    {
+        foreach (var data in playersToSpawn)
+        {
+            InputDevice device = InputSystem.GetDeviceById(data.deviceId);
+            PlayerInput pi = PlayerInput.Instantiate(_ghostPrefab, pairWithDevice: device, controlScheme: data.controlScheme);
+            pi.transform.position = spawnPoint.position + new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+        }
     }
     
 // ── UI Logic ──────────────────────────────────────────────────────────

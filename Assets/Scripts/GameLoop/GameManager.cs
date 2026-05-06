@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     public GameState State { get; private set; }
     public float TimeRemaining { get; private set; }
     public bool IsPlaying => State == GameState.Playing;
+    
+    [Header("Level Setup")]
+    public Transform truckSpawnPoint; 
 
     private void Awake()
     {
@@ -106,5 +109,43 @@ public class GameManager : MonoBehaviour
         int m = Mathf.FloorToInt(seconds / 60);
         int s = Mathf.FloorToInt(seconds % 60);
         return $"{m:00}:{s:00}";
+    }
+    
+    public void OnTruckStopped()
+    {
+        // 1. Tell the LobbyManager to teleport the players here
+        if (LobbyManager.Instance != null)
+        {
+            LobbyManager.Instance.SpawnAllPlayers(truckSpawnPoint);
+        }
+
+        // 2. Set the state to 'Playing' so the timer starts
+        StartLevel();
+    }
+    
+    // Incomplete - state change happens, HUD reveal, passive suspicion (starts listening to guard's vision cone)
+    private void StartLevel()
+    {
+        // 1. Change the state so the Update() loop begins counting down
+        State = GameState.Playing; 
+    
+        // 2. Set the timer to your level duration (e.g., 360 seconds)
+        TimeRemaining = levelDuration; 
+
+        // 3. Reset the Suspicion Meter to 0 so the player starts with a clean slate
+        if (SuspicionMeter.Instance != null)
+        {
+            SuspicionMeter.Instance.globalSuspicion = 0f;
+        }
+
+        // 4. Reveal the HUD / UI
+        // If your GameHUD has an 'In-Game' panel, you could activate it here.
+        if (GameHUD.Instance != null)
+        {
+            // This ensures the checklist and bar are visible to the player
+            Debug.Log("HUD: Checklist and Suspicion Bar revealed.");
+        }
+
+        Debug.Log("The heist has begun! Start cleaning!");
     }
 }
