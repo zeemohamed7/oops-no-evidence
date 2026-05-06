@@ -4,35 +4,40 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class TopDownPlayerController : MonoBehaviour
 {
-    [Header("Setup")] public Camera playerCamera;
+    private PlayerAnimationDriver animationDriver;
 
-    [Header("Movement Speeds")] public float walkSpeed = 5f;
+    [Header("Setup")]
+    public Camera playerCamera;
 
+    [Header("Movement Speeds")]
+    public float walkSpeed = 5f;
     public float sprintSpeed = 8f;
     public float crouchSpeed = 2.5f;
 
-    [Header("Crouch Settings")] public float standingHeight = 2f;
-
+    [Header("Crouch Settings")]
+    public float standingHeight = 2f;
     public float crouchingHeight = 1f;
 
-    [Header("Input Actions")] public InputActionReference moveAction;
-
+    [Header("Input Actions")]
+    public InputActionReference moveAction;
     public InputActionReference sprintAction;
     public InputActionReference crouchAction;
 
-    private CharacterController controller;
-
-    //malak
     [Header("Weight Penalty")]
     public bool isCarrying = false;
+
     [Range(0.1f, 1f)]
     public float carryMultiplier = 0.5f;
 
-    
+    private CharacterController controller;
+
     private void Awake()
     {
+        animationDriver = GetComponent<PlayerAnimationDriver>();
         controller = GetComponent<CharacterController>();
-        if (playerCamera == null) playerCamera = Camera.main;
+
+        if (playerCamera == null)
+            playerCamera = Camera.main;
     }
 
     private void Start()
@@ -42,47 +47,35 @@ public class TopDownPlayerController : MonoBehaviour
 
     private void Update()
     {
-        // NEW: If we are in the Lobby scene, DON'T move or rotate.
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Lobby") 
-        {
-            return; 
-        }
-        // Safety checks without the log spam
-        if (playerCamera == null || Mouse.current == null) return;
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Lobby")
+            return;
 
-        HandleMovement();
-        HandleRotation();
-
-
+        Vector3 moveDirection = HandleMovement();
+        HandleMovementRotation(moveDirection);
     }
 
     private void OnEnable()
     {
-        moveAction.action.Enable();
-        sprintAction.action.Enable();
-        crouchAction.action.Enable();
+        moveAction?.action.Enable();
+        sprintAction?.action.Enable();
+        crouchAction?.action.Enable();
     }
 
     private void OnDisable()
     {
-        moveAction.action.Disable();
-        sprintAction.action.Disable();
-        crouchAction.action.Disable();
+        moveAction?.action.Disable();
+        sprintAction?.action.Disable();
+        crouchAction?.action.Disable();
     }
 
-    private void HandleMovement()
+    private Vector3 HandleMovement()
     {
-        // 1. Determine Speed & Height
-        var currentSpeed = walkSpeed;
+        float currentSpeed = walkSpeed;
 
-        //malak
-        // Apply weight penalty FIRST
         if (isCarrying)
-        {
             currentSpeed *= carryMultiplier;
-        }
 
-        if (crouchAction.action.IsPressed())
+        if (crouchAction != null && crouchAction.action.IsPressed())
         {
             controller.height = crouchingHeight;
             currentSpeed = crouchSpeed;
@@ -90,35 +83,32 @@ public class TopDownPlayerController : MonoBehaviour
         else
         {
             controller.height = standingHeight;
-            if (sprintAction.action.IsPressed()) currentSpeed = sprintSpeed;
+
+            if (sprintAction != null && sprintAction.action.IsPressed())
+                currentSpeed = sprintSpeed;
         }
 
-        // 2. Read Input
-        var input = moveAction.action.ReadValue<Vector2>();
+        Vector2 input = moveAction != null
+            ? moveAction.action.ReadValue<Vector2>()
+            : Vector2.zero;
 
-        // 3. Move based on WORLD directions
-        var moveDirection = new Vector3(input.x, 0, input.y);
+        Vector3 moveDirection = new Vector3(input.x, 0f, input.y);
+
+        bool isWalking = moveDirection.sqrMagnitude > 0.01f;
+        animationDriver?.SetWalking(isWalking);
+
         controller.Move(moveDirection * currentSpeed * Time.deltaTime);
-
-        // 4. Gravity (Constant downward force)
         controller.Move(Vector3.down * 20f * Time.deltaTime);
 
-        
+        return moveDirection;
     }
 
-    private void HandleRotation()
+    private void HandleMovementRotation(Vector3 moveDirection)
     {
-        var mousePos = Mouse.current.position.ReadValue();
-        var ray = playerCamera.ScreenPointToRay(mousePos);
-        var groundPlane = new Plane(Vector3.up, transform.position);
-
-        if (groundPlane.Raycast(ray, out var rayDistance))
+        if (moveDirection.sqrMagnitude > 0.01f)
         {
-            var targetPoint = ray.GetPoint(rayDistance);
-            var lookDir = targetPoint - transform.position;
-            lookDir.y = 0;
-
-            if (lookDir.magnitude > 0.1f) transform.rotation = Quaternion.LookRotation(lookDir);
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 12f * Time.deltaTime);
         }
     }
 }
