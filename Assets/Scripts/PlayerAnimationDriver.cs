@@ -6,8 +6,6 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     private bool isCarrying;
     private bool hasMop;
-    private bool hasTool;
-
 
     private void Reset()
     {
@@ -28,7 +26,6 @@ public class PlayerAnimationDriver : MonoBehaviour
     public void SelectMop()
     {
         hasMop = true;
-        hasTool = false;
 
         animator.SetBool("HasMop", true);
         animator.SetBool("HasFlashlight", false);
@@ -48,7 +45,6 @@ public class PlayerAnimationDriver : MonoBehaviour
     public void ClearSelectedItem()
     {
         hasMop = false;
-        hasTool = false;
 
         animator.SetBool("HasMop", false);
         animator.SetBool("HasFlashlight", false);
