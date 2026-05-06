@@ -6,7 +6,8 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     private bool isCarrying;
     private bool hasMop;
-    private bool hasFlashlight;
+    private bool hasTool;
+
 
     private void Reset()
     {
@@ -27,25 +28,27 @@ public class PlayerAnimationDriver : MonoBehaviour
     public void SelectMop()
     {
         hasMop = true;
-        hasFlashlight = false;
+        hasTool = false;
 
         animator.SetBool("HasMop", true);
         animator.SetBool("HasFlashlight", false);
     }
 
-    public void SelectFlashlight()
+    public void SelectTool()
     {
-        hasMop = false;
-        hasFlashlight = true;
-
-        animator.SetBool("HasMop", false);
-        animator.SetBool("HasFlashlight", true);
+        animator.SetBool("HasTool", true);
     }
+
+    public void ClearTool()
+    {
+        animator.SetBool("HasTool", false);
+    }
+
 
     public void ClearSelectedItem()
     {
         hasMop = false;
-        hasFlashlight = false;
+        hasTool = false;
 
         animator.SetBool("HasMop", false);
         animator.SetBool("HasFlashlight", false);
