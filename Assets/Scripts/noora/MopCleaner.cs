@@ -170,69 +170,40 @@ public class MopCleaner : MonoBehaviour
             return;
         }
 
-        // ── Range check — player must be close to floor blood ──────────────
-        float distToFloor = Vector3.Distance(
-            new Vector3(transform.position.x, 0f, transform.position.z),
-            new Vector3(floorRenderer.transform.position.x, 0f, floorRenderer.transform.position.z));
+        // ── Shoot straight down — works for any floor ─────────────────────
+        // RaycastAll ignores order so the player's own collider won't block.
+        Ray downRay = new Ray(transform.position + Vector3.up * 10f, Vector3.down);
+        RaycastHit[] allHits = Physics.RaycastAll(downRay, 30f);
 
-        if (distToFloor > mopRange)
+        bool onCleanableFloor = false;
+        Vector2 bloodFloorUV = Vector2.negativeInfinity;
+
+        foreach (RaycastHit h in allHits)
         {
-            _painting = false;
+            if (h.collider.GetComponent<CleanableFloor>() != null)
+                onCleanableFloor = true;
+
+            if (h.collider.gameObject == floorRenderer.gameObject)
+                bloodFloorUV = h.textureCoord;
+        }
+
+        if (!onCleanableFloor)
+        {
             _lastUV = Vector2.negativeInfinity;
+            _footprintProgress.Clear();
             return;
         }
 
-        // ── Get the UV point to clean ──────────────────────────────────────
-        Vector2 uvToClean;
-        LayerMask finalMask = floorMask & ~excludeLayers;
-
-        if (cleanAtPlayerFeet)
+        // ── Apply blood RT brush (only when over the blood floor) ─────────
+        if (bloodFloorUV.x >= 0f)
         {
-            // Shoot straight down and pick the hit that belongs to the floor renderer.
-            // RaycastAll is used so the player's own collider doesn't block the shot.
-            Ray downRay = new Ray(transform.position + Vector3.up * 10f, Vector3.down);
-            RaycastHit[] hits = Physics.RaycastAll(downRay, 30f);
-
-            Vector2 foundUV = Vector2.negativeInfinity;
-            foreach (RaycastHit h in hits)
-            {
-                if (h.collider.gameObject == floorRenderer.gameObject)
-                {
-                    foundUV = h.textureCoord;
-                    break;
-                }
-            }
-
-            if (foundUV.x < 0f)
-            {
-                _lastUV = Vector2.negativeInfinity;
-                _footprintProgress.Clear();
-                return;
-            }
-            uvToClean = foundUV;
-        }
-        else
-        {
-            // Mouse mode: raycast through cursor position.
-            Ray ray = playerCamera.ScreenPointToRay(
-                UnityEngine.InputSystem.Mouse.current.position.ReadValue());
-
-            if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance, finalMask)
-                || hit.collider.gameObject != floorRenderer.gameObject)
-            {
-                _lastUV = Vector2.negativeInfinity;
-                _footprintProgress.Clear();
-                return;
-            }
-            uvToClean = hit.textureCoord;
+            if (_mopIsDirty)
+                ApplyBrush(bloodFloorUV, spreadStrength, spread: true);
+            else
+                ApplyBrush(bloodFloorUV, brushStrength, spread: false);
         }
 
-        // ── Apply brush ────────────────────────────────────────────────────
-        if (_mopIsDirty)
-            ApplyBrush(uvToClean, spreadStrength, spread: true);
-        else
-            ApplyBrush(uvToClean, brushStrength, spread: false);
-
+        // ── Clean footprints on any cleanable floor ────────────────────────
         if (!_mopIsDirty)
             CleanFootprintsNear(transform.position);
     }
@@ -342,7 +313,7 @@ public class MopCleaner : MonoBehaviour
         _cleanedDistance = 0f;
         _lastUV = Vector2.negativeInfinity;
         _footprintProgress.Clear();
-        Debug.Log("[MopCleaner] ✅ Mop dipped — ready to clean again!");
+        Debug.Log("[MopCleaner] Mop dipped — ready to clean again!");
         UpdateStatusUI();
     }
 
