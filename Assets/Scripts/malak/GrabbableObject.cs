@@ -6,28 +6,29 @@ public class GrabbableObject : MonoBehaviour
     public bool isGrabbed = false;
     public GameObject currentHolder;
 
-    
     public bool TryGrab(GameObject player)
     {
-        //Prevent multiple players grabbing at the same time
-        if (isGrabbed)
-        {
-            Debug.Log("Object already grabbed by: " + currentHolder?.name);
+        // Already taken by someone else
+        if (isGrabbed && currentHolder != player)
             return false;
-        }
 
-
-        isGrabbed = true;
-        currentHolder = player;
-
-        Debug.Log(player.name + " grabbed " + gameObject.name);
+        SetHolder(player);
         return true;
     }
 
     public void Release()
     {
-        Debug.Log(gameObject.name + " released");
+        ClearHolder();
+    }
 
+    private void SetHolder(GameObject player)
+    {
+        isGrabbed = true;
+        currentHolder = player;
+    }
+
+    private void ClearHolder()
+    {
         isGrabbed = false;
         currentHolder = null;
     }
