@@ -101,6 +101,18 @@ public class Grab : MonoBehaviour
         Debug.Log("Drop successful");
     }
 
+    // Called by TrashDispose to cleanly release before destroying the held object
+    public void ForceRelease()
+    {
+        if (heldObject == null) return;
+        heldObject.GetComponent<GrabbableObject>()?.Release();
+        if (joint != null) Destroy(joint);
+        heldObject = null;
+        if (playerController != null) playerController.isCarrying = false;
+    }
+
+    public GameObject HeldObject => heldObject;
+
     void OnDrawGizmosSelected()
     {
         if (holdPoint != null)
