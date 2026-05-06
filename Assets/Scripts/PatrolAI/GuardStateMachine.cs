@@ -31,7 +31,6 @@ public class GuardStateMachine : MonoBehaviour
     
     [Header("Global Suspicion Rates")] public float suspicionIncreaseRate = 25f;
 
-    public float suspicionDrainRate = 10f;
 
     public UnityEvent OnPlayerDetected;
 
@@ -154,9 +153,6 @@ public class GuardStateMachine : MonoBehaviour
         else
         {
             CheckForFootprints();
-            // Cool down if patrolling again
-            if (SuspicionMeter.Instance != null && SuspicionMeter.Instance.globalSuspicion > 0)
-                SuspicionMeter.Instance.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
         }
     }
     
@@ -245,12 +241,14 @@ public class GuardStateMachine : MonoBehaviour
         {
             // PLAYER SEEN: Update destination to your current feet and reset timer
             agent.SetDestination(visionCone.playerRef.transform.position);
-            SuspicionMeter.Instance?.ModifySuspicion(suspicionIncreaseRate * Time.deltaTime);
+            if (GameManager.Instance != null && GameManager.Instance.IsPlaying)
+            {
+                GameEvents.OnSuspicionAdded?.Invoke(suspicionIncreaseRate * Time.deltaTime);
+            }
         }
         else
         {
             // LOST SIGHT OF PLAYER: Keep walking to the last place I saw you
-            SuspicionMeter.Instance?.ModifySuspicion(-suspicionDrainRate * Time.deltaTime);
 
             // Check if we've arrived at the last spot or got stuck on a wall
             var reachedSpot = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.5f;
@@ -368,7 +366,10 @@ public class GuardStateMachine : MonoBehaviour
         }
 
         // Increase Global Suspicion
-        SuspicionMeter.Instance?.ModifySuspicion(suspicionPerPrint);
+        if (GameManager.Instance != null && GameManager.Instance.IsPlaying)
+        {
+            GameEvents.OnSuspicionAdded?.Invoke(suspicionIncreaseRate * Time.deltaTime);
+        }
 
         // Prevent reacting to this exact print again for 10 seconds
         StartCoroutine(IgnorePrintTemporary(footprint));

@@ -5,18 +5,14 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/Scenes/Lobby.unity
     guid: 9e95022efbe3643ffbe6fa47e4403236
   - enabled: 1
-    path: Assets/Scenes/Malak/LevelSelection.unity
+    path: Assets/Scenes/LevelSelection.unity
     guid: 715bcdd8995325e4f91ac4525c965272
   - enabled: 1
-    path: Assets/Scenes/Mariam_Levels/Level1_ShawarmaShop.unity
+    path: Assets/Scenes/Level1_ShawarmaShop.unity
     guid: cf080679a870d47bc80a3cf7771fdc58
-  m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
