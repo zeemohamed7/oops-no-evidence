@@ -96,6 +96,7 @@ public class ToolInventory : MonoBehaviour
     {
         if (bucketTool == null || mopCleaner == null) return;
         if (!IsMopSelected()) return;
+        if (!bucketTool.activeInHierarchy) return; // bucket must be placed in the scene
 
         float dist = Vector3.Distance(transform.position, bucketTool.transform.position);
         if (dist <= dipDistance)

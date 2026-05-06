@@ -57,6 +57,11 @@ public class MopCleaner : MonoBehaviour
              "Set to 0 for instant removal.")]
     public float footprintCleanTime = 0.6f;
 
+    [Header("Controller / Movement Mopping")]
+    [Tooltip("ON = clean at the player's feet while moving (controller). " +
+             "OFF = clean where the mouse cursor points (keyboard+mouse).")]
+    public bool cleanAtPlayerFeet = true;
+
     [Header("UI Feedback")]
     [Tooltip("Optional UI Text to show mop status on screen.")]
     public Text statusText;
@@ -149,12 +154,10 @@ public class MopCleaner : MonoBehaviour
             return;
         }
 
-        // ── Dip check ──────────────────────────────────────────────────────
-        if (_mopIsDirty && bucketObject != null)
-            Debug.Log($"[Mop] Dist to bucket: {Vector3.Distance(transform.position, bucketObject.transform.position)} | dipDistance: {dipDistance}");
-
+        // ── Dip check — only dip when the bucket is actively placed in the scene ──
         if (_mopIsDirty
             && bucketObject != null
+            && bucketObject.activeInHierarchy
             && Vector3.Distance(transform.position, bucketObject.transform.position) <= dipDistance)
         {
             DipMop();
@@ -179,35 +182,59 @@ public class MopCleaner : MonoBehaviour
             return;
         }
 
-        // ── Raycast ────────────────────────────────────────────────────────
+        // ── Get the UV point to clean ──────────────────────────────────────
+        Vector2 uvToClean;
         LayerMask finalMask = floorMask & ~excludeLayers;
 
-        Ray ray = playerCamera.ScreenPointToRay(
-            UnityEngine.InputSystem.Mouse.current.position.ReadValue());
-
-        if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, finalMask))
+        if (cleanAtPlayerFeet)
         {
-            // Only accept hits on the floor renderer
-            if (hit.collider.gameObject != floorRenderer.gameObject)
+            // Shoot straight down and pick the hit that belongs to the floor renderer.
+            // RaycastAll is used so the player's own collider doesn't block the shot.
+            Ray downRay = new Ray(transform.position + Vector3.up * 10f, Vector3.down);
+            RaycastHit[] hits = Physics.RaycastAll(downRay, 30f);
+
+            Vector2 foundUV = Vector2.negativeInfinity;
+            foreach (RaycastHit h in hits)
+            {
+                if (h.collider.gameObject == floorRenderer.gameObject)
+                {
+                    foundUV = h.textureCoord;
+                    break;
+                }
+            }
+
+            if (foundUV.x < 0f)
             {
                 _lastUV = Vector2.negativeInfinity;
                 _footprintProgress.Clear();
                 return;
             }
-
-            if (_mopIsDirty)
-                ApplyBrush(hit.textureCoord, spreadStrength, spread: true);
-            else
-                ApplyBrush(hit.textureCoord, brushStrength, spread: false);
-
-            if (!_mopIsDirty)
-                CleanFootprintsNear(transform.position);
+            uvToClean = foundUV;
         }
         else
         {
-            _lastUV = Vector2.negativeInfinity;
-            _footprintProgress.Clear();
+            // Mouse mode: raycast through cursor position.
+            Ray ray = playerCamera.ScreenPointToRay(
+                UnityEngine.InputSystem.Mouse.current.position.ReadValue());
+
+            if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance, finalMask)
+                || hit.collider.gameObject != floorRenderer.gameObject)
+            {
+                _lastUV = Vector2.negativeInfinity;
+                _footprintProgress.Clear();
+                return;
+            }
+            uvToClean = hit.textureCoord;
         }
+
+        // ── Apply brush ────────────────────────────────────────────────────
+        if (_mopIsDirty)
+            ApplyBrush(uvToClean, spreadStrength, spread: true);
+        else
+            ApplyBrush(uvToClean, brushStrength, spread: false);
+
+        if (!_mopIsDirty)
+            CleanFootprintsNear(transform.position);
     }
 
     // ── Footprint cleaning ─────────────────────────────────────────────────
