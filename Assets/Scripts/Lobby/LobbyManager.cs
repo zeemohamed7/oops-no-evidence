@@ -22,6 +22,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(PlayerInputManager))]
 public class LobbyManager : MonoBehaviour
 {
+    public static LobbyManager Instance;
     [Header("UI Panels")]
     [SerializeField] private GameObject _mainMenuPanel;     
     [SerializeField] private GameObject _creditsPanel;
@@ -83,13 +84,20 @@ public class LobbyManager : MonoBehaviour
     // ── Unity lifecycle ────────────────────────────────────────────────────
     private void Awake()
     { 
-        _pim = GetComponent<PlayerInputManager>();
+        // Ensure this object survives scene transitions
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); 
+        } else {
+            Destroy(gameObject);
+            return;
+        }
 
-        // Double-check join behavior is set correctly at runtime
+        _pim = GetComponent<PlayerInputManager>();
+        
+        // Fix join behaviour in player input component
         if (_pim.joinBehavior != PlayerJoinBehavior.JoinPlayersManually)
         {
-            Debug.LogWarning("[LobbyManager] PlayerInputManager.joinBehavior should be " +
-                             "JoinPlayersManually. Fixing at runtime.");
             _pim.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
         }
     }
