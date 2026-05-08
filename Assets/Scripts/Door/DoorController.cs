@@ -2,26 +2,50 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    private Animator anim;
+    public Animator anim; 
 
-    void Start()
-    {
-        anim = GetComponent<Animator>();
-    }
+    [Header("Settings")]
+    public bool isSwingingDoor = true;
+    public bool openOnlyOnce = false;
+    
+    private bool _hasOpened = false;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            anim.SetBool("isOpen", true);
+            // 1. Check if we already opened and it's a "once only" door
+            if (openOnlyOnce && _hasOpened) return;
+
+            if (isSwingingDoor && anim != null)
+            {
+                // 2. Bidirectional Logic: Check if player is in front/behind
+                Vector3 dirToPlayer = other.transform.position - transform.position;
+                float dot = Vector3.Dot(transform.forward, dirToPlayer);
+
+                // Set 1 for away, -1 for toward (Adjust based on your animation)
+                anim.SetFloat("swingDirection", dot > 0 ? 1f : -1f);
+            }
+
+            if (anim != null)
+            {
+                anim.SetBool("isOpen", true);
+                _hasOpened = true;
+                Debug.Log("Door: Opening");
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        // 3. Only close if it's NOT a "once only" door
+        if (other.CompareTag("Player") && !openOnlyOnce)
         {
-            anim.SetBool("isOpen", false);
+            if (anim != null)
+            {
+                anim.SetBool("isOpen", false);
+                Debug.Log("Door: Closing");
+            }
         }
     }
 }
