@@ -15,8 +15,8 @@ public class TopDownPlayerController : MonoBehaviour
     public float crouchSpeed = 2.5f;
 
     [Header("Crouch Settings")]
-    public float standingHeight = 1.4f;
-    public float crouchingHeight = 0.8f;
+    public float standingHeight = 2f;
+    public float crouchingHeight = 1f;
 
     [Header("Input Actions")]
     public InputActionReference moveAction;
@@ -75,7 +75,6 @@ public class TopDownPlayerController : MonoBehaviour
         if (isCarrying)
             currentSpeed *= carryMultiplier;
 
-        // --- HEIGHT & CENTER FIX ---
         if (crouchAction != null && crouchAction.action.IsPressed())
         {
             controller.height = crouchingHeight;
@@ -89,30 +88,34 @@ public class TopDownPlayerController : MonoBehaviour
                 currentSpeed = sprintSpeed;
         }
 
-        controller.center = new Vector3(0, controller.height / 2f, 0);
-        // ----------------------------
-
         Vector2 input = moveAction != null
             ? moveAction.action.ReadValue<Vector2>()
             : Vector2.zero;
 
+        // --- THE CRITICAL FIX START ---
+        // 1. Get the camera's forward and right vectors
         Vector3 forward = playerCamera.transform.forward;
         Vector3 right = playerCamera.transform.right;
 
+        // 2. "Flatten" them so the player doesn't walk into the ground 
+        // because the camera is tilted down
         forward.y = 0f;
         right.y = 0f;
         forward.Normalize();
         right.Normalize();
 
+        // 3. Calculate moveDirection based on the CAMERA, not the World
         Vector3 moveDirection = (forward * input.y) + (right * input.x);
+        // --- THE CRITICAL FIX END ---
 
         bool isWalking = moveDirection.sqrMagnitude > 0.01f;
         animationDriver?.SetWalking(isWalking);
 
+        // Apply movement
         controller.Move(moveDirection * currentSpeed * Time.deltaTime);
     
-        // Increased gravity to keep her snappy on the pavement
-        controller.Move(Vector3.down * 30f * Time.deltaTime);
+        // Constant gravity so she doesn't float
+        controller.Move(Vector3.down * 20f * Time.deltaTime);
 
         return moveDirection;
     }
