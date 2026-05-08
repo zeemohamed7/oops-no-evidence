@@ -15,7 +15,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - HeldBody
   - FootPrints
   - Target
   - Obstruction
@@ -23,7 +23,7 @@ TagManager:
   - NavMesh
   - BackgroundImage
   - DistantHotspot
-  - 
+  - Player
   - 
   - 
   - 
