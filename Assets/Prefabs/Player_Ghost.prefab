@@ -164,7 +164,7 @@ MonoBehaviour:
     m_ActionName: 'Lobby/Back[/Keyboard/escape]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
-  m_DefaultActionMap: Lobby
+  m_DefaultActionMap: 051dc2e8-6edd-4ac5-b2d1-b99a07d9d306
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &788712738606912911

@@ -1079,17 +1079,47 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         },
         {
             ""name"": ""Lobby"",
-            ""id"": ""051dc2e8-6edd-4ac5-b2d1-b99a07d9d306"",
+            ""id"": ""8bd92c5b-ac68-4d13-a783-c61bd6fa0173"",
             ""actions"": [
                 {
                     ""name"": ""Join"",
                     ""type"": ""Button"",
-                    ""id"": ""4e4ee795-2d07-4d31-a26d-fa86be728b41"",
+                    ""id"": ""7fcefc0a-48d6-4d01-af5a-7a8331ced1e4"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""4a3bbc47-e8af-4b1a-a442-696ae51c5c10"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Join"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 },
+                {
+                    ""name"": """",
+                    ""id"": ""e24b0166-d04f-4f28-99f6-b762c636ecda"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Join"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""LobbyUI"",
+            ""id"": ""051dc2e8-6edd-4ac5-b2d1-b99a07d9d306"",
+            ""actions"": [
                 {
                     ""name"": ""Navigate"",
                     ""type"": ""Value"",
@@ -1119,28 +1149,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 }
             ],
             ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""a4e441b1-3243-4296-ac04-ca59f2777e72"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Join"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ad8d6209-093d-415a-8042-33cda9e6e788"",
-                    ""path"": ""<Gamepad>/buttonSouth"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""Join"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
                 {
                     ""name"": """",
                     ""id"": ""b153fbb9-0084-4401-a60f-c797b1508c5c"",
@@ -1347,6 +1355,39 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""isOR"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Gamepad2"",
+            ""bindingGroup"": ""Gamepad2"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Gamepad>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Gamepad3"",
+            ""bindingGroup"": ""Gamepad3"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Gamepad>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Gamepad4"",
+            ""bindingGroup"": ""Gamepad4"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Gamepad>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
         }
     ]
 }");
@@ -1376,9 +1417,11 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         // Lobby
         m_Lobby = asset.FindActionMap("Lobby", throwIfNotFound: true);
         m_Lobby_Join = m_Lobby.FindAction("Join", throwIfNotFound: true);
-        m_Lobby_Navigate = m_Lobby.FindAction("Navigate", throwIfNotFound: true);
-        m_Lobby_Ready = m_Lobby.FindAction("Ready", throwIfNotFound: true);
-        m_Lobby_Back = m_Lobby.FindAction("Back", throwIfNotFound: true);
+        // LobbyUI
+        m_LobbyUI = asset.FindActionMap("LobbyUI", throwIfNotFound: true);
+        m_LobbyUI_Navigate = m_LobbyUI.FindAction("Navigate", throwIfNotFound: true);
+        m_LobbyUI_Ready = m_LobbyUI.FindAction("Ready", throwIfNotFound: true);
+        m_LobbyUI_Back = m_LobbyUI.FindAction("Back", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -1386,6 +1429,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputSystem_Actions.UI.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Lobby.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Lobby.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_LobbyUI.enabled, "This will cause a leak and performance issues, InputSystem_Actions.LobbyUI.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1841,9 +1885,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Lobby;
     private List<ILobbyActions> m_LobbyActionsCallbackInterfaces = new List<ILobbyActions>();
     private readonly InputAction m_Lobby_Join;
-    private readonly InputAction m_Lobby_Navigate;
-    private readonly InputAction m_Lobby_Ready;
-    private readonly InputAction m_Lobby_Back;
     /// <summary>
     /// Provides access to input actions defined in input action map "Lobby".
     /// </summary>
@@ -1859,18 +1900,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Lobby/Join".
         /// </summary>
         public InputAction @Join => m_Wrapper.m_Lobby_Join;
-        /// <summary>
-        /// Provides access to the underlying input action "Lobby/Navigate".
-        /// </summary>
-        public InputAction @Navigate => m_Wrapper.m_Lobby_Navigate;
-        /// <summary>
-        /// Provides access to the underlying input action "Lobby/Ready".
-        /// </summary>
-        public InputAction @Ready => m_Wrapper.m_Lobby_Ready;
-        /// <summary>
-        /// Provides access to the underlying input action "Lobby/Back".
-        /// </summary>
-        public InputAction @Back => m_Wrapper.m_Lobby_Back;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1900,15 +1929,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Join.started += instance.OnJoin;
             @Join.performed += instance.OnJoin;
             @Join.canceled += instance.OnJoin;
-            @Navigate.started += instance.OnNavigate;
-            @Navigate.performed += instance.OnNavigate;
-            @Navigate.canceled += instance.OnNavigate;
-            @Ready.started += instance.OnReady;
-            @Ready.performed += instance.OnReady;
-            @Ready.canceled += instance.OnReady;
-            @Back.started += instance.OnBack;
-            @Back.performed += instance.OnBack;
-            @Back.canceled += instance.OnBack;
         }
 
         /// <summary>
@@ -1923,15 +1943,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Join.started -= instance.OnJoin;
             @Join.performed -= instance.OnJoin;
             @Join.canceled -= instance.OnJoin;
-            @Navigate.started -= instance.OnNavigate;
-            @Navigate.performed -= instance.OnNavigate;
-            @Navigate.canceled -= instance.OnNavigate;
-            @Ready.started -= instance.OnReady;
-            @Ready.performed -= instance.OnReady;
-            @Ready.canceled -= instance.OnReady;
-            @Back.started -= instance.OnBack;
-            @Back.performed -= instance.OnBack;
-            @Back.canceled -= instance.OnBack;
         }
 
         /// <summary>
@@ -1965,6 +1976,124 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="LobbyActions" /> instance referencing this action map.
     /// </summary>
     public LobbyActions @Lobby => new LobbyActions(this);
+
+    // LobbyUI
+    private readonly InputActionMap m_LobbyUI;
+    private List<ILobbyUIActions> m_LobbyUIActionsCallbackInterfaces = new List<ILobbyUIActions>();
+    private readonly InputAction m_LobbyUI_Navigate;
+    private readonly InputAction m_LobbyUI_Ready;
+    private readonly InputAction m_LobbyUI_Back;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "LobbyUI".
+    /// </summary>
+    public struct LobbyUIActions
+    {
+        private @InputSystem_Actions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public LobbyUIActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "LobbyUI/Navigate".
+        /// </summary>
+        public InputAction @Navigate => m_Wrapper.m_LobbyUI_Navigate;
+        /// <summary>
+        /// Provides access to the underlying input action "LobbyUI/Ready".
+        /// </summary>
+        public InputAction @Ready => m_Wrapper.m_LobbyUI_Ready;
+        /// <summary>
+        /// Provides access to the underlying input action "LobbyUI/Back".
+        /// </summary>
+        public InputAction @Back => m_Wrapper.m_LobbyUI_Back;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_LobbyUI; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="LobbyUIActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(LobbyUIActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="LobbyUIActions" />
+        public void AddCallbacks(ILobbyUIActions instance)
+        {
+            if (instance == null || m_Wrapper.m_LobbyUIActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_LobbyUIActionsCallbackInterfaces.Add(instance);
+            @Navigate.started += instance.OnNavigate;
+            @Navigate.performed += instance.OnNavigate;
+            @Navigate.canceled += instance.OnNavigate;
+            @Ready.started += instance.OnReady;
+            @Ready.performed += instance.OnReady;
+            @Ready.canceled += instance.OnReady;
+            @Back.started += instance.OnBack;
+            @Back.performed += instance.OnBack;
+            @Back.canceled += instance.OnBack;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="LobbyUIActions" />
+        private void UnregisterCallbacks(ILobbyUIActions instance)
+        {
+            @Navigate.started -= instance.OnNavigate;
+            @Navigate.performed -= instance.OnNavigate;
+            @Navigate.canceled -= instance.OnNavigate;
+            @Ready.started -= instance.OnReady;
+            @Ready.performed -= instance.OnReady;
+            @Ready.canceled -= instance.OnReady;
+            @Back.started -= instance.OnBack;
+            @Back.performed -= instance.OnBack;
+            @Back.canceled -= instance.OnBack;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="LobbyUIActions.UnregisterCallbacks(ILobbyUIActions)" />.
+        /// </summary>
+        /// <seealso cref="LobbyUIActions.UnregisterCallbacks(ILobbyUIActions)" />
+        public void RemoveCallbacks(ILobbyUIActions instance)
+        {
+            if (m_Wrapper.m_LobbyUIActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="LobbyUIActions.AddCallbacks(ILobbyUIActions)" />
+        /// <seealso cref="LobbyUIActions.RemoveCallbacks(ILobbyUIActions)" />
+        /// <seealso cref="LobbyUIActions.UnregisterCallbacks(ILobbyUIActions)" />
+        public void SetCallbacks(ILobbyUIActions instance)
+        {
+            foreach (var item in m_Wrapper.m_LobbyUIActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_LobbyUIActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="LobbyUIActions" /> instance referencing this action map.
+    /// </summary>
+    public LobbyUIActions @LobbyUI => new LobbyUIActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -2054,6 +2183,45 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         {
             if (m_Gamepad1SchemeIndex == -1) m_Gamepad1SchemeIndex = asset.FindControlSchemeIndex("Gamepad1");
             return asset.controlSchemes[m_Gamepad1SchemeIndex];
+        }
+    }
+    private int m_Gamepad2SchemeIndex = -1;
+    /// <summary>
+    /// Provides access to the input control scheme.
+    /// </summary>
+    /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
+    public InputControlScheme Gamepad2Scheme
+    {
+        get
+        {
+            if (m_Gamepad2SchemeIndex == -1) m_Gamepad2SchemeIndex = asset.FindControlSchemeIndex("Gamepad2");
+            return asset.controlSchemes[m_Gamepad2SchemeIndex];
+        }
+    }
+    private int m_Gamepad3SchemeIndex = -1;
+    /// <summary>
+    /// Provides access to the input control scheme.
+    /// </summary>
+    /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
+    public InputControlScheme Gamepad3Scheme
+    {
+        get
+        {
+            if (m_Gamepad3SchemeIndex == -1) m_Gamepad3SchemeIndex = asset.FindControlSchemeIndex("Gamepad3");
+            return asset.controlSchemes[m_Gamepad3SchemeIndex];
+        }
+    }
+    private int m_Gamepad4SchemeIndex = -1;
+    /// <summary>
+    /// Provides access to the input control scheme.
+    /// </summary>
+    /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
+    public InputControlScheme Gamepad4Scheme
+    {
+        get
+        {
+            if (m_Gamepad4SchemeIndex == -1) m_Gamepad4SchemeIndex = asset.FindControlSchemeIndex("Gamepad4");
+            return asset.controlSchemes[m_Gamepad4SchemeIndex];
         }
     }
     /// <summary>
@@ -2219,6 +2387,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnJoin(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "LobbyUI" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="LobbyUIActions.AddCallbacks(ILobbyUIActions)" />
+    /// <seealso cref="LobbyUIActions.RemoveCallbacks(ILobbyUIActions)" />
+    public interface ILobbyUIActions
+    {
         /// <summary>
         /// Method invoked when associated input action "Navigate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

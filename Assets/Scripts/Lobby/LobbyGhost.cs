@@ -31,9 +31,9 @@ public class LobbyGhost : MonoBehaviour
 
     private void Awake()
     {
-        // 1. Switch the map to "Lobby" so this ghost doesn't use Gameplay actions
+        // 1. Switch the map to "Lobbyui" so this ghost doesn't use Gameplay actions
         var pInput = GetComponent<PlayerInput>();
-        if (pInput != null) pInput.SwitchCurrentActionMap("Lobby");
+        if (pInput != null) pInput.SwitchCurrentActionMap("LobbyUI");
         _playerInput = GetComponent<PlayerInput>();
         _lobbyManager = FindFirstObjectByType<LobbyManager>();
 
