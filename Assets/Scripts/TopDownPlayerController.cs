@@ -2,9 +2,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(PlayerInput))]
 public class TopDownPlayerController : MonoBehaviour
 {
+    private CharacterController controller;
     private PlayerAnimationDriver animationDriver;
+    private PlayerInput playerInput;
 
     [Header("Setup")]
     public Camera playerCamera;
@@ -18,23 +21,26 @@ public class TopDownPlayerController : MonoBehaviour
     public float standingHeight = 1.4f;
     public float crouchingHeight = 0.8f;
 
-    [Header("Input Actions")]
-    public InputActionReference moveAction;
-    public InputActionReference sprintAction;
-    public InputActionReference crouchAction;
-
-    [Header("Weight Penalty")]
+    [Header("Carry")]
     public bool isCarrying = false;
 
     [Range(0.1f, 1f)]
     public float carryMultiplier = 0.5f;
 
-    private CharacterController controller;
+    // INPUT VALUES
+    private Vector2 moveInput;
+    private bool sprintHeld;
+    private bool crouchHeld;
+
+    // ─────────────────────────────────────────────
+    // UNITY
+    // ─────────────────────────────────────────────
 
     private void Awake()
     {
-        animationDriver = GetComponent<PlayerAnimationDriver>();
         controller = GetComponent<CharacterController>();
+        animationDriver = GetComponent<PlayerAnimationDriver>();
+        playerInput = GetComponent<PlayerInput>();
 
         if (playerCamera == null)
             playerCamera = Camera.main;
@@ -42,86 +48,111 @@ public class TopDownPlayerController : MonoBehaviour
 
     private void Start()
     {
+        foreach (var map in playerInput.actions.actionMaps)
+        {
+            Debug.Log("MAP: " + map.name);
+
+            foreach (var action in map.actions)
+            {
+                Debug.Log(" - ACTION: " + action.name);
+            }
+        }
+        Debug.Log("PLAYER CONTROLLER STARTED");
+
+        if (playerInput != null)
+        {
+            Debug.Log("CURRENT MAP: " + playerInput.currentActionMap.name);
+            Debug.Log("CONTROL SCHEME: " + playerInput.currentControlScheme);
+        }
+
         DynamicCamera.Instance?.RegisterPlayer(transform);
     }
 
     private void Update()
     {
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Lobby")
+        // Ignore movement in lobby
+        if (UnityEngine.SceneManagement.SceneManager
+            .GetActiveScene().name == "Lobby")
             return;
 
-        Vector3 moveDirection = HandleMovement();
-        HandleMovementRotation(moveDirection);
+        HandleMovement();
     }
 
-    private void OnEnable()
+    // ─────────────────────────────────────────────
+    // SEND MESSAGES INPUT CALLBACKS
+    // ─────────────────────────────────────────────
+
+    // Matches the "Move" action in your Input Action Asset
+    public void OnMove(InputValue value)
     {
-        moveAction?.action.Enable();
-        sprintAction?.action.Enable();
-        crouchAction?.action.Enable();
+        moveInput = value.Get<Vector2>();
+
+        Debug.Log($"MOVE: {moveInput}");
+    }
+    // Matches the "Sprint" action
+    public void OnSprint(InputValue value)
+    {
+        sprintHeld = value.isPressed;
     }
 
-    private void OnDisable()
+    // Matches the "Crouch" action
+    public void OnCrouch(InputValue value)
     {
-        moveAction?.action.Disable();
-        sprintAction?.action.Disable();
-        crouchAction?.action.Disable();
+        crouchHeld = value.isPressed;
     }
 
-    private Vector3 HandleMovement()
+    // Matches the "AnyButton" action
+    public void OnAnyButton()
     {
-        float currentSpeed = walkSpeed;
+        Debug.Log("ANY BUTTON PRESSED");
+    }
+
+    // ─────────────────────────────────────────────
+    // MOVEMENT
+    // ─────────────────────────────────────────────
+
+    private void HandleMovement()
+    {
+        float speed = walkSpeed;
 
         if (isCarrying)
-            currentSpeed *= carryMultiplier;
+            speed *= carryMultiplier;
 
-        // --- HEIGHT & CENTER FIX ---
-        if (crouchAction != null && crouchAction.action.IsPressed())
+        if (crouchHeld)
         {
             controller.height = crouchingHeight;
-            currentSpeed = crouchSpeed;
+            speed = crouchSpeed;
         }
         else
         {
             controller.height = standingHeight;
 
-            if (sprintAction != null && sprintAction.action.IsPressed())
-                currentSpeed = sprintSpeed;
+            if (sprintHeld)
+                speed = sprintSpeed;
         }
 
         controller.center = new Vector3(0, controller.height / 2f, 0);
-        // ----------------------------
-
-        Vector2 input = moveAction != null
-            ? moveAction.action.ReadValue<Vector2>()
-            : Vector2.zero;
 
         Vector3 forward = playerCamera.transform.forward;
         Vector3 right = playerCamera.transform.right;
 
         forward.y = 0f;
         right.y = 0f;
+
         forward.Normalize();
         right.Normalize();
 
-        Vector3 moveDirection = (forward * input.y) + (right * input.x);
+        Vector3 moveDirection = (forward * moveInput.y) + (right * moveInput.x);
 
         bool isWalking = moveDirection.sqrMagnitude > 0.01f;
         animationDriver?.SetWalking(isWalking);
 
-        controller.Move(moveDirection * currentSpeed * Time.deltaTime);
-    
-        // Increased gravity to keep her snappy on the pavement
+        controller.Move(moveDirection * speed * Time.deltaTime);
         controller.Move(Vector3.down * 30f * Time.deltaTime);
 
-        return moveDirection;
-    }
-
-    private void HandleMovementRotation(Vector3 moveDirection)
-    {
         if (moveDirection.sqrMagnitude > 0.01f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 12f * Time.deltaTime);
         }
     }

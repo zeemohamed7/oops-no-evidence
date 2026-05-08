@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Users;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -174,12 +176,17 @@ public class LobbyManager : MonoBehaviour
 
         // LOCK DEVICE IMMEDIATELY
         activeGhosts.Add(device.deviceId, null);
+        GameObject obj = Instantiate(ghostPrefab);
 
-        PlayerInput pi = PlayerInput.Instantiate(
-            ghostPrefab,
-            controlScheme: scheme,
-            pairWithDevice: device
+        PlayerInput pi = obj.GetComponent<PlayerInput>();
+
+        InputUser.PerformPairingWithDevice(
+            device,
+            pi.user
         );
+
+        pi.SwitchCurrentActionMap("Player");
+
 
         if (pi == null)
         {
@@ -338,16 +345,19 @@ public class LobbyManager : MonoBehaviour
     // SPAWN PLAYERS
     // ─────────────────────────────────────────────────────────────
 
+    private IEnumerator DelayedMapSwitch(PlayerInput pi)
+    {
+        yield return null;
+
+        pi.SwitchCurrentActionMap("Player");
+    }
+    
     public void SpawnAllPlayers(Transform spawnPoint)
     {
-        if (playersToSpawn.Count == 0)
-        {
-            Debug.LogWarning("No players to spawn");
-            return;
-        }
+        
+        if (playersToSpawn.Count == 0) return;
 
         int index = 0;
-
         Vector3 camForward = Camera.main.transform.forward;
         camForward.y = 0;
         camForward.Normalize();
@@ -355,60 +365,46 @@ public class LobbyManager : MonoBehaviour
         foreach (PlayerSelectionData data in playersToSpawn)
         {
             GameObject prefabToSpawn = ghostPrefab;
-
+            
             foreach (CharacterMap map in characterPrefabs)
             {
-                if (map.id == data.characterId)
-                {
-                    prefabToSpawn = map.prefab;
-                    break;
-                }
+                if (map.id == data.characterId) { prefabToSpawn = map.prefab; break; }
             }
 
-            InputDevice device =
-                InputSystem.GetDeviceById(data.deviceId);
+            InputDevice device = InputSystem.GetDeviceById(data.deviceId);
+            PlayerInput pi = PlayerInput.Instantiate(prefabToSpawn, pairWithDevice: device, controlScheme: data.controlScheme);
 
-            PlayerInput pi = PlayerInput.Instantiate(
-                prefabToSpawn,
-                pairWithDevice: device,
-                controlScheme: data.controlScheme
-            );
+            if (pi != null)
+            {
+                // 1. Get both the Unity controller and YOUR movement script
+                CharacterController cc = pi.GetComponent<CharacterController>();
+                TopDownPlayerController moveScript = pi.GetComponent<TopDownPlayerController>();
 
-            if (pi == null)
-                continue;
+                // 2. Disable both for positioning
+                if (cc != null) cc.enabled = false;
+                if (moveScript != null) moveScript.enabled = false;
 
-            CharacterController cc =
-                pi.GetComponent<CharacterController>();
+                float xOffset = (index - (playersToSpawn.Count - 1) / 2f) * 1.5f;
+                pi.transform.position = spawnPoint.position + (Camera.main.transform.right * xOffset);
+                pi.transform.rotation = Quaternion.LookRotation(camForward);
 
-            if (cc != null)
-                cc.enabled = false;
+                // 3. RE-ENABLE BOTH (This overrides the LobbyGhost Awake logic)
+                if (cc != null) cc.enabled = true;
+                if (moveScript != null) moveScript.enabled = true; 
 
-            float xOffset =
-                (index - (playersToSpawn.Count - 1) / 2f) * 1.5f;
+                // 4. Force the gameplay map
+                pi.camera = Camera.main;
+                StartCoroutine(DelayedMapSwitch(pi));
+                pi.neverAutoSwitchControlSchemes = true;
 
-            Vector3 pos =
-                spawnPoint.position +
-                Camera.main.transform.right * xOffset;
+                // 5. Kill the lobby logic so it stops interfering
+                LobbyGhost lg = pi.GetComponent<LobbyGhost>();
+                if (lg != null) lg.enabled = false;
 
-            pi.transform.position = pos;
-            pi.transform.rotation =
-                Quaternion.LookRotation(camForward);
-
-            if (cc != null)
-                cc.enabled = true;
-
-            pi.camera = Camera.main;
-
-            // GAMEPLAY MAP
-            pi.SwitchCurrentActionMap("Player");
-
-            LobbyGhost lg = pi.GetComponent<LobbyGhost>();
-
-            if (lg != null)
-                lg.enabled = false;
-
-            index++;
+                index++;
+            }
         }
+        
     }
 
     // ─────────────────────────────────────────────────────────────
