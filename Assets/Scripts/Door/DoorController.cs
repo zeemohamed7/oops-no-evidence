@@ -2,50 +2,54 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    public Animator anim; 
-
     [Header("Settings")]
-    public bool isSwingingDoor = true;
-    public bool openOnlyOnce = false;
-    
-    private bool _hasOpened = false;
+    public Transform hinge;        // Drag the Door_Hinge here
+    public float openAngle = 90f;
+    public float closeSpeed = 5f;
+
+    private Quaternion targetRotation;
+    private Quaternion closedRotation;
+    private bool isOpen = false;
+
+    private void Start()
+    {
+        if (hinge == null) hinge = transform.GetChild(0);
+        
+        // Save the starting rotation as "Home"
+        closedRotation = hinge.localRotation;
+        targetRotation = closedRotation;
+    }
+
+    private void Update()
+    {
+        // Smoothly rotate the hinge toward the target every frame
+        hinge.localRotation = Quaternion.Slerp(hinge.localRotation, targetRotation, Time.deltaTime * closeSpeed);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            // 1. Check if we already opened and it's a "once only" door
-            if (openOnlyOnce && _hasOpened) return;
+            // Bidirectional Logic
+            Vector3 dirToPlayer = other.transform.position - transform.position;
+            float dot = Vector3.Dot(transform.forward, dirToPlayer);
 
-            if (isSwingingDoor && anim != null)
-            {
-                // 2. Bidirectional Logic: Check if player is in front/behind
-                Vector3 dirToPlayer = other.transform.position - transform.position;
-                float dot = Vector3.Dot(transform.forward, dirToPlayer);
-
-                // Set 1 for away, -1 for toward (Adjust based on your animation)
-                anim.SetFloat("swingDirection", dot > 0 ? 1f : -1f);
-            }
-
-            if (anim != null)
-            {
-                anim.SetBool("isOpen", true);
-                _hasOpened = true;
-                Debug.Log("Door: Opening");
-            }
+            // If dot > 0, player is in front, swing away (+90)
+            // If dot < 0, player is behind, swing inward (-90)
+            float angle = dot >= 0 ? openAngle : -openAngle;
+            
+            targetRotation = Quaternion.Euler(0, angle, 0);
+            isOpen = true;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // 3. Only close if it's NOT a "once only" door
-        if (other.CompareTag("Player") && !openOnlyOnce)
+        if (other.CompareTag("Player"))
         {
-            if (anim != null)
-            {
-                anim.SetBool("isOpen", false);
-                Debug.Log("Door: Closing");
-            }
+            // Simply tell the door to return to its original "Home" rotation
+            targetRotation = closedRotation;
+            isOpen = false;
         }
     }
 }
