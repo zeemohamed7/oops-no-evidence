@@ -7,6 +7,7 @@ public class TruckArrival : MonoBehaviour
     public float driveSpeed = 5f;
     
     [Header("References")]
+    public GameManager gameManager;
     public VehicleVibration vibrationScript;
     public EngineSound engineSoundScript;
     public AudioSource truckAudioSource;
@@ -40,6 +41,11 @@ public class TruckArrival : MonoBehaviour
     {
         _isMoving = false;
 
+        if (gameManager != null)
+        {
+            gameManager.OnTruckStopped(); // To spawn players
+        }
+        
         if (vibrationScript != null)
         {
             // Lower shake amount

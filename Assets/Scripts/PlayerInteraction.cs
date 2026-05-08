@@ -3,16 +3,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [Header("Input Setup")] public InputActionReference interactAction; // Optimal: Allows rebinding & multi-device
+    [Header("Input Setup")] public InputActionReference interactAction;
+
+    [Tooltip("When any tool is equipped the Interact key is used by the tool, not for hiding.")]
+    public ToolInventory toolInventory;
 
     public float reach = 3f;
 
     private void Update()
     {
-        // Safety check
         if (interactAction == null) return;
 
-        // WasPressedThisFrame is the most optimized check for a single tap
+        // Don't try to hide when the player has a tool equipped — the tool uses E/Y instead.
+        if (toolInventory != null && toolInventory.GetSelectedSlot() != -1) return;
+
         if (interactAction.action.WasPressedThisFrame()) PerformProximityCheck();
     }
 

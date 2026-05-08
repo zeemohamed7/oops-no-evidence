@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Grabbable
+  - Weapon
+  - Bloodwall
+  - Footprint
   layers:
   - Default
   - TransparentFX
@@ -13,7 +16,7 @@ TagManager:
   - Water
   - UI
   - 
-  - 
+  - FootPrints
   - Target
   - Obstruction
   - Interactable

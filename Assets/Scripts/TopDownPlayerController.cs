@@ -92,12 +92,29 @@ public class TopDownPlayerController : MonoBehaviour
             ? moveAction.action.ReadValue<Vector2>()
             : Vector2.zero;
 
-        Vector3 moveDirection = new Vector3(input.x, 0f, input.y);
+        // --- THE CRITICAL FIX START ---
+        // 1. Get the camera's forward and right vectors
+        Vector3 forward = playerCamera.transform.forward;
+        Vector3 right = playerCamera.transform.right;
+
+        // 2. "Flatten" them so the player doesn't walk into the ground 
+        // because the camera is tilted down
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        // 3. Calculate moveDirection based on the CAMERA, not the World
+        Vector3 moveDirection = (forward * input.y) + (right * input.x);
+        // --- THE CRITICAL FIX END ---
 
         bool isWalking = moveDirection.sqrMagnitude > 0.01f;
         animationDriver?.SetWalking(isWalking);
 
+        // Apply movement
         controller.Move(moveDirection * currentSpeed * Time.deltaTime);
+    
+        // Constant gravity so she doesn't float
         controller.Move(Vector3.down * 20f * Time.deltaTime);
 
         return moveDirection;
