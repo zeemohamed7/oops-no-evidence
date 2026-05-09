@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerAnimationDriver : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class PlayerAnimationDriver : MonoBehaviour
     public void SetCarrying(bool value)
     {
         isCarrying = value;
+        Debug.Log(isCarrying);
         animator.SetBool("IsCarrying", value);
     }
 

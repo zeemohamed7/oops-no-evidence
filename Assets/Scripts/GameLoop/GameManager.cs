@@ -113,7 +113,10 @@ public class GameManager : MonoBehaviour
     
     public void OnTruckStopped()
     {
+        Debug.Log("TRUCK STOPPED!");
+
         LobbyManager.Instance.SpawnAllPlayers(truckSpawnPoint);
+
         StartLevel();
     }
     
