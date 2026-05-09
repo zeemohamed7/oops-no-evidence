@@ -57,6 +57,7 @@ public class BloodPool : MonoBehaviour
     static readonly int ID_Radius   = Shader.PropertyToID("_Radius");
     static readonly int ID_Strength = Shader.PropertyToID("_Strength");
     static readonly int ID_MaskTex  = Shader.PropertyToID("_MaskTex");
+    static readonly int ID_Spread   = Shader.PropertyToID("_Spread");
 
     // ── Bounds helpers ─────────────────────────────────────────────────────
     // We derive world bounds from this GameObject's Renderer bounds at Start.
@@ -121,6 +122,22 @@ public class BloodPool : MonoBehaviour
         _eraseMat.SetFloat(ID_Strength, brushStrength);
 
         Blit(_eraseMat);
+    }
+
+    /// <summary>
+    /// Spread (paint) blood back at the given world position — used when mop is dirty.
+    /// </summary>
+    public void SpreadAt(Vector3 worldPos, float strength)
+    {
+        Vector2 uv = WorldToUV(worldPos);
+        if (!InRange(uv)) return;
+
+        _eraseMat.SetVector(ID_HitUV, new Vector4(uv.x, uv.y, 0, 0));
+        _eraseMat.SetFloat(ID_Radius, brushRadius);
+        _eraseMat.SetFloat(ID_Strength, strength);
+        _eraseMat.SetFloat(ID_Spread, 1f);
+        Blit(_eraseMat);
+        _eraseMat.SetFloat(ID_Spread, 0f);
     }
 
     /// <summary>
