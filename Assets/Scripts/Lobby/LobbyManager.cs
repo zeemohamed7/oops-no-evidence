@@ -180,11 +180,18 @@ public class LobbyManager : MonoBehaviour
 
         PlayerInput pi = obj.GetComponent<PlayerInput>();
 
+        pi.user.UnpairDevices();
+
         InputUser.PerformPairingWithDevice(
             device,
             pi.user
         );
 
+        Debug.Log(
+            $"PLAYER {pi.playerIndex} PAIRED TO: " +
+            string.Join(", ", pi.devices)
+        );
+        
         pi.SwitchCurrentActionMap("Player");
 
 
@@ -332,8 +339,8 @@ public class LobbyManager : MonoBehaviour
             });
         }
 
-        // IMPORTANT
         PlayerInputManager.instance.DisableJoining();
+        PlayerInputManager.instance.enabled = false;
 
         pim.onPlayerJoined -= OnPlayerJoined;
         pim.onPlayerLeft -= OnPlayerLeft;

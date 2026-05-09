@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class Grab : MonoBehaviour
 {
+    [SerializeField] private PlayerAnimationDriver animationDriver;
     //new
     [Header("Input")]
     public InputActionReference grabAction;
@@ -51,41 +52,24 @@ public class Grab : MonoBehaviour
     void TryGrab()
     {
         Debug.Log("Trying to grab...");
-
         Collider[] hits = Physics.OverlapSphere(holdPoint.position, grabRange);
-
-        Debug.Log("Objects found in range: " + hits.Length);
 
         foreach (var hit in hits)
         {
-            Debug.Log("Found: " + hit.name + " | Tag: " + hit.tag);
-
-            //here
             GrabbableObject grabbable = hit.GetComponent<GrabbableObject>();
-            if (grabbable != null) //here
+            if (grabbable != null)
             {
-                Debug.Log("Grabbable object detected!");
-
                 Rigidbody rb = hit.GetComponent<Rigidbody>();
-                //GrabbableObject grabbable = hit.GetComponent<GrabbableObject>();
+                if (rb == null) continue;
 
-                if (rb == null)
+                // Check if the object is already taken
+                if (!grabbable.TryGrab(gameObject))
                 {
-                    Debug.LogError("Object has NO Rigidbody!");
-                    continue;//
+                    Debug.Log("Already grabbed by another player");
+                    continue;
                 }
 
-
-
-                if (grabbable != null)
-                {
-                    if (!grabbable.TryGrab(gameObject))
-                    {
-                        Debug.Log("Already grabbed by another player");
-                        continue;
-                    }
-                }
-
+                // Successfully found a free object!
                 joint = gameObject.AddComponent<FixedJoint>();
                 joint.connectedBody = rb;
                 joint.breakForce = Mathf.Infinity;
@@ -93,21 +77,20 @@ public class Grab : MonoBehaviour
 
                 heldObject = hit.gameObject;
 
-                if (playerController != null)
-                    playerController.isCarrying = true;
+                // Update State
+                if (playerController != null) playerController.isCarrying = true;
+                if (animationDriver != null) animationDriver.SetCarrying(true);
 
                 Debug.Log("GRAB SUCCESS");
-                continue; //it was return
+            
+                return; // CRITICAL: Stop searching once we have successfully grabbed ONE item.
             }
         }
-
-        Debug.Log("No grabbable object in range");
     }
 
     void Drop()
     {
-        if (heldObject == null)
-            return;
+        if (heldObject == null) return;
 
         GrabbableObject grabbable = heldObject.GetComponent<GrabbableObject>();
         if (grabbable != null && grabbable.currentHolder == gameObject)
@@ -115,13 +98,15 @@ public class Grab : MonoBehaviour
             grabbable.Release();
         }
 
-        if (joint != null)
-            Destroy(joint);
+        if (joint != null) Destroy(joint);
 
         heldObject = null;
 
-        if (playerController != null)
-            playerController.isCarrying = false;
+        // THE FIX: Reset both the controller AND the animation state
+        if (playerController != null) playerController.isCarrying = false;
+        if (animationDriver != null) animationDriver.SetCarrying(false); 
+
+        Debug.Log("Object Dropped");
     }
     void OnDrawGizmosSelected()
     {
