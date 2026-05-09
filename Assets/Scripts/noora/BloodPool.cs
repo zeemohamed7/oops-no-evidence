@@ -31,11 +31,11 @@ public class BloodPool : MonoBehaviour
     public string maskTexProperty = "_MaskTex";
 
     [Header("Cleaning")]
-    [Tooltip("Radius of the mop brush in UV space. 0.05 ≈ one floor tile.")]
-    [Range(0.005f, 0.25f)] public float brushRadius = 0.05f;
+    [Tooltip("Radius of the mop brush in UV space. 0.1 = 10% of pool width per pass.")]
+    [Range(0.01f, 0.5f)] public float brushRadius = 0.1f;
 
-    [Tooltip("Blood removed per frame while mopping. Keep low for gradual cleaning.")]
-    [Range(0.002f, 0.15f)] public float brushStrength = 0.04f;
+    [Tooltip("Blood removed per mop pass. 1.0 = instant full erase, 0.1 = gradual.")]
+    [Range(0.01f, 1f)] public float brushStrength = 1f;
 
     [Header("Footprint stamp")]
     [Tooltip("Radius of each footprint mark stamped onto the pool (UV space).")]
@@ -122,6 +122,32 @@ public class BloodPool : MonoBehaviour
         _eraseMat.SetFloat(ID_Strength, brushStrength);
 
         Blit(_eraseMat);
+    }
+
+    /// <summary>
+    /// Erase blood at an exact mesh UV (from a raycast textureCoord).
+    /// Avoids any world-to-UV conversion mismatch.
+    /// </summary>
+    public void EraseAtUV(Vector2 uv)
+    {
+        _eraseMat.SetVector(ID_HitUV, new Vector4(uv.x, uv.y, 0, 0));
+        _eraseMat.SetFloat(ID_Radius, brushRadius);
+        _eraseMat.SetFloat(ID_Strength, brushStrength);
+        _eraseMat.SetFloat(ID_Spread, 0f);
+        Blit(_eraseMat);
+    }
+
+    /// <summary>
+    /// Spread blood at an exact mesh UV — used when mop is dirty.
+    /// </summary>
+    public void SpreadAtUV(Vector2 uv, float strength)
+    {
+        _eraseMat.SetVector(ID_HitUV, new Vector4(uv.x, uv.y, 0, 0));
+        _eraseMat.SetFloat(ID_Radius, brushRadius);
+        _eraseMat.SetFloat(ID_Strength, strength);
+        _eraseMat.SetFloat(ID_Spread, 1f);
+        Blit(_eraseMat);
+        _eraseMat.SetFloat(ID_Spread, 0f);
     }
 
     /// <summary>
@@ -217,12 +243,15 @@ public class BloodPool : MonoBehaviour
         Graphics.Blit(_tempRT, bloodRT, mat);
     }
 
-    Vector2 WorldToUV(Vector3 worldPos)
+    public Vector2 WorldToUV(Vector3 worldPos)
     {
         float u = Mathf.InverseLerp(_worldBounds.min.x, _worldBounds.max.x, worldPos.x);
         float v = Mathf.InverseLerp(_worldBounds.min.z, _worldBounds.max.z, worldPos.z);
         return new Vector2(u, v);
     }
+
+    public bool UVInRange(Vector2 uv) =>
+        uv.x >= 0f && uv.x <= 1f && uv.y >= 0f && uv.y <= 1f;
 
     static bool InRange(Vector2 uv) =>
         uv.x >= 0f && uv.x <= 1f && uv.y >= 0f && uv.y <= 1f;
