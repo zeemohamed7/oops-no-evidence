@@ -397,6 +397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   footstepSource: {fileID: 318381485915211046}
   stepDelay: 0.5
+  moveAction: {fileID: 0}
 --- !u!82 &1231670051998789053
 AudioSource:
   m_ObjectHideFlags: 0
@@ -740,7 +741,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5489997910750114918}
-  - component: {fileID: 6526082790131973108}
   m_Layer: 8
   m_Name: HoldPoint
   m_TagString: Untagged
@@ -763,33 +763,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6638932380802453935}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &6526082790131973108
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4775745545624298615}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 1
-  m_Constraints: 0
-  m_CollisionDetection: 1
 --- !u!1001 &369095777599619441
 PrefabInstance:
   m_ObjectHideFlags: 0
