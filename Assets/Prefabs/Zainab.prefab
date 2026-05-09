@@ -47,6 +47,11 @@ GameObject:
   - component: {fileID: 1017773087748368599}
   - component: {fileID: 4878858555778169818}
   - component: {fileID: 6143409682191416789}
+  - component: {fileID: -6495363930264440674}
+  - component: {fileID: -5087026573228946102}
+  - component: {fileID: 5924320982050359162}
+  - component: {fileID: -5471880552778398939}
+  - component: {fileID: -8474114172110998823}
   m_Layer: 8
   m_Name: Zainab
   m_TagString: Player
@@ -83,9 +88,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0983a16530e26c240acc0881f8278e4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animationDriver: {fileID: 0}
   grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdPoint: {fileID: 2739016838828355998}
   grabRange: 2
+  jointSpring: 5000
+  jointDamper: 500
+  jointMaxForce: 10000
 --- !u!143 &8883300017618040386
 CharacterController:
   m_ObjectHideFlags: 0
@@ -327,6 +336,108 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &-6495363930264440674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668360290350740002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bada995d8c51048aabc3cb5621fc70fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactAction: {fileID: 0}
+  toolInventory: {fileID: -5087026573228946102}
+  reach: 3
+--- !u!114 &-5087026573228946102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668360290350740002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ae22cf7a6d8b4fc7b6b65331a283dfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slot1Highlight: {fileID: 0}
+  slot2Highlight: {fileID: 0}
+  slot3Highlight: {fileID: 0}
+  slot4Highlight: {fileID: 0}
+  mopTool: {fileID: -6689036041284674117, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
+  bucketTool: {fileID: -6689036041284674117, guid: 0658afe127bc44f25954078603f6257b, type: 3}
+  blacklightTool: {fileID: 919132149155446097, guid: 53a32b8da18644a4faae929fea95a304, type: 3}
+  sprayTool: {fileID: -6689036041284674117, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
+  mopCleaner: {fileID: 5924320982050359162}
+  dipDistance: 1.5
+  holdPoint: {fileID: 0}
+--- !u!114 &5924320982050359162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668360290350740002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e378bf9c604f314fa12790291463148, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventory: {fileID: -5087026573228946102}
+  mopRange: 1.5
+  bucketObject: {fileID: -6689036041284674117, guid: d9bb59e3348e76e4e878b89ebfc0543a, type: 3}
+  dipDistance: 1.5
+  cleanDistanceBeforeDirty: 5
+  spreadStrength: 0.03
+  footprintCleanRadius: 0.4
+  footprintCleanTime: 0.6
+  statusText: {fileID: 0}
+--- !u!114 &-5471880552778398939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668360290350740002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 280d7ffda6a9ed341a0594d5e4227506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventory: {fileID: -5087026573228946102}
+  sprayRange: 4
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  bloodWallTag: BloodWall
+  bloodMaterialName: WallWithBlood
+  maskTexProperty: _MaskTex
+--- !u!114 &-8474114172110998823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668360290350740002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0296cebe4ead949afea100d7d0b800, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footprintPrefab: {fileID: 0}
+  footprintSize: 0.7
+  stepDistance: 0.45
+  maxPrintSteps: 8
+  sampleInterval: 0.1
+  bloodPickupThreshold: 0.15
+  inventory: {fileID: 0}
+  floorLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  footprintYOffset: 0.106
 --- !u!1001 &4188592153944753141
 PrefabInstance:
   m_ObjectHideFlags: 0
