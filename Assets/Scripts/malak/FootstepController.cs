@@ -1,19 +1,24 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class FootstepController : MonoBehaviour
 {
     public AudioSource footstepSource;
-    public float stepDelay = 0.5f; // time between steps
+    public float stepDelay = 0.5f;
+    public InputActionReference moveAction;
     private float timer;
 
     void Update()
     {
-        float move = Input.GetAxis("Horizontal") + Input.GetAxis("Vertical");
+        Vector2 input = moveAction != null
+            ? moveAction.action.ReadValue<Vector2>()
+            : Vector2.zero;
 
-        if (move != 0) // player is moving
+        float move = input.magnitude;
+
+        if (move > 0.1f)
         {
             timer += Time.deltaTime;
-
             if (timer >= stepDelay)
             {
                 footstepSource.Play();
