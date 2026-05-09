@@ -18,8 +18,8 @@ public class TopDownPlayerController : MonoBehaviour
     public float crouchSpeed = 2.5f;
 
     [Header("Crouch Settings")]
-    public float standingHeight = 1.4f;
-    public float crouchingHeight = 0.8f;
+    public float standingHeight = 2f;
+    public float crouchingHeight = 1f;
 
     [Header("Carry")]
     public bool isCarrying = false;
@@ -133,9 +133,13 @@ public class TopDownPlayerController : MonoBehaviour
 
         controller.center = new Vector3(0, controller.height / 2f, 0);
 
+        // --- THE CRITICAL FIX START ---
+        // 1. Get the camera's forward and right vectors
         Vector3 forward = playerCamera.transform.forward;
         Vector3 right = playerCamera.transform.right;
 
+        // 2. "Flatten" them so the player doesn't walk into the ground 
+        // because the camera is tilted down
         forward.y = 0f;
         right.y = 0f;
 

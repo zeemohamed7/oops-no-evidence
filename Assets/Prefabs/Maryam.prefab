@@ -81,8 +81,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDriver: {fileID: 0}
   grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  holdPoint: {fileID: 0}
+  holdPoint: {fileID: 1336727828693783357}
   grabRange: 2
+  jointSpring: 5000
+  jointDamper: 500
+  jointMaxForce: 10000
 --- !u!143 &6167423325393909330
 CharacterController:
   m_ObjectHideFlags: 0
