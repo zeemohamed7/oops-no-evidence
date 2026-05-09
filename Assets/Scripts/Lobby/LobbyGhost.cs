@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(PlayerInput))]
 public class LobbyGhost : MonoBehaviour
@@ -31,22 +32,25 @@ public class LobbyGhost : MonoBehaviour
 
     private void Awake()
     {
-        // 1. Switch the map to "Lobby" so this ghost doesn't use Gameplay actions
-        var pInput = GetComponent<PlayerInput>();
-        if (pInput != null) pInput.SwitchCurrentActionMap("Lobby");
+
         _playerInput = GetComponent<PlayerInput>();
         _lobbyManager = FindFirstObjectByType<LobbyManager>();
 
-        // 2. DISABLE the movement script so it stops calling HandleMovement()
-        var controllerScript = GetComponent<TopDownPlayerController>(); 
-        if (controllerScript != null) 
-        {
-            controllerScript.enabled = false;
-            Debug.Log("TopDownPlayerController disabled for the Lobby!");
-        }
+
     }
     private void Start()
-    {
+    
+    {        
+        
+        if (SceneManager.GetActiveScene().name != "Lobby")
+        {
+            enabled = false;
+            return;
+        }
+        // 1. Switch the map to "Lobbyui" so this ghost doesn't use Gameplay actions
+    _playerInput.SwitchCurrentActionMap("LobbyUI");
+
+        
         if (_lobbyManager == null)
         {
             Debug.LogError("[LobbyGhost] Could not find LobbyManager in scene!");

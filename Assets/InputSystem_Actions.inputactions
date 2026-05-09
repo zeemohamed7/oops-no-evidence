@@ -7,7 +7,7 @@
             "actions": [
                 {
                     "name": "Move",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "351f2ccd-1f9f-44bf-9bec-d62ac5c5f408",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -82,6 +82,15 @@
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
                     "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AnyButton",
+                    "type": "Button",
+                    "id": "cac301e6-a341-4475-9b3a-c3736f06233a",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -470,6 +479,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "951fac6c-daa4-4760-87d1-e8dd7ce7ec75",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AnyButton",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -993,17 +1013,47 @@
         },
         {
             "name": "Lobby",
-            "id": "051dc2e8-6edd-4ac5-b2d1-b99a07d9d306",
+            "id": "8bd92c5b-ac68-4d13-a783-c61bd6fa0173",
             "actions": [
                 {
                     "name": "Join",
                     "type": "Button",
-                    "id": "4e4ee795-2d07-4d31-a26d-fa86be728b41",
+                    "id": "7fcefc0a-48d6-4d01-af5a-7a8331ced1e4",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4a3bbc47-e8af-4b1a-a442-696ae51c5c10",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Join",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 },
+                {
+                    "name": "",
+                    "id": "e24b0166-d04f-4f28-99f6-b762c636ecda",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Join",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "LobbyUI",
+            "id": "051dc2e8-6edd-4ac5-b2d1-b99a07d9d306",
+            "actions": [
                 {
                     "name": "Navigate",
                     "type": "Value",
@@ -1033,28 +1083,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "a4e441b1-3243-4296-ac04-ca59f2777e72",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Join",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ad8d6209-093d-415a-8042-33cda9e6e788",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Join",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "b153fbb9-0084-4401-a60f-c797b1508c5c",
@@ -1254,6 +1282,39 @@
         {
             "name": "Gamepad1",
             "bindingGroup": "Gamepad1",
+            "devices": [
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Gamepad2",
+            "bindingGroup": "Gamepad2",
+            "devices": [
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Gamepad3",
+            "bindingGroup": "Gamepad3",
+            "devices": [
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Gamepad4",
+            "bindingGroup": "Gamepad4",
             "devices": [
                 {
                     "devicePath": "<Gamepad>",
