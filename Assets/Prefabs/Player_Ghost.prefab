@@ -135,10 +135,6 @@ MonoBehaviour:
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4e4ee795-2d07-4d31-a26d-fa86be728b41
-    m_ActionName: 'Lobby/Join[/Keyboard/space]'
-  - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 9026447346564648869}
         m_TargetAssemblyTypeName: 
@@ -162,9 +158,13 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: f0cdbe9a-398e-40c7-a6de-29a752c094ac
     m_ActionName: 'Lobby/Back[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7fcefc0a-48d6-4d01-af5a-7a8331ced1e4
+    m_ActionName: 'Lobby/Join[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
-  m_DefaultActionMap: Lobby
+  m_DefaultActionMap: LobbyUI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &788712738606912911

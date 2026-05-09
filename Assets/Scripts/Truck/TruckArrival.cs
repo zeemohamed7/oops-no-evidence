@@ -7,7 +7,6 @@ public class TruckArrival : MonoBehaviour
     public float driveSpeed = 5f;
     
     [Header("References")]
-    public GameManager gameManager;
     public VehicleVibration vibrationScript;
     public EngineSound engineSoundScript;
     public AudioSource truckAudioSource;
@@ -39,11 +38,12 @@ public class TruckArrival : MonoBehaviour
     }
     void OnArrived()
     {
+        Debug.Log("Truck Arrived!");
         _isMoving = false;
 
-        if (gameManager != null)
+        if (GameManager.Instance != null)
         {
-            gameManager.OnTruckStopped(); // To spawn players
+            GameManager.Instance.OnTruckStopped();
         }
         
         if (vibrationScript != null)

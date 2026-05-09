@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class Grab : MonoBehaviour
 {
+    [SerializeField] private PlayerAnimationDriver animationDriver;
+    //new
     [Header("Input")]
     public InputActionReference grabAction;
 
@@ -134,6 +136,8 @@ public class Grab : MonoBehaviour
 
             if (playerController != null)
                 playerController.isCarrying = true;
+             if (animationDriver != null) animationDriver.SetCarrying(true);
+
 
             Debug.Log($"GRAB SUCCESS — bone: {targetRb.name}");
             //new
@@ -145,8 +149,6 @@ public class Grab : MonoBehaviour
             //
             return;
         }
-
-        Debug.Log("No grabbable object in range");
     }
 
     void AttachJoint(Rigidbody targetRb)
@@ -205,8 +207,7 @@ public class Grab : MonoBehaviour
 
     void Drop()
     {
-        if (heldObject == null)
-            return;
+        if (heldObject == null) return;
 
         // Release ownership
         if (heldGrabbable != null &&
@@ -250,9 +251,11 @@ public class Grab : MonoBehaviour
         heldRigidbody = null;
         heldGrabbable = null;
 
-        // Reset carrying state
-        if (playerController != null)
-            playerController.isCarrying = false;
+        // THE FIX: Reset both the controller AND the animation state
+        if (playerController != null) playerController.isCarrying = false;
+        if (animationDriver != null) animationDriver.SetCarrying(false); 
+
+        Debug.Log("Object Dropped");
     }
 
 
