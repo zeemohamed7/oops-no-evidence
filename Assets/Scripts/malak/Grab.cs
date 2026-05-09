@@ -11,24 +11,19 @@ public class Grab : MonoBehaviour
     public float grabRange = 2f;
 
     [Header("Joint Tuning")]
-    // Very high spring = bone snaps to holdPoint fast without flying
-    public float jointSpring   = 5000f;
-    // High damper = kills oscillation so it doesn't bounce or overshoot
-    public float jointDamper   = 500f;
-    // Max force the joint can apply per tick — cap prevents explosion on fast moves
+    public float jointSpring = 5000f;
+    public float jointDamper = 500f;
     public float jointMaxForce = 10000f;
 
-    private GameObject anchorObject;        // invisible kinematic anchor that follows holdPoint
-    private Rigidbody  anchorRigidbody;
+    private GameObject anchorObject;
+    private Rigidbody anchorRigidbody;
     private ConfigurableJoint joint;
 
-    private GameObject      heldObject;
-    private Rigidbody       heldRigidbody;
+    private GameObject heldObject;
+    private Rigidbody heldRigidbody;
     private GrabbableObject heldGrabbable;
 
     private TopDownPlayerController playerController;
-
-    //new 2
     private Vector3 cachedHoldPoint;
 
     void Start()
@@ -39,11 +34,11 @@ public class Grab : MonoBehaviour
 
     void CreateAnchor()
     {
-        anchorObject           = new GameObject("GrabAnchor");
-        anchorRigidbody        = anchorObject.AddComponent<Rigidbody>();
-        anchorRigidbody.isKinematic   = true;   // anchor is immovable by physics
-        anchorRigidbody.useGravity    = false;
-        DontDestroyOnLoad(anchorObject);        // persist across scene loads if needed
+        anchorObject = new GameObject("GrabAnchor");
+        anchorRigidbody = anchorObject.AddComponent<Rigidbody>();
+        anchorRigidbody.isKinematic = true;
+        anchorRigidbody.useGravity = false;
+        DontDestroyOnLoad(anchorObject);
     }
 
     void OnEnable()
@@ -60,8 +55,8 @@ public class Grab : MonoBehaviour
 
     void Update()
     {
-        //new
         cachedHoldPoint = holdPoint.position;
+
         if (grabAction == null || grabAction.action == null) return;
         if (grabAction.action.WasPressedThisFrame())
         {
@@ -72,13 +67,17 @@ public class Grab : MonoBehaviour
 
     void FixedUpdate()
     {
-        //new
         if (heldRigidbody == null) return;
+
         anchorRigidbody.MovePosition(cachedHoldPoint);
 
-        if (heldRigidbody.linearVelocity.magnitude > 8f)
+        // Only clamp velocity on non-kinematic bones
+        if (!heldRigidbody.isKinematic &&
+            heldRigidbody.linearVelocity.magnitude > 8f)
+        {
             heldRigidbody.linearVelocity =
                 heldRigidbody.linearVelocity.normalized * 8f;
+        }
     }
 
     void TryGrab()
@@ -94,7 +93,7 @@ public class Grab : MonoBehaviour
             if (grabbable == null) continue;
 
             Rigidbody targetRb = null;
-            Transform anchor   = grabbable.grabAnchor;
+            Transform anchor = grabbable.grabAnchor;
 
             if (anchor != null)
                 targetRb = anchor.GetComponentInParent<Rigidbody>();
@@ -115,18 +114,20 @@ public class Grab : MonoBehaviour
             }
 
             heldGrabbable = grabbable;
-            heldObject    = grabbable.gameObject;
+            heldObject = grabbable.gameObject;
             heldRigidbody = targetRb;
 
-            
+            // Kill velocity on all non-kinematic bones at grab moment
             Rigidbody[] allBones = heldGrabbable.GetComponentsInChildren<Rigidbody>();
             foreach (var bone in allBones)
             {
-                bone.linearVelocity  = Vector3.zero;
-                bone.angularVelocity = Vector3.zero;
+                if (!bone.isKinematic)
+                {
+                    bone.linearVelocity = Vector3.zero;
+                    bone.angularVelocity = Vector3.zero;
+                }
             }
 
-            
             anchorObject.transform.position = targetRb.worldCenterOfMass;
             anchorRigidbody.MovePosition(targetRb.worldCenterOfMass);
 
@@ -135,14 +136,20 @@ public class Grab : MonoBehaviour
             if (playerController != null)
                 playerController.isCarrying = true;
 
-            Debug.Log($"GRAB SUCCESS — bone: {targetRb.name}");
-            //new
-            Collider[] bodyColliders = heldObject.GetComponentsInChildren<Collider>();
-            foreach (var col in bodyColliders)
+            // Only ignore collision for ragdoll bodies, not regular items like boxes
+            if (heldGrabbable.isRagdoll)
             {
-                col.gameObject.layer = LayerMask.NameToLayer("HeldBody");
+                CharacterController cc = GetComponent<CharacterController>();
+                if (cc != null)
+                {
+                    Collider[] bodyColliders =
+                        heldGrabbable.GetComponentsInChildren<Collider>();
+                    foreach (var col in bodyColliders)
+                        Physics.IgnoreCollision(cc, col, true);
+                }
             }
-            //
+
+            Debug.Log($"GRAB SUCCESS — bone: {targetRb.name}");
             return;
         }
 
@@ -158,71 +165,77 @@ public class Grab : MonoBehaviour
         anchorRigidbody.MovePosition(holdPoint.position);
         joint = anchorObject.AddComponent<ConfigurableJoint>();
 
-        
-        // grabbed object becomes connectedBody
         joint.connectedBody = targetRb;
-
-        // FIX FOR FLOATING GAP
         joint.autoConfigureConnectedAnchor = false;
-
-        // Connect centers directly
         joint.anchor = Vector3.zero;
-        joint.connectedAnchor = Vector3.zero;
 
-        // POSITIONAL MOVEMENT
+        // Connect at the exact grab anchor position (e.g. the hand)
+        // not at the parent bone center
+        if (heldGrabbable.grabAnchor != null)
+        {
+            joint.connectedAnchor = targetRb.transform.InverseTransformPoint(
+                heldGrabbable.grabAnchor.position);
+        }
+        else
+        {
+            joint.connectedAnchor = Vector3.zero;
+        }
+
         joint.xMotion = ConfigurableJointMotion.Free;
         joint.yMotion = ConfigurableJointMotion.Free;
         joint.zMotion = ConfigurableJointMotion.Free;
 
-        // LOCK ROTATION
-        joint.angularXMotion = ConfigurableJointMotion.Locked;
-        joint.angularYMotion = ConfigurableJointMotion.Locked;
-        joint.angularZMotion = ConfigurableJointMotion.Locked;
+        // Free rotation so body tumbles naturally when dragged
+        joint.angularXMotion = ConfigurableJointMotion.Free;
+        joint.angularYMotion = ConfigurableJointMotion.Free;
+        joint.angularZMotion = ConfigurableJointMotion.Free;
 
-        // STRONGER / TIGHTER DRIVE
-        JointDrive drive = new JointDrive
+        // Horizontal drive — pulls object along the ground
+        JointDrive horizontalDrive = new JointDrive
         {
             positionSpring = 12000f,
             positionDamper = 1200f,
             maximumForce = Mathf.Infinity
         };
 
-        joint.xDrive = drive;
-        joint.yDrive = drive;
-        joint.zDrive = drive;
+        // Ragdoll: no vertical lift so body stays on ground
+        // Regular item: full vertical lift so box/item rises to hand
+        JointDrive verticalDrive = new JointDrive
+        {
+            positionSpring = heldGrabbable.isRagdoll ? 2000f : 12000f,
+            positionDamper = 1200f,
+            maximumForce = Mathf.Infinity
+        };
 
-        // Prevent crazy stretching
+        joint.xDrive = horizontalDrive;
+        joint.yDrive = verticalDrive;
+        joint.zDrive = horizontalDrive;
+
         joint.projectionMode = JointProjectionMode.PositionAndRotation;
         joint.projectionDistance = 0.02f;
         joint.projectionAngle = 1f;
-
-        // Keep world collisions
         joint.enableCollision = true;
-
         joint.breakForce = Mathf.Infinity;
         joint.breakTorque = Mathf.Infinity;
     }
 
     void Drop()
     {
-        if (heldObject == null)
-            return;
+        if (heldObject == null) return;
 
-        // Release ownership
         if (heldGrabbable != null &&
             heldGrabbable.currentHolder == gameObject)
         {
             heldGrabbable.Release();
         }
 
-        // Destroy joint safely
         if (joint != null)
         {
             Destroy(joint);
             joint = null;
         }
 
-        // Reset all ragdoll velocities
+        // Kill velocity on all non-kinematic bones on drop
         if (heldGrabbable != null)
         {
             Rigidbody[] allBones =
@@ -230,31 +243,34 @@ public class Grab : MonoBehaviour
 
             foreach (var rb in allBones)
             {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
+                if (!rb.isKinematic)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
             }
         }
 
-        // Restore layers
-        Collider[] bodyColliders =
-            heldObject.GetComponentsInChildren<Collider>();
-
-        foreach (var col in bodyColliders)
+        // Restore collision only if it was a ragdoll
+        if (heldGrabbable != null && heldGrabbable.isRagdoll)
         {
-            col.gameObject.layer =
-                LayerMask.NameToLayer("Default");
+            CharacterController cc = GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                Collider[] bodyColliders =
+                    heldGrabbable.GetComponentsInChildren<Collider>();
+                foreach (var col in bodyColliders)
+                    Physics.IgnoreCollision(cc, col, false);
+            }
         }
 
-        // CLEAR REFERENCES
         heldObject = null;
         heldRigidbody = null;
         heldGrabbable = null;
 
-        // Reset carrying state
         if (playerController != null)
             playerController.isCarrying = false;
     }
-
 
     void OnDestroy()
     {
