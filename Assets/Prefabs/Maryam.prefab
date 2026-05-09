@@ -79,9 +79,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0983a16530e26c240acc0881f8278e4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDriver: {fileID: 0}
+  animationDriver: {fileID: 8923024886879084518}
   grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  holdPoint: {fileID: 1336727828693783357}
+  holdPoint: {fileID: 7379420364766568476}
   grabRange: 2
   jointSpring: 5000
   jointDamper: 500
