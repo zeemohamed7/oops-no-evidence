@@ -35,7 +35,7 @@ public class BloodPool : MonoBehaviour
     [Range(0.01f, 0.5f)] public float brushRadius = 0.1f;
 
     [Tooltip("Blood removed per mop pass. 1.0 = instant full erase, 0.1 = gradual.")]
-    [Range(0.01f, 1f)] public float brushStrength = 1f;
+    [Range(0.01f, 1f)] public float brushStrength = 0.8f;
 
     [Header("Footprint stamp")]
     [Tooltip("Radius of each footprint mark stamped onto the pool (UV space).")]

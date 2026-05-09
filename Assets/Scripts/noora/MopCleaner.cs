@@ -64,7 +64,8 @@ public class MopCleaner : MonoBehaviour
         if (_mopIsDirty
             && bucketObject != null
             && bucketObject.activeInHierarchy
-            && Vector3.Distance(transform.position, bucketObject.transform.position) <= dipDistance)
+            && Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
+                               new Vector2(bucketObject.transform.position.x, bucketObject.transform.position.z)) <= dipDistance)
         {
             DipMop();
             return;
