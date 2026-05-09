@@ -4714,6 +4714,7 @@ MonoBehaviour:
   floorLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  footprintYOffset: 0.106
 --- !u!114 &15076327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4784,7 +4785,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb0296cebe4ead949afea100d7d0b800, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  footprintPrefab: {fileID: 0}
+  footprintPrefab: {fileID: 1604027342312907293, guid: 79007159aaeb94547af19449b3c75423, type: 3}
   footprintSize: 0.25
   stepDistance: 0.45
   maxPrintSteps: 8
@@ -4793,6 +4794,7 @@ MonoBehaviour:
   floorLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  footprintYOffset: 0.106
 --- !u!1 &15654424
 GameObject:
   m_ObjectHideFlags: 0
@@ -52003,6 +52005,7 @@ MonoBehaviour:
   floorLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  footprintYOffset: 0.106
 --- !u!114 &169436769
 MonoBehaviour:
   m_ObjectHideFlags: 0
