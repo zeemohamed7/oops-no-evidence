@@ -44,7 +44,8 @@ public class DumpsterLid : MonoBehaviour
 
     void Start()
     {
-        lid ??= BuildDefaultLid();
+        if (lid == null)
+            lid = BuildDefaultLid();
 
         _closedRot = lid.localRotation;
         _openRot   = lid.localRotation * Quaternion.Euler(-openAngle, 0f, 0f);
