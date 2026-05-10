@@ -4,14 +4,11 @@ using UnityEngine;
 public class WeaponDisposalZone : MonoBehaviour
 {
     [Header("Sparkle")]
-    public ParticleSystem sparkles;   // leave empty to auto-create gold burst
-    public Light sparkleLight;        // optional Point Light child for flash
-
-    [Header("Disposal")]
-    [Tooltip("Seconds the weapon must stay inside before being disposed. Prevents destruction on wall bounce.")]
-    public float dwellTime = 0.4f;
+    public ParticleSystem sparkles;
+    public Light sparkleLight;
 
     private bool completed;
+    private Collider _weaponInZone;
     private Coroutine _pendingDispose;
 
     void Start()
@@ -23,19 +20,39 @@ public class WeaponDisposalZone : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (completed || !other.CompareTag("Weapon")) return;
-        _pendingDispose = StartCoroutine(DisposeAfterDwell(other));
+        _weaponInZone = other;
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (completed || other != _weaponInZone) return;
+
+        GrabbableObject grabbable = other.GetComponentInParent<GrabbableObject>();
+        bool isReleased = grabbable == null || !grabbable.isGrabbed;
+
+        if (isReleased && _pendingDispose == null)
+            _pendingDispose = StartCoroutine(DisposeAfterDwell(other));
+        else if (!isReleased && _pendingDispose != null)
+        {
+            StopCoroutine(_pendingDispose);
+            _pendingDispose = null;
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("Weapon") || _pendingDispose == null) return;
-        StopCoroutine(_pendingDispose);
-        _pendingDispose = null;
+        if (other != _weaponInZone) return;
+        _weaponInZone = null;
+        if (_pendingDispose != null)
+        {
+            StopCoroutine(_pendingDispose);
+            _pendingDispose = null;
+        }
     }
 
     private IEnumerator DisposeAfterDwell(Collider weapon)
     {
-        yield return new WaitForSeconds(dwellTime);
+        yield return new WaitForSeconds(0.4f);
 
         if (weapon == null || completed) yield break;
 
@@ -90,8 +107,8 @@ public class WeaponDisposalZone : MonoBehaviour
         main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 5f);
         main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.15f);
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.9f, 0.2f),  // gold
-            new Color(1f, 1f, 1f)        // white
+            new Color(1f, 0.9f, 0.2f),
+            new Color(1f, 1f, 1f)
         );
         main.gravityModifier = 0.3f;
         main.maxParticles = 40;
