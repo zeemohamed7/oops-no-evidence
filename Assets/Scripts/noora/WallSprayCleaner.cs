@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// Attach to the Player. Spray (slot 4) + Interact (Y / E) cleans wall blood
@@ -39,12 +38,8 @@ public class WallSprayCleaner : MonoBehaviour
     static readonly int ID_Strength = Shader.PropertyToID("_Strength");
     static readonly int ID_Spread  = Shader.PropertyToID("_Spread");
 
-    InputSystem_Actions _input;
-
     void Awake()
     {
-        _input = new InputSystem_Actions();
-
         Shader blitShader = Shader.Find("Custom/MopClean");
         if (blitShader != null)
             _fadeMat = new Material(blitShader);
@@ -52,27 +47,14 @@ public class WallSprayCleaner : MonoBehaviour
             Debug.LogWarning("[WallSpray] MopClean shader not found — RT fading won't work.");
     }
 
-    void OnEnable()
-    {
-        _input.Player.Enable();
-        _input.Player.Interact.started += OnInteract;
-        Debug.LogError("[WallSpray] *** SCRIPT IS RUNNING — OnEnable fired ***");
-    }
-
-    void OnDisable()
-    {
-        _input.Player.Interact.started -= OnInteract;
-        _input.Player.Disable();
-    }
-
     void OnDestroy()
     {
         if (_fadeMat) Destroy(_fadeMat);
     }
 
-    void OnInteract(InputAction.CallbackContext ctx)
+    // Called by PlayerInput (Send Messages behavior) when Interact action fires.
+    public void OnInteract()
     {
-        Debug.LogError($"[WallSpray] Interact pressed! IsSpraySelected={inventory != null && inventory.IsSpraySelected()} | slot={inventory?.GetSelectedSlot()}");
         if (inventory == null || !inventory.IsSpraySelected()) return;
         TrySpray();
     }

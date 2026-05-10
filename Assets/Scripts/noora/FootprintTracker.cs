@@ -17,7 +17,7 @@ public class FootprintTracker : MonoBehaviour
     public GameObject footprintPrefab;
 
     [Tooltip("World-space size of each footprint decal.")]
-    public float footprintSize = 0.25f;
+    public float footprintSize = 0.7f;
 
     [Header("Steps")]
     [Tooltip("Distance walked between each footprint stamp (world units).")]
@@ -33,10 +33,16 @@ public class FootprintTracker : MonoBehaviour
     [Tooltip("Minimum blood value at player feet to pick up blood on shoes (0-1).")]
     [Range(0.05f, 0.5f)] public float bloodPickupThreshold = 0.15f;
 
+    [Header("Inventory")]
+    public ToolInventory inventory;
+
     [Header("Floor Detection")]
     [Tooltip("Set this to the layer your floor Plane is on. " +
              "Prevents footprints from snapping to the player collider.")]
     public LayerMask floorLayerMask = ~0;
+
+    [Tooltip("How far above the detected floor surface to place the footprint decal.")]
+    public float footprintYOffset = 0.106f;
 
     // ── Private ────────────────────────────────────────────────────────────
     int _stepsRemaining;
@@ -78,7 +84,8 @@ public class FootprintTracker : MonoBehaviour
         if (moved < 0.001f) return;
         _distAccum += moved;
 
-        if (_distAccum >= stepDistance && _stepsRemaining > 0)
+        bool mopping = inventory != null && inventory.IsMopSelected();
+        if (_distAccum >= stepDistance && _stepsRemaining > 0 && !mopping)
         {
             _distAccum = 0f;
             SpawnFootprint();
@@ -124,7 +131,9 @@ public class FootprintTracker : MonoBehaviour
         Vector3 spawnPos = transform.position + right * side;
 
         // Snap to floor surface — ray only hits floor layer, never player
-        spawnPos.y = 0.001f;
+        Collider playerCol = GetComponent<Collider>() ?? GetComponentInChildren<Collider>();
+        float feetY = playerCol != null ? playerCol.bounds.min.y : transform.position.y;
+        spawnPos.y = feetY + footprintYOffset;
         Quaternion rot = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
 
         GameObject fp = Instantiate(footprintPrefab, spawnPos, rot);

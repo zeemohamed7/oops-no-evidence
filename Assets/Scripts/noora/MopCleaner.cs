@@ -4,223 +4,139 @@ using UnityEngine.UI;
 
 public class MopCleaner : MonoBehaviour
 {
-    [Header("Shader & Texture")]
-    public Material mopMaterial;
-    public RenderTexture bloodRT;
-
-    [Header("Initial Blood Shape")]
-    [Tooltip("Drag your whiteSplatter texture here — this defines where blood starts.")]
-    public Texture2D initialBloodMask;
-
-    [Header("Floor Connection")]
-    [Tooltip("The Renderer on your floor Plane (Plane (1)).")]
-    public Renderer floorRenderer;
-    public string maskTexPropertyName = "_MaskTex";
-
-    [Header("Camera & Input")]
-    public Camera playerCamera;
-    [Tooltip("Set this to ONLY the Floor layer so the raycast never hits walls or player.")]
-    public LayerMask floorMask = ~0;
-    public float rayDistance = 20f;
-    [Tooltip("Assign the Player layer here so the raycast never hits the player.")]
-    public LayerMask excludeLayers;
-
-    [Header("Brush")]
-    [Range(0.005f, 0.25f)] public float brushRadius = 0.05f;
-    [Range(0.002f, 0.15f)] public float brushStrength = 0.04f;
-
-    [Header("Mop Range")]
-    [Tooltip("How close the player must be to the floor plane to mop.")]
-    public float mopRange = 13f;
-
     [Header("Inventory")]
     public ToolInventory inventory;
 
+    [Header("Mop Range")]
+    [Tooltip("How close the player must be to a blood pool to mop it (world units).")]
+    public float mopRange = 1.5f;
+
     [Header("Dirty Mop Settings")]
-    [Tooltip("The Bucket GameObject sitting on the floor in the scene.")]
     public GameObject bucketObject;
-
-    [Tooltip("How close the player must be to the bucket to auto-dip (world units).")]
     public float dipDistance = 1.5f;
-
-    [Tooltip("How much UV distance the mop must travel while cleaning before it gets dirty.")]
-    public float cleanDistanceBeforeDirty = 3.0f;
-
-    [Tooltip("Spread strength when mop is dirty (paints blood back onto the floor).")]
+    public float cleanDistanceBeforeDirty = 5.0f;
     [Range(0.002f, 0.15f)] public float spreadStrength = 0.03f;
 
     [Header("Footprint Cleaning")]
-    [Tooltip("World-space radius around the raycast hit point to clean footprints.")]
     public float footprintCleanRadius = 0.4f;
-
-    [Tooltip("How long the mop must stay over a footprint to fully clean it (seconds). " +
-             "Set to 0 for instant removal.")]
     public float footprintCleanTime = 0.6f;
 
-    [Header("Controller / Movement Mopping")]
-    [Tooltip("ON = clean at the player's feet while moving (controller). " +
-             "OFF = clean where the mouse cursor points (keyboard+mouse).")]
-    public bool cleanAtPlayerFeet = true;
-
     [Header("UI Feedback")]
-    [Tooltip("Optional UI Text to show mop status on screen.")]
     public Text statusText;
 
     // ── Private ────────────────────────────────────────────────────────────
-    Material _mat;
-    RenderTexture _temp;
     bool _painting;
-
     float _cleanedDistance = 0f;
-    Vector2 _lastUV = Vector2.negativeInfinity;
+    Vector2 _lastUV = -Vector2.one;
     bool _mopIsDirty = false;
+    BloodPool[] _bloodPools;
+    InputAction _interactAction;
 
     System.Collections.Generic.Dictionary<GameObject, float> _footprintProgress
         = new System.Collections.Generic.Dictionary<GameObject, float>();
 
-    static readonly int ID_HitUV = Shader.PropertyToID("_HitUV");
-    static readonly int ID_Radius = Shader.PropertyToID("_Radius");
-    static readonly int ID_Strength = Shader.PropertyToID("_Strength");
-    static readonly int ID_Spread = Shader.PropertyToID("_Spread");
-
-    InputSystem_Actions _input;
-
-    void Awake() { _input = new InputSystem_Actions(); }
-
-    void OnEnable()
-    {
-        _input.Player.Enable();
-        _input.Player.Interact.started += _ => _painting = true;
-        _input.Player.Interact.canceled += OnRelease;
-    }
-
-    void OnDisable() { _input.Player.Disable(); }
-
-    void OnRelease(InputAction.CallbackContext _)
-    {
-        _painting = false;
-        _lastUV = Vector2.negativeInfinity;
-        _footprintProgress.Clear();
-    }
-
     void Start()
     {
-        if (!mopMaterial) { Debug.LogError("[MopCleaner] mopMaterial missing!"); enabled = false; return; }
-        if (!bloodRT) { Debug.LogError("[MopCleaner] bloodRT missing!"); enabled = false; return; }
-        if (!playerCamera) { Debug.LogError("[MopCleaner] playerCamera missing!"); enabled = false; return; }
-        if (!floorRenderer) { Debug.LogError("[MopCleaner] floorRenderer missing!"); enabled = false; return; }
+        if (!inventory) inventory = GetComponent<ToolInventory>();
+        if (!inventory) { Debug.LogError("[MopCleaner] ToolInventory not found!"); enabled = false; return; }
 
         if (!bucketObject)
             Debug.LogWarning("[MopCleaner] bucketObject not assigned — auto-dip won't work!");
 
-        if (!inventory) inventory = GetComponent<ToolInventory>();
-        if (!inventory) { Debug.LogError("[MopCleaner] ToolInventory not found!"); enabled = false; return; }
+        _bloodPools = FindObjectsByType<BloodPool>(FindObjectsSortMode.None);
+        if (_bloodPools.Length == 0)
+            Debug.LogWarning("[MopCleaner] No BloodPool found in scene.");
 
-        if (initialBloodMask == null)
-            Debug.LogWarning("[MopCleaner] initialBloodMask not assigned — floor starts clean.");
-
-        _mat = new Material(mopMaterial);
-        _temp = new RenderTexture(bloodRT.descriptor);
-        _temp.name = "MopClean_Temp";
-        _temp.Create();
-
-        var prev = RenderTexture.active;
-        RenderTexture.active = bloodRT;
-        GL.Clear(false, true, Color.black);
-        RenderTexture.active = prev;
-
-        if (initialBloodMask != null)
-            Graphics.Blit(initialBloodMask, bloodRT);
-
-        floorRenderer.material.SetTexture(maskTexPropertyName, bloodRT);
-        Debug.Log($"[MopCleaner] BloodRT → {floorRenderer.name} [{maskTexPropertyName}] ✓");
+        var playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
+        if (playerInput != null)
+            _interactAction = playerInput.actions["Interact"];
+        else
+            Debug.LogWarning("[MopCleaner] No PlayerInput found — hold-to-mop won't work.");
 
         UpdateStatusUI();
     }
 
-    void OnDestroy()
-    {
-        if (_mat) Destroy(_mat);
-        if (_temp) { _temp.Release(); Destroy(_temp); }
-    }
-
     void Update()
     {
-        // ── Require mop to be equipped ─────────────────────────────────────
-        if (!inventory.IsMopSelected())
-        {
-            if (_painting) Debug.Log("[MopCleaner] Equip the Mop (press 1) to clean.");
-            _painting = false;
-            return;
-        }
+        if (!inventory.IsMopSelected()) { _painting = false; return; }
 
-        // ── Dip check — only dip when the bucket is actively placed in the scene ──
+        // Auto-dip when near bucket
         if (_mopIsDirty
             && bucketObject != null
             && bucketObject.activeInHierarchy
-            && Vector3.Distance(transform.position, bucketObject.transform.position) <= dipDistance)
+            && Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
+                               new Vector2(bucketObject.transform.position.x, bucketObject.transform.position.z)) <= dipDistance)
         {
             DipMop();
             return;
         }
 
+        bool waspainting = _painting;
+        _painting = _interactAction != null && _interactAction.IsPressed();
         if (!_painting)
         {
-            _footprintProgress.Clear();
+            if (waspainting) { _lastUV = -Vector2.one; _footprintProgress.Clear(); }
             return;
         }
 
-        // ── Shoot straight down — works for any floor ─────────────────────
-        // RaycastAll ignores order so the player's own collider won't block.
+        // Raycast straight down to find BloodPool objects underfoot
         Ray downRay = new Ray(transform.position + Vector3.up * 10f, Vector3.down);
         RaycastHit[] allHits = Physics.RaycastAll(downRay, 30f);
 
-        bool onCleanableFloor = false;
-        Vector2 bloodFloorUV = Vector2.negativeInfinity;
+        bool didClean = false;
+        Vector2 cleanUV = -Vector2.one;
 
         foreach (RaycastHit h in allHits)
         {
-            if (h.collider.GetComponent<CleanableFloor>() != null)
-                onCleanableFloor = true;
+            BloodPool pool = h.collider.GetComponent<BloodPool>();
+            if (pool == null) continue;
 
-            if (h.collider.gameObject == floorRenderer.gameObject)
-                bloodFloorUV = h.textureCoord;
-        }
+            // MeshCollider gives accurate per-pixel UV; Box/other colliders return (0,0)
+            Vector2 uv = (h.collider is MeshCollider)
+                ? h.textureCoord
+                : pool.WorldToUV(transform.position);
 
-        if (!onCleanableFloor)
-        {
-            _lastUV = Vector2.negativeInfinity;
-            _footprintProgress.Clear();
-            return;
-        }
+            if (!pool.UVInRange(uv)) continue;
 
-        // ── Apply blood RT brush (only when over the blood floor) ─────────
-        if (bloodFloorUV.x >= 0f)
-        {
+            didClean = true;
+            cleanUV = uv;
+
             if (_mopIsDirty)
-                ApplyBrush(bloodFloorUV, spreadStrength, spread: true);
+                pool.SpreadAtUV(uv, spreadStrength);
             else
-                ApplyBrush(bloodFloorUV, brushStrength, spread: false);
+                pool.EraseAtUV(uv);
         }
 
-        // ── Clean footprints on any cleanable floor ────────────────────────
-        if (!_mopIsDirty)
-            CleanFootprintsNear(transform.position);
+        // Track UV distance for dirty mop (same scale as cleanDistanceBeforeDirty)
+        if (didClean && !_mopIsDirty)
+        {
+            if (_lastUV.x >= 0f)
+                _cleanedDistance += Vector2.Distance(cleanUV, _lastUV);
+            _lastUV = cleanUV;
+            UpdateStatusUI();
+
+            if (_cleanedDistance >= cleanDistanceBeforeDirty)
+            {
+                _mopIsDirty = true;
+                Debug.LogWarning("[MopCleaner] Mop is dirty! Walk to the bucket.");
+                UpdateStatusUI();
+            }
+        }
+
+        // Clean footprints
+        if (!_mopIsDirty) CleanFootprintsNear(transform.position);
     }
 
     // ── Footprint cleaning ─────────────────────────────────────────────────
 
     void CleanFootprintsNear(Vector3 worldPoint)
     {
-        Debug.Log($"[Mop] Cleaning near {worldPoint} | Active footprints: {FootprintTracker.ActiveFootprints.Count}");
-
         var nullKeys = new System.Collections.Generic.List<GameObject>();
         foreach (var key in _footprintProgress.Keys)
             if (key == null) nullKeys.Add(key);
         foreach (var key in nullKeys) _footprintProgress.Remove(key);
 
         bool anyInRange = false;
-
         var snapshot = new System.Collections.Generic.List<GameObject>(FootprintTracker.ActiveFootprints);
 
         foreach (GameObject fp in snapshot)
@@ -231,23 +147,13 @@ public class MopCleaner : MonoBehaviour
                 new Vector3(worldPoint.x, 0f, worldPoint.z),
                 new Vector3(fp.transform.position.x, 0f, fp.transform.position.z));
 
-            if (dist > footprintCleanRadius)
-            {
-                _footprintProgress.Remove(fp);
-                continue;
-            }
+            if (dist > footprintCleanRadius) { _footprintProgress.Remove(fp); continue; }
 
             anyInRange = true;
 
-            if (footprintCleanTime <= 0f)
-            {
-                FootprintTracker.RemoveFootprint(fp);
-                continue;
-            }
+            if (footprintCleanTime <= 0f) { FootprintTracker.RemoveFootprint(fp); continue; }
 
-            if (!_footprintProgress.ContainsKey(fp))
-                _footprintProgress[fp] = 0f;
-
+            if (!_footprintProgress.ContainsKey(fp)) _footprintProgress[fp] = 0f;
             _footprintProgress[fp] += Time.deltaTime;
 
             Renderer r = fp.GetComponentInChildren<Renderer>();
@@ -266,40 +172,10 @@ public class MopCleaner : MonoBehaviour
             }
         }
 
-        if (!anyInRange)
-            _footprintProgress.Clear();
+        if (!anyInRange) _footprintProgress.Clear();
     }
 
-    // ── Core brush ─────────────────────────────────────────────────────────
-
-    void ApplyBrush(Vector2 uv, float strength, bool spread)
-    {
-        Debug.Log($"[Mop] ApplyBrush called | cleanedDist: {_cleanedDistance} / {cleanDistanceBeforeDirty}");
-
-        _mat.SetVector(ID_HitUV, new Vector4(uv.x, uv.y, 0f, 0f));
-        _mat.SetFloat(ID_Radius, brushRadius);
-        _mat.SetFloat(ID_Strength, strength);
-        _mat.SetFloat(ID_Spread, spread ? 1f : 0f);
-
-        Graphics.Blit(bloodRT, _temp);
-        Graphics.Blit(_temp, bloodRT, _mat);
-
-        if (!spread)
-        {
-            if (_lastUV.x >= 0f)
-                _cleanedDistance += Vector2.Distance(uv, _lastUV);
-
-            _lastUV = uv;
-            UpdateStatusUI();
-
-            if (_cleanedDistance >= cleanDistanceBeforeDirty)
-            {
-                _mopIsDirty = true;
-                Debug.LogWarning("[MopCleaner] ⚠ Mop is dirty! Select bucket (2) and walk to it.");
-                UpdateStatusUI();
-            }
-        }
-    }
+    // ── Public API ─────────────────────────────────────────────────────────
 
     public void TryDipMop()
     {
@@ -311,7 +187,7 @@ public class MopCleaner : MonoBehaviour
     {
         _mopIsDirty = false;
         _cleanedDistance = 0f;
-        _lastUV = Vector2.negativeInfinity;
+        _lastUV = -Vector2.one;
         _footprintProgress.Clear();
         Debug.Log("[MopCleaner] Mop dipped — ready to clean again!");
         UpdateStatusUI();
@@ -320,11 +196,8 @@ public class MopCleaner : MonoBehaviour
     void UpdateStatusUI()
     {
         if (statusText == null) return;
-
         if (_mopIsDirty)
-        {
-            statusText.text = "⚠ Mop dirty! Press 2 to select bucket, then walk to it.";
-        }
+            statusText.text = "Mop dirty! Walk to the bucket.";
         else
         {
             float pct = Mathf.RoundToInt(Mathf.Clamp01(_cleanedDistance / cleanDistanceBeforeDirty) * 100f);
@@ -334,17 +207,12 @@ public class MopCleaner : MonoBehaviour
 
     public void ResetBlood()
     {
-        var prev = RenderTexture.active;
-        RenderTexture.active = bloodRT;
-        GL.Clear(false, true, Color.black);
-        RenderTexture.active = prev;
-
-        if (initialBloodMask != null)
-            Graphics.Blit(initialBloodMask, bloodRT);
+        foreach (BloodPool pool in _bloodPools)
+            if (pool != null) pool.ResetBlood();
 
         _cleanedDistance = 0f;
         _mopIsDirty = false;
-        _lastUV = Vector2.negativeInfinity;
+        _lastUV = -Vector2.one;
         _footprintProgress.Clear();
         UpdateStatusUI();
     }

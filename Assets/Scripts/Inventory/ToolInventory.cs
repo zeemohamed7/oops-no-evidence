@@ -13,6 +13,7 @@ public class ToolInventory : MonoBehaviour
     public GameObject sprayTool;
     public MopCleaner mopCleaner;
     public float dipDistance = 1.5f;
+    public Transform holdPoint;
 
     private int selectedSlot = -1; // -1 = nothing equipped
     private float highlightDuration = 0.5f;
@@ -99,7 +100,15 @@ public class ToolInventory : MonoBehaviour
             if (blacklightTool != null) blacklightTool.SetActive(false);
             if (sprayTool != null) sprayTool.SetActive(false);
 
-            if (toolObj) toolObj.SetActive(true);
+            if (toolObj)
+            {
+                if (holdPoint != null)
+                {
+                    toolObj.transform.SetParent(holdPoint, false);
+                    toolObj.transform.localPosition = Vector3.zero;
+                }
+                toolObj.SetActive(true);
+            }
             selectedSlot = slot;
             HighlightSlot(slot);
             Debug.Log($"[Inventory] Equipped slot {slot}.");
@@ -125,7 +134,8 @@ public class ToolInventory : MonoBehaviour
         if (!IsMopSelected()) return;
         if (!bucketTool.activeInHierarchy) return; // bucket must be placed in the scene
 
-        float dist = Vector3.Distance(transform.position, bucketTool.transform.position);
+        float dist = Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
+                                      new Vector2(bucketTool.transform.position.x, bucketTool.transform.position.z));
         if (dist <= dipDistance)
             mopCleaner.TryDipMop();
     }
