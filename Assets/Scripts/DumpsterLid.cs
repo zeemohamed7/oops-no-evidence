@@ -49,6 +49,7 @@ public class DumpsterLid : MonoBehaviour
         _closedRot = lid.localRotation;
         _openRot   = lid.localRotation * Quaternion.Euler(-openAngle, 0f, 0f);
 
+        Debug.Log($"[DumpsterLid] Start OK — position: {transform.position}, radius: {detectionRadius}");
         StartCoroutine(DetectionLoop());
     }
 
@@ -63,8 +64,10 @@ public class DumpsterLid : MonoBehaviour
             Collider[] hits = Physics.OverlapSphere(
                 transform.position, detectionRadius, ~0, QueryTriggerInteraction.Ignore);
 
+            Debug.Log($"[DumpsterLid] OverlapSphere found {hits.Length} colliders near {transform.position}");
             foreach (var col in hits)
             {
+                Debug.Log($"[DumpsterLid]   - {col.name}  tag={col.tag}");
                 if (col.CompareTag("Weapon")) { found = true; break; }
             }
 
