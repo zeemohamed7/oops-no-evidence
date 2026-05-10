@@ -2,14 +2,21 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LevelIntroManager : MonoBehaviour
 {
+    [Header("UI")]
     public TextMeshProUGUI storyText;
+    public Button skipButton;
+
+    [Header("Audio")]
     public AudioSource audioSource;
 
-    public string nextSceneName = "Level1_Gameplay";
+    [Header("Scene")]
+    public string nextSceneName = "Level1_Inst";
 
+    [Header("Text")]
     [TextArea(2, 4)]
     public string[] lines;
 
@@ -20,15 +27,16 @@ public class LevelIntroManager : MonoBehaviour
 
     void Start()
     {
+        if (skipButton != null)
+            skipButton.onClick.AddListener(LoadNextScene);
+
         StartCoroutine(PlayIntro());
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
-        {
             LoadNextScene();
-        }
     }
 
     IEnumerator PlayIntro()

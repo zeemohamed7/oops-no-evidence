@@ -25,7 +25,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private List<LobbySlotUI> slots = new();
 
     [Header("Scene")]
-    [SerializeField] private string selectedLevelName = "Level1";
+    [SerializeField] private string selectedLevelName = "Level1_Intro";
 
     [Header("Settings")]
     [SerializeField] private bool allowKeyboard = true;
