@@ -7,7 +7,12 @@ public class WeaponDisposalZone : MonoBehaviour
     public ParticleSystem sparkles;   // leave empty to auto-create gold burst
     public Light sparkleLight;        // optional Point Light child for flash
 
+    [Header("Disposal")]
+    [Tooltip("Seconds the weapon must stay inside before being disposed. Prevents destruction on wall bounce.")]
+    public float dwellTime = 0.4f;
+
     private bool completed;
+    private Coroutine _pendingDispose;
 
     void Start()
     {
@@ -17,18 +22,29 @@ public class WeaponDisposalZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (completed) return;
+        if (completed || !other.CompareTag("Weapon")) return;
+        _pendingDispose = StartCoroutine(DisposeAfterDwell(other));
+    }
 
-        if (other.CompareTag("Weapon"))
-        {
-            completed = true;
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Weapon") || _pendingDispose == null) return;
+        StopCoroutine(_pendingDispose);
+        _pendingDispose = null;
+    }
 
-            GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
-            Destroy(other.gameObject);
-            PlaySparkle();
+    private IEnumerator DisposeAfterDwell(Collider weapon)
+    {
+        yield return new WaitForSeconds(dwellTime);
 
-            Debug.Log("Weapon disposed");
-        }
+        if (weapon == null || completed) yield break;
+
+        completed = true;
+        _pendingDispose = null;
+        GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
+        Destroy(weapon.gameObject);
+        PlaySparkle();
+        Debug.Log("Weapon disposed");
     }
 
     void PlaySparkle()
