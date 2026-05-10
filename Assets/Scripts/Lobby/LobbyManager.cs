@@ -339,8 +339,11 @@ public class LobbyManager : MonoBehaviour
             });
         }
 
-        PlayerInputManager.instance.DisableJoining();
-        PlayerInputManager.instance.enabled = false;
+        if (PlayerInputManager.instance != null)
+        {
+            PlayerInputManager.instance.DisableJoining();
+            PlayerInputManager.instance.enabled = false;
+        }
 
         pim.onPlayerJoined -= OnPlayerJoined;
         pim.onPlayerLeft -= OnPlayerLeft;
