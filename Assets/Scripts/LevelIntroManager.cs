@@ -41,17 +41,19 @@ public class LevelIntroManager : MonoBehaviour
 
     IEnumerator PlayIntro()
     {
-        storyText.text = "";
+        if (storyText != null)
+            storyText.text = "";
 
         if (audioSource != null)
-        {
             audioSource.Play();
-        }
 
-        foreach (string line in lines)
+        if (storyText != null && lines != null)
         {
-            yield return StartCoroutine(TypeLine(line));
-            yield return new WaitForSeconds(pauseBetweenLines);
+            foreach (string line in lines)
+            {
+                yield return StartCoroutine(TypeLine(line));
+                yield return new WaitForSeconds(pauseBetweenLines);
+            }
         }
 
         yield return new WaitForSeconds(1f);
