@@ -422,7 +422,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 28f52da54a4bd47af9e148be18294355, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7b4a9cb0deb4ef24592db9586987a994, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -853,7 +853,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 28f52da54a4bd47af9e148be18294355, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7b4a9cb0deb4ef24592db9586987a994, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1163,7 +1163,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 28f52da54a4bd47af9e148be18294355, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7b4a9cb0deb4ef24592db9586987a994, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1910,7 +1910,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 28f52da54a4bd47af9e148be18294355, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7b4a9cb0deb4ef24592db9586987a994, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2196,6 +2196,9 @@ MonoBehaviour:
   bucketTool: {fileID: 0}
   blacklightTool: {fileID: 0}
   sprayTool: {fileID: 0}
+  mopCleaner: {fileID: 0}
+  dipDistance: 1.5
+  holdPoint: {fileID: 0}
 --- !u!4 &2053041592
 Transform:
   m_ObjectHideFlags: 0

@@ -20,5 +20,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Testing_Scenes/Mariam_Levels/Hajar-office-final.unity
     guid: cb9f16c52bf17de4fb5f84967911ef1b
+  - enabled: 1
+    path: Assets/Scenes/Storylines/Level1_Intro.unity
+    guid: acefa81c3324a814f98214db9dbf85c8
+  - enabled: 1
+    path: Assets/Scenes/Instructions/Level1_Inst.unity
+    guid: 17c8dba36fd8e6e46a619ef5a35b1392
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
