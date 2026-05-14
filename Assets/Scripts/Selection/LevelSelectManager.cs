@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class LevelSelectManager : MonoBehaviour
 {
     [Header("Level Setup")]
-    public RectTransform[] levelObjects; 
+    public RectTransform[] waypoints; 
     public TruckLevelSelection truck;    
     
     [Header("Navigation Settings")]
@@ -15,15 +15,15 @@ public class LevelSelectManager : MonoBehaviour
     void Start()
     {
        
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1); // Highest level unlocked
+        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1); // Highest level unlocked FOR VISUAL
         
         // Visually "Lock" the cards that aren't available yet
-        for (int i = 0; i < levelObjects.Length; i++)
+        for (int i = 0; i < waypoints.Length; i++)
         {
             if (i + 1 > unlockedLevel)
             {
                 // Lower the opacity or change the color of locked objects
-                var canvasGroup = levelObjects[i].GetComponent<CanvasGroup>();
+                var canvasGroup = waypoints[i].GetComponent<CanvasGroup>();
                 if (canvasGroup != null) canvasGroup.alpha = 0.5f;
             }
         }
@@ -45,11 +45,11 @@ public class LevelSelectManager : MonoBehaviour
 
     void HandleInput()
     {
+        
         float moveX = Input.GetAxisRaw("Horizontal"); // Gets -1 or 1 to know which way to go
-
         if (canMove) // Only move if the "gate" is open
         {
-            if (moveX > inputThreshold && currentIndex < levelObjects.Length - 1) // Move tgo the right
+            if (moveX > inputThreshold && currentIndex < waypoints.Length - 1) // Move tgo the right
             {
                 currentIndex++;
                 UpdateSelection();
@@ -66,13 +66,18 @@ public class LevelSelectManager : MonoBehaviour
 
     void UpdateSelection()
     {
-        // Sends the UI position of the chosen level over to the truck script
-        truck.SetTarget(levelObjects[currentIndex]);
+        Debug.Log("Manager: Telling truck to move to waypoint " + currentIndex);
+    
+        if (truck != null) {
+            truck.SetTarget(waypoints[currentIndex]);
+        } else {
+            Debug.LogError("Manager: THE TRUCK SLOT IS EMPTY IN THE INSPECTOR!");
+        }
     }
 
     void TryStartLevel()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
+        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);  // Highest level unlocked FOR LOGIC
     
         // Check if the card we are currently on is less than or equal to our progress.
         if (currentIndex + 1 <= unlockedLevel)
