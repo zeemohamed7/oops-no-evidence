@@ -25,7 +25,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private List<LobbySlotUI> slots = new();
 
     [Header("Scene")]
-    [SerializeField] private string selectedLevelName = "Level1";
+    [SerializeField] private string selectedLevelName = "LevelSelection";
 
     [Header("Settings")]
     [SerializeField] private bool allowKeyboard = true;
@@ -347,7 +347,10 @@ public class LobbyManager : MonoBehaviour
 
         SceneManager.LoadScene(selectedLevelName);
     }
-
+    public string GetSelectedLevelName()
+    {
+        return selectedLevelName;
+    }
     // ─────────────────────────────────────────────────────────────
     // SPAWN PLAYERS
     // ─────────────────────────────────────────────────────────────
