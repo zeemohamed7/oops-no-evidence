@@ -25,7 +25,7 @@ public class LevelSelectManager : MonoBehaviour
             var canvasGroup = waypoints[i].GetComponent<CanvasGroup>();
             if (canvasGroup != null) canvasGroup.alpha = isLocked ? 0.5f : 1.0f;
 
-            // 3D Building Gray-out
+            // Building Gray-out
             if (buildingModels != null && i < buildingModels.Length && buildingModels[i] != null)
             {
                 Renderer[] parts = buildingModels[i].GetComponentsInChildren<Renderer>();
@@ -65,7 +65,7 @@ public class LevelSelectManager : MonoBehaviour
         }
 
         // Execute Move
-        if (moveRight && currentIndex < waypoints.Length - 1 && (currentIndex + 1) < unlockedLevel)
+        if (moveRight && currentIndex < waypoints.Length - 1 && (currentIndex + 1) < unlockedLevel) // -1 for left, 1 for right
         {
             currentIndex++;
             UpdateSelection();
@@ -85,7 +85,7 @@ public class LevelSelectManager : MonoBehaviour
 
         if (pressedSubmit) TryStartLevel();
 
-        // --- CHEATS ---
+        // --- CHEATS FOR TESTING--- DELETE LATER 
         if (Keyboard.current != null)
         {
             if (Keyboard.current.uKey.wasPressedThisFrame) CheatUnlock(4);
