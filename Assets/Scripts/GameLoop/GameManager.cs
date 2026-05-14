@@ -80,10 +80,37 @@ public class GameManager : MonoBehaviour
     {
         if (!IsPlaying) return;
         State = GameState.Lost;
+        
+        SaveProgress();
+        
         OnLoss.Invoke();
         Debug.Log("LOSS");
     }
+    private void SaveProgress()
+    {
+        // 1. Get the current level name from LobbyManager (e.g., "Level1")
+        string currentLevelName = LobbyManager.Instance.GetSelectedLevelName();
+    
+        // 2. Extract the number from the string (Level1 -> 1)
+        string levelNumberString = currentLevelName.Replace("Level", "");
+        if (int.TryParse(levelNumberString, out int currentLevelNum))
+        {
+            int highestReached = PlayerPrefs.GetInt("ReachedLevel", 1);
 
+            // 3. If we just beat our record, unlock the next level
+            if (currentLevelNum >= highestReached)
+            {
+                int nextLevel = currentLevelNum + 1;
+            
+                // Cap it at 4
+                if (nextLevel > 4) nextLevel = 4;
+
+                PlayerPrefs.SetInt("ReachedLevel", nextLevel);
+                PlayerPrefs.Save();
+            }
+        }
+    }
+    
     // S-F grading: weighted average of time remaining and low suspicion
     // S = near perfect, F = barely scraped by or failed tasks
     public string CalculateGrade()
