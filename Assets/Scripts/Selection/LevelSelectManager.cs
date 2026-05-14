@@ -1,96 +1,116 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem; // Must have this!
 
 public class LevelSelectManager : MonoBehaviour
 {
     [Header("Level Setup")]
     public RectTransform[] waypoints; 
-    public TruckLevelSelection truck;    
+    public TruckLevelSelection truck;   
+    public GameObject[] buildingModels;
     
-    [Header("Navigation Settings")]
-    private int currentIndex = 0; // Tracks level you're choosing
-    private float inputThreshold = 0.5f; // To prevent "hyper-fast" scrolling
-    private bool canMove = true;
+    private int currentIndex = 0;
 
     void Start()
     {
-       
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1); // Highest level unlocked FOR VISUAL
-        
-        // Visually "Lock" the cards that aren't available yet
+        currentIndex = 0; 
+        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1); 
+    
+        // Loop through to handle visuals
         for (int i = 0; i < waypoints.Length; i++)
         {
-            if (i + 1 > unlockedLevel)
+            bool isLocked = (i + 1) > unlockedLevel;
+
+            // UI Gray-out
+            var canvasGroup = waypoints[i].GetComponent<CanvasGroup>();
+            if (canvasGroup != null) canvasGroup.alpha = isLocked ? 0.5f : 1.0f;
+
+            // 3D Building Gray-out
+            if (buildingModels != null && i < buildingModels.Length && buildingModels[i] != null)
             {
-                // Lower the opacity or change the color of locked objects
-                var canvasGroup = waypoints[i].GetComponent<CanvasGroup>();
-                if (canvasGroup != null) canvasGroup.alpha = 0.5f;
+                Renderer[] parts = buildingModels[i].GetComponentsInChildren<Renderer>();
+                foreach (Renderer p in parts)
+                {
+                    p.material.color = isLocked ? new Color(0.2f, 0.2f, 0.2f) : Color.white;
+                }
             }
         }
-
-        // Tell the truck to move to the starting position.
         UpdateSelection();
     }
 
     void Update()
     {
-        HandleInput(); // Constantly check if the player is pushing a button.
+        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
 
-        // If player presses "Submit" (A on Xbox, Cross on PS, or Enter)
-        if (Input.GetButtonDown("Submit")) 
+        // --- NAVIGATION (Keyboard & Controller) ---
+        bool moveRight = false;
+        bool moveLeft = false;
+
+        // Check Keyboard
+        if (Keyboard.current != null)
         {
-            TryStartLevel();
+            if (Keyboard.current.dKey.wasPressedThisFrame || Keyboard.current.rightArrowKey.wasPressedThisFrame)
+                moveRight = true;
+            if (Keyboard.current.aKey.wasPressedThisFrame || Keyboard.current.leftArrowKey.wasPressedThisFrame)
+                moveLeft = true;
+        }
+
+        // Check Gamepad (D-Pad or Left Stick click)
+        if (Gamepad.current != null)
+        {
+            if (Gamepad.current.dpad.right.wasPressedThisFrame || Gamepad.current.leftStick.right.wasPressedThisFrame)
+                moveRight = true;
+            if (Gamepad.current.dpad.left.wasPressedThisFrame || Gamepad.current.leftStick.left.wasPressedThisFrame)
+                moveLeft = true;
+        }
+
+        // Execute Move
+        if (moveRight && currentIndex < waypoints.Length - 1 && (currentIndex + 1) < unlockedLevel)
+        {
+            currentIndex++;
+            UpdateSelection();
+        }
+        else if (moveLeft && currentIndex > 0)
+        {
+            currentIndex--;
+            UpdateSelection();
+        }
+
+        // --- SUBMIT ---
+        bool pressedSubmit = false;
+        if (Keyboard.current != null && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame))
+            pressedSubmit = true;
+        if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame) // 'A' on Xbox / 'Cross' on PS
+            pressedSubmit = true;
+
+        if (pressedSubmit) TryStartLevel();
+
+        // --- CHEATS ---
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.uKey.wasPressedThisFrame) CheatUnlock(4);
+            if (Keyboard.current.rKey.wasPressedThisFrame) CheatUnlock(1);
         }
     }
 
-    void HandleInput()
+    void CheatUnlock(int level)
     {
-        
-        float moveX = Input.GetAxisRaw("Horizontal"); // Gets -1 or 1 to know which way to go
-        if (canMove) // Only move if the "gate" is open
-        {
-            if (moveX > inputThreshold && currentIndex < waypoints.Length - 1) // Move tgo the right
-            {
-                currentIndex++;
-                UpdateSelection();
-                StartCoroutine(InputCooldown()); // Close for a second to prevent hyper scrolling
-            }
-            else if (moveX < -inputThreshold && currentIndex > 0) // Move to the left
-            {
-                currentIndex--;
-                UpdateSelection();
-                StartCoroutine(InputCooldown());
-            }
-        }
+        PlayerPrefs.SetInt("ReachedLevel", level);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void UpdateSelection()
     {
-        Debug.Log("Manager: Telling truck to move to waypoint " + currentIndex);
-    
-        if (truck != null) {
-            truck.SetTarget(waypoints[currentIndex]);
-        } else {
-            Debug.LogError("Manager: THE TRUCK SLOT IS EMPTY IN THE INSPECTOR!");
-        }
+        if (truck != null) truck.SetTarget(waypoints[currentIndex]);
     }
 
     void TryStartLevel()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);  // Highest level unlocked FOR LOGIC
-    
-        // Check if the card we are currently on is less than or equal to our progress.
+        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
         if (currentIndex + 1 <= unlockedLevel)
         {
-            // Load the level! (Make sure your scenes are named "Level1", "Level2", etc.)
             SceneManager.LoadScene("Level" + (currentIndex + 1));
         }
-    }
-
-    System.Collections.IEnumerator InputCooldown()
-    {
-        canMove = false;
-        yield return new WaitForSeconds(0.2f); // Stops the truck from flying across 5 levels in one tap
-        canMove = true;
     }
 }
