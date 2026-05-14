@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LevelSelection.unity
     guid: 715bcdd8995325e4f91ac4525c965272
   - enabled: 1
-    path: Assets/Scenes/Level1_ShawarmaShop.unity
+    path: Assets/Scenes/Levels/Level1.unity
     guid: cf080679a870d47bc80a3cf7771fdc58
   - enabled: 1
     path: Assets/Scenes/Testing_Scenes/Malak_Scenes/last.unity
