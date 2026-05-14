@@ -56,10 +56,11 @@ public class GameHUD : MonoBehaviour
     // ── RESULT SCREEN ──────────────────────────────────────────────────────
     [Header("Result Screen")]
     public GameObject resultPanel;
-    public TextMeshProUGUI resultHeader;   // WIN / LOSE
-    public TextMeshProUGUI gradeText;      // S / F
+    public TextMeshProUGUI resultHeader;        // WIN / LOSE
+    public TextMeshProUGUI gradeText;           // S / F
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI finalTimeText;
+    public TextMeshProUGUI failureReasonsText;  // bullet list of failure reasons (loss only)
     public Button nextLevelButton;
     public Button retryButton;
     public Button quitResultButton;
@@ -248,6 +249,8 @@ public class GameHUD : MonoBehaviour
         scoreText.text     = $"SCORE: {grade} — Tasks Complete!";
         finalTimeText.text = $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
 
+        if (failureReasonsText != null) failureReasonsText.gameObject.SetActive(false);
+
         nextLevelButton.gameObject.SetActive(true);
         retryButton.gameObject.SetActive(false);
     }
@@ -259,12 +262,26 @@ public class GameHUD : MonoBehaviour
         Time.timeScale = 0f;
 
         float timeLeft = GameManager.Instance?.TimeRemaining ?? 0f;
+        var reasons    = GameManager.Instance?.LastFailureReasons;
 
         resultHeader.text  = "LOSE";  resultHeader.color = loseColor;
         gradeText.text     = "F";     gradeText.color    = loseColor;
         scoreText.text     = "SCORE: F";
         finalTimeText.text = timeLeft <= 0f ? "TIME EXPIRED: 00:00"
                            : $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
+
+        if (failureReasonsText != null)
+        {
+            if (reasons != null && reasons.Count > 0)
+            {
+                failureReasonsText.gameObject.SetActive(true);
+                failureReasonsText.text = "• " + string.Join("\n• ", reasons);
+            }
+            else
+            {
+                failureReasonsText.gameObject.SetActive(false);
+            }
+        }
 
         nextLevelButton.gameObject.SetActive(false);
         retryButton.gameObject.SetActive(true);
