@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BreathingController : MonoBehaviour
+public class PlayerBreathingSound : MonoBehaviour
 {
     [SerializeField] private AudioSource breathingAudio;
 
