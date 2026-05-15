@@ -61,6 +61,7 @@ GameObject:
   - component: {fileID: 1341454109477802862}
   - component: {fileID: 6359852099167381722}
   - component: {fileID: 8617220311320670936}
+  - component: {fileID: -3238312521833933844}
   m_Layer: 8
   m_Name: Noora
   m_TagString: Player
@@ -673,6 +674,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-3238312521833933844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4440514497751259427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b687c9e595031412f9e5ed468b90a636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushForce: 5
 --- !u!1001 &619100940875364383
 PrefabInstance:
   m_ObjectHideFlags: 0
