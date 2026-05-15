@@ -27086,7 +27086,6 @@ GameObject:
   - component: {fileID: 92642424}
   - component: {fileID: 92642423}
   - component: {fileID: 92642425}
-  - component: {fileID: 92642426}
   m_Layer: 0
   m_Name: Cube.053 (1)
   m_TagString: Untagged
@@ -27183,33 +27182,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0029572942, y: 0.0019327039, z: 0.0013735004}
   m_Center: {x: 5.9462456e-11, y: -4.798031e-10, z: 0.00005943187}
---- !u!54 &92642426
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 92642421}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1001 &92747929
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43132,7 +43104,6 @@ GameObject:
   - component: {fileID: 145766969}
   - component: {fileID: 145766968}
   - component: {fileID: 145766970}
-  - component: {fileID: 145766971}
   m_Layer: 0
   m_Name: Cube.051 (6)
   m_TagString: Untagged
@@ -43229,33 +43200,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.005487372, y: 0.0035862068, z: 0.0025485824}
   m_Center: {x: -0.0000000011641532, y: -2.6195735e-18, z: 0.000110278364}
---- !u!54 &145766971
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 145766966}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &146090536
 GameObject:
   m_ObjectHideFlags: 0
@@ -94642,7 +94586,6 @@ GameObject:
   - component: {fileID: 337309057}
   - component: {fileID: 337309056}
   - component: {fileID: 337309058}
-  - component: {fileID: 337309059}
   m_Layer: 0
   m_Name: Cube.051 (3)
   m_TagString: Untagged
@@ -94739,33 +94682,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.005487372, y: 0.0035862068, z: 0.0025485824}
   m_Center: {x: 0.0000000019790605, y: 9.313226e-10, z: 0.000110278364}
---- !u!54 &337309059
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 337309054}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &338125210
 GameObject:
   m_ObjectHideFlags: 0
@@ -134071,9 +133987,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c6f5d0c67ddab420f8f98304a008699c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 493307214}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c6f5d0c67ddab420f8f98304a008699c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 493307215}
   m_SourcePrefab: {fileID: 100100000, guid: c6f5d0c67ddab420f8f98304a008699c, type: 3}
 --- !u!4 &493307212 stripped
 Transform:
@@ -134106,33 +134019,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.02436788, y: 0.024367878, z: 0.032280803}
   m_Center: {x: 0, y: -0.000000017695129, z: 0.0033404052}
---- !u!54 &493307215
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493307213}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &493520104
 GameObject:
   m_ObjectHideFlags: 0
@@ -136634,7 +136520,6 @@ GameObject:
   - component: {fileID: 502400383}
   - component: {fileID: 502400382}
   - component: {fileID: 502400384}
-  - component: {fileID: 502400385}
   m_Layer: 0
   m_Name: Cube.051 (5)
   m_TagString: Untagged
@@ -136731,33 +136616,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.005487372, y: 0.0035862068, z: 0.0025485824}
   m_Center: {x: -0.0000000011641532, y: -2.6195735e-18, z: 0.000110278364}
---- !u!54 &502400385
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502400380}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &502432952
 GameObject:
   m_ObjectHideFlags: 0
@@ -230299,7 +230157,6 @@ GameObject:
   - component: {fileID: 876429757}
   - component: {fileID: 876429756}
   - component: {fileID: 876429758}
-  - component: {fileID: 876429759}
   m_Layer: 0
   m_Name: Cube.051 (2)
   m_TagString: Untagged
@@ -230396,33 +230253,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.005487372, y: 0.0035862068, z: 0.0025485824}
   m_Center: {x: 1.1641532e-10, y: 3.6234386e-18, z: 0.000110278364}
---- !u!54 &876429759
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 876429754}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &876857499
 GameObject:
   m_ObjectHideFlags: 0
@@ -275921,7 +275751,6 @@ GameObject:
   - component: {fileID: 1048466919}
   - component: {fileID: 1048466918}
   - component: {fileID: 1048466920}
-  - component: {fileID: 1048466921}
   m_Layer: 0
   m_Name: Cube.051 (4)
   m_TagString: Untagged
@@ -276018,33 +275847,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.005487372, y: 0.0035862068, z: 0.0025485824}
   m_Center: {x: 1.1641532e-10, y: 9.313226e-10, z: 0.000110278364}
---- !u!54 &1048466921
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1048466916}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &1048906714
 GameObject:
   m_ObjectHideFlags: 0
@@ -390828,7 +390630,6 @@ GameObject:
   - component: {fileID: 1485265775}
   - component: {fileID: 1485265774}
   - component: {fileID: 1485265776}
-  - component: {fileID: 1485265777}
   m_Layer: 0
   m_Name: Cube.051 (1)
   m_TagString: Untagged
@@ -390925,33 +390726,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.005487372, y: 0.0035862068, z: 0.0025485824}
   m_Center: {x: 0.0000000019790605, y: 3.6234386e-18, z: 0.000110278364}
---- !u!54 &1485265777
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1485265772}
-  serializedVersion: 5
-  m_Mass: 5
-  m_LinearDamping: 1
-  m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &1485442386
 GameObject:
   m_ObjectHideFlags: 0

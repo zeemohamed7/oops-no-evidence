@@ -21,7 +21,6 @@ GameObject:
   - component: {fileID: 3430488637302844065}
   - component: {fileID: 1763636928709808694}
   - component: {fileID: 4266028669026498973}
-  - component: {fileID: 7253108770939924828}
   m_Layer: 8
   m_Name: Maryam
   m_TagString: Player
@@ -395,19 +394,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   footprintYOffset: 0.106
---- !u!114 &7253108770939924828
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 10941082111468798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf7ce1db0e696413980fe743c18df8c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pushForce: 5
 --- !u!1 &1963859139879853340
 GameObject:
   m_ObjectHideFlags: 0
