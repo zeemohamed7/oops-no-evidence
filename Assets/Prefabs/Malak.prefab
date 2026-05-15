@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 196182499263310021}
   - component: {fileID: 874813437261445528}
   - component: {fileID: 8465124283226562044}
+  - component: {fileID: 7897002994708891997}
   m_Layer: 8
   m_Name: Malak
   m_TagString: Player
@@ -638,6 +639,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7897002994708891997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4321487422150439978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b687c9e595031412f9e5ed468b90a636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushForce: 5
 --- !u!1 &4775745545624298615
 GameObject:
   m_ObjectHideFlags: 0

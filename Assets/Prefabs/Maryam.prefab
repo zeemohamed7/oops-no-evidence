@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 8355996953492996121}
   - component: {fileID: 3518567039009372169}
   - component: {fileID: 564867655118089455}
+  - component: {fileID: 33746655525650113}
   m_Layer: 8
   m_Name: Maryam
   m_TagString: Player
@@ -638,6 +639,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &33746655525650113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10941082111468798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b687c9e595031412f9e5ed468b90a636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushForce: 5
 --- !u!1 &1963859139879853340
 GameObject:
   m_ObjectHideFlags: 0
