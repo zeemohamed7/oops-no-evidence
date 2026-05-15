@@ -50,6 +50,8 @@ public class ExtractionZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log("SOMETHING ENTERED: " + other.name);
+
         if (_extractionComplete) return;
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
