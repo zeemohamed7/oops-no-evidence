@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: -1849249194395122735}
   - component: {fileID: 7389593019134553647}
   - component: {fileID: -1558707312209294516}
+  - component: {fileID: 5163695271316671606}
   m_Layer: 8
   m_Name: Hajar
   m_TagString: Player
@@ -398,6 +399,19 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   footprintYOffset: 0.106
+--- !u!114 &5163695271316671606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2948228099054033174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf7ce1db0e696413980fe743c18df8c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushForce: 5
 --- !u!1 &9119689380004785877
 GameObject:
   m_ObjectHideFlags: 0

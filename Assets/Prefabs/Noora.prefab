@@ -56,6 +56,7 @@ GameObject:
   - component: {fileID: -6165268688857000666}
   - component: {fileID: -5099169121229627179}
   - component: {fileID: 6906342683149013737}
+  - component: {fileID: 5228298075900369773}
   m_Layer: 8
   m_Name: Noora
   m_TagString: Player
@@ -429,6 +430,19 @@ MonoBehaviour:
   interactAction: {fileID: 0}
   toolInventory: {fileID: -5099169121229627179}
   reach: 3
+--- !u!114 &5228298075900369773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4440514497751259427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf7ce1db0e696413980fe743c18df8c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pushForce: 5
 --- !u!1001 &619100940875364383
 PrefabInstance:
   m_ObjectHideFlags: 0
