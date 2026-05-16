@@ -32,38 +32,36 @@ public class VisionCone : MonoBehaviour
 
     private void FieldOfViewCheck()
     {
-        var rangeChecks =
-            Physics.OverlapSphere(transform.position, radius,
-                targetMask); // Mask is look at that layer for that object (which is player)
+        // Finds everything on the threat layer
+        var rangeChecks = Physics.OverlapSphere(transform.position, radius, targetMask); 
 
-
-        if (rangeChecks.Length != 0) // Found something on that layer
+        if (rangeChecks.Length != 0) 
         {
-            var target =
-                rangeChecks[0].transform; // OverlapSphere returns array and this layer only has 1 object anyway
-            var directionToTarget = (target.position - transform.position).normalized;
-            if (Vector3.Angle(transform.forward, directionToTarget) < angle / 2) // Angle we should be looking
-            {
-                // Is distance close enough
-                var distanceToTarget = Vector3.Distance(transform.position, target.position);
+            bool spottedSomething = false;
 
-                // Raycast to determine whether we can see player
-                if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget,
-                        obstructionMask)) // NOT because we are not hitting obstruction mask, therefore we can see player
-                    canSeePlayer = true;
-
-                else
-                    canSeePlayer = false;
-            }
-            else
+            // Loop through everything found instead of just looking at item [0]
+            foreach (var check in rangeChecks)
             {
-                canSeePlayer = false;
+                var target = check.transform; 
+                var directionToTarget = (target.position - transform.position).normalized;
+            
+                if (Vector3.Angle(transform.forward, directionToTarget) < angle / 2) 
+                {
+                    var distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+                    // Added a slight lift (+ Vector3.up) so raycasts don't hit the floor grid
+                    if (!Physics.Raycast(transform.position + Vector3.up * 0.5f, directionToTarget, distanceToTarget, obstructionMask)) 
+                    {
+                        spottedSomething = true;
+                        break; // We found a threat! Stop looking at the rest
+                    }
+                }
             }
+            canSeePlayer = spottedSomething; // True if they see player OR blood
         }
-        else // If player was in FOV and no longer, update it
+        else 
         {
-            if (canSeePlayer)
-                canSeePlayer = false;
+            canSeePlayer = false;
         }
     }
 }
