@@ -118,7 +118,7 @@ public class FurnitureGrab : MonoBehaviour
         heldFurniture.transform.localPosition = localCarryPosition;
         heldFurniture.transform.localRotation = Quaternion.Euler(localCarryRotation);
 
-        animationDriver?.SetCarrying(true);
+        animationDriver.SetCarryingObject(true);
         animationDriver?.PlayPickUpObject();
 
         Debug.Log("Furniture grabbed: " + heldFurniture.name);
@@ -157,7 +157,7 @@ public class FurnitureGrab : MonoBehaviour
         if (snap != null)
             snap.TrySnap();
 
-        animationDriver?.SetCarrying(false);
+        animationDriver.SetCarryingObject(false);
         animationDriver?.PlayDrop();
 
         Debug.Log("Furniture dropped: " + furnitureToDrop.name);
