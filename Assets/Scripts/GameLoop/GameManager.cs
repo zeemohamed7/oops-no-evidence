@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public enum GameState { Playing, Won, Lost }
+    public enum GameState { Waiting, Playing, Won, Lost }
 
     [Header("Timer")]
     public float levelDuration = 360f; // 6 minutes default
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         TimeRemaining = levelDuration;
-        State = GameState.Playing;
+        State = GameState.Waiting;
     }
 
     private void OnEnable()
