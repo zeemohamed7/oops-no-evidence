@@ -29,7 +29,15 @@ public class WallSprayCleaner : MonoBehaviour
     [Tooltip("Shader property name for the blood mask render texture.")]
     public string maskTexProperty = "_MaskTex";
 
+    [Header("Fingerprint Cleaning")]
+    [Tooltip("How far the spray reaches fingerprints (no collider needed).")]
+    public float fingerprintRange = 3f;
+    [Tooltip("Dot product threshold for facing the fingerprint (0.5 ≈ 60°, 0.7 ≈ 45°).")]
+    [Range(0f, 1f)]
+    public float fingerprintAngleThreshold = 0.5f;
+
     readonly Dictionary<Renderer, int> _sprayCount = new Dictionary<Renderer, int>();
+    FingerprintSurface[] _fingerprints;
 
     Material _fadeMat;
 
@@ -37,6 +45,11 @@ public class WallSprayCleaner : MonoBehaviour
     static readonly int ID_Radius  = Shader.PropertyToID("_Radius");
     static readonly int ID_Strength = Shader.PropertyToID("_Strength");
     static readonly int ID_Spread  = Shader.PropertyToID("_Spread");
+
+    void Start()
+    {
+        _fingerprints = FindObjectsOfType<FingerprintSurface>();
+    }
 
     void Awake()
     {
@@ -52,15 +65,18 @@ public class WallSprayCleaner : MonoBehaviour
         if (_fadeMat) Destroy(_fadeMat);
     }
 
-    // Called by PlayerInput (Send Messages behavior) when Interact action fires.
-    public void OnInteract()
+    void Update()
     {
         if (inventory == null || !inventory.IsSpraySelected()) return;
-        TrySpray();
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.JoystickButton2))
+            TrySpray();
     }
 
     void TrySpray()
     {
+        // Always attempt fingerprint cleaning whenever spray is used.
+        TryCleanFingerprint();
+
         Ray ray = BuildRay();
         Debug.DrawRay(ray.origin, ray.direction * sprayRange, Color.cyan, 2f);
 
@@ -80,6 +96,37 @@ public class WallSprayCleaner : MonoBehaviour
         }
 
         ApplySpray(rend);
+    }
+
+    void TryCleanFingerprint()
+    {
+        if (_fingerprints == null || _fingerprints.Length == 0)
+        {
+            Debug.LogWarning("[WallSpray] No FingerprintSurface objects found. Add the FingerprintSurface component to your fingerprint GameObjects.");
+            return;
+        }
+
+        Vector3 origin = transform.position + Vector3.up * 0.8f;
+        Vector3 forward = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+
+        foreach (var fp in _fingerprints)
+        {
+            if (fp == null || fp.IsCleaned) continue;
+
+            // Flatten toFp to XZ so height differences don't affect the angle check
+            Vector3 toFp3D = fp.transform.position - origin;
+            Vector3 toFpFlat = new Vector3(toFp3D.x, 0f, toFp3D.z);
+            float dist = toFpFlat.magnitude;
+
+            Debug.Log($"[WallSpray] Fingerprint '{fp.gameObject.name}': dist={dist:F2} dot={Vector3.Dot(forward, toFpFlat.normalized):F2}");
+
+            if (dist > fingerprintRange) continue;
+            if (toFpFlat.sqrMagnitude > 0.001f && Vector3.Dot(forward, toFpFlat.normalized) < fingerprintAngleThreshold) continue;
+
+            fp.Clean();
+            Debug.Log($"[WallSpray] Fingerprint cleaned on '{fp.gameObject.name}'.");
+            return;
+        }
     }
 
     void ApplySpray(Renderer rend)

@@ -209,6 +209,39 @@ public class BloodPool : MonoBehaviour
         Blit(_stampMat);
     }
 
+    /// <summary>
+    /// Returns true if any pixel in the blood RT exceeds the given threshold.
+    /// Uses a single downsampled GPU readback — only call this at mission-end, not every frame.
+    /// </summary>
+    public bool HasBloodRemaining(float threshold, int scanResolution)
+    {
+        if (bloodRT == null) return false;
+
+        int size = Mathf.Clamp(scanResolution, 4, 32);
+
+        // Downsample to a tiny RT so ReadPixels is cheap
+        RenderTexture downsampled = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
+        Graphics.Blit(bloodRT, downsampled);
+
+        RenderTexture prev = RenderTexture.active;
+        RenderTexture.active = downsampled;
+
+        Texture2D snapshot = new Texture2D(size, size, TextureFormat.ARGB32, false);
+        snapshot.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+        snapshot.Apply();
+
+        RenderTexture.active = prev;
+        RenderTexture.ReleaseTemporary(downsampled);
+
+        Color[] pixels = snapshot.GetPixels();
+        Destroy(snapshot);
+
+        foreach (Color pixel in pixels)
+            if (pixel.r >= threshold) return true;
+
+        return false;
+    }
+
     /// <summary>Restore the blood pool to its initial splat shape.</summary>
     public void ResetBlood()
     {
