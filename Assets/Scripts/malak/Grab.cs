@@ -45,6 +45,7 @@ public class Grab : MonoBehaviour
         anchorRigidbody = anchorObject.AddComponent<Rigidbody>();
         anchorRigidbody.isKinematic = true;
         anchorRigidbody.useGravity = false;
+        anchorRigidbody.detectCollisions = false;
         DontDestroyOnLoad(anchorObject);
     }
 
