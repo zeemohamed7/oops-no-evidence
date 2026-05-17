@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Attach to the GameObject that has the Spotlight Light component.
-// Fingerprints (FingerprintSurface) fade in when inside the cone.
 [RequireComponent(typeof(Light))]
 public class FlashlightReveal : MonoBehaviour
 {
