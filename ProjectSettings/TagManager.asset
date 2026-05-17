@@ -8,6 +8,7 @@ TagManager:
   - Weapon
   - Bloodwall
   - Footprint
+  - BloodWall
   layers:
   - Default
   - TransparentFX
@@ -24,7 +25,7 @@ TagManager:
   - BackgroundImage
   - DistantHotspot
   - Player
-  - 
+  - Furniture
   - 
   - 
   - 
