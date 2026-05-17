@@ -10,7 +10,7 @@ public class FlashlightReveal : MonoBehaviour
     public float fadeSpeed = 3f;
 
     private Light _spotlight;
-    private readonly List<(Transform t, Renderer rend, Material mat)> _fingerprints = new();
+    private readonly List<(Transform t, Renderer rend, Material mat, FingerprintSurface fp)> _fingerprints = new();
 
     // Awake (not Start) so initialization runs before InventorySystem.Start()
     // disables the flashlight GameObject.
@@ -24,13 +24,13 @@ public class FlashlightReveal : MonoBehaviour
             rend.enabled = false;
             var mat = rend.material; // per-instance copy
             SetAlpha(mat, 0f);
-            _fingerprints.Add((fp.transform, rend, mat));
+            _fingerprints.Add((fp.transform, rend, mat, fp));
         }
     }
 
     void OnDisable()
     {
-        foreach (var (_, rend, mat) in _fingerprints)
+        foreach (var (_, rend, mat, _) in _fingerprints)
         {
             SetAlpha(mat, 0f);
             rend.enabled = false;
@@ -42,9 +42,9 @@ public class FlashlightReveal : MonoBehaviour
         float cosHalfAngle = Mathf.Cos(Mathf.Deg2Rad * _spotlight.spotAngle * 0.5f);
         float rangeSq = _spotlight.range * _spotlight.range;
 
-        foreach (var (t, rend, mat) in _fingerprints)
+        foreach (var (t, rend, mat, fp) in _fingerprints)
         {
-            float target = InCone(t.position, cosHalfAngle, rangeSq) ? 1f : 0f;
+            float target = (!fp.IsCleaned && InCone(t.position, cosHalfAngle, rangeSq)) ? 1f : 0f;
             float current = mat.GetColor("_BloodColor").a;
 
             if (target > 0f && !rend.enabled)
