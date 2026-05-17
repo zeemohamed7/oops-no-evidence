@@ -1,0 +1,286 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+
+// Attach to: manager-win-lose
+// Inspector wiring:
+//   - winTitle        → win-title GameObject
+//   - loseTitle       → lose-title GameObject
+//   - taskRows        → task-1 … task-N TextMeshProUGUI objects (any count)
+//   - taskCountText   → the "0/3" counter TMP
+//   - listText        → failure reasons TMP (optional, separate from task rows)
+//   - susText         → sus percentage TMP
+//   - susFillImage    → Image (Filled, Horizontal) for the sus bar
+//   - timeText        → time remaining TMP
+//   - gradeS/A/B/C/D/F → child GameObjects under grades
+//   - retryButton / nextLevelButton / quitButton → Button components
+public class WinLoseScreenManager : MonoBehaviour
+{
+    [Header("Title GameObjects")]
+    public GameObject winTitle;
+    public GameObject loseTitle;
+
+    [Header("Task Panel")]
+    public TextMeshProUGUI[] taskRows;       // task-1 … task-N TMPs (supports 4–7+)
+    public TextMeshProUGUI taskCountText;    // "0/3" counter TMP
+    public Color taskDoneColor    = new Color(0.4f, 0.9f, 0.4f);
+    public Color taskPendingColor = Color.white;
+
+    [Header("Info Texts")]
+    public TextMeshProUGUI listText;   // failure reasons bullet list (optional)
+    public TextMeshProUGUI susText;    // suspicion percentage
+    public TextMeshProUGUI timeText;   // time remaining mm:ss
+
+    [Header("Sus Fill")]
+    public Image susFillImage;         // Image (Filled, Horizontal) for sus bar
+
+    [Header("Grade Letter GameObjects")]
+    public GameObject gradeS;
+    public GameObject gradeA;
+    public GameObject gradeB;
+    public GameObject gradeC;
+    public GameObject gradeD;
+    public GameObject gradeF;
+
+    [Header("Buttons")]
+    public Button retryButton;
+    public Button nextLevelButton;
+    public Button quitButton;
+
+    // PlayerPrefs keys — written by SaveResultToPrefs() before loading this scene
+    const string KEY_WIN        = "Result_IsWin";
+    const string KEY_GRADE      = "Result_Grade";
+    const string KEY_TIME       = "Result_TimeRemaining";
+    const string KEY_SUS        = "Result_Suspicion";      // stored as 0-1 ratio
+    const string KEY_FAILURES   = "Result_Failures";       // pipe-separated
+    const string KEY_RETRY      = "Result_RetryScene";
+    const string KEY_TASK_NAMES = "Result_TaskNames";      // pipe-separated task labels
+    const string KEY_TASK_DONE  = "Result_TaskDone";       // pipe-separated 0/1
+
+    void Start()
+    {
+        if (retryButton     != null) retryButton.onClick.AddListener(Retry);
+        if (nextLevelButton != null) nextLevelButton.onClick.AddListener(NextLevel);
+        if (quitButton      != null) quitButton.onClick.AddListener(QuitToMap);
+
+        // In-scene overlay: hook GameManager events and hide until the game ends
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnWin.AddListener(OnWin);
+            GameManager.Instance.OnLoss.AddListener(OnLoss);
+            gameObject.SetActive(false);
+            return;
+        }
+
+        // Separate scene: read everything from PlayerPrefs
+        PopulateUI(
+            isWin:         PlayerPrefs.GetInt(KEY_WIN, 0) == 1,
+            grade:         PlayerPrefs.GetString(KEY_GRADE, "F"),
+            timeRemaining: PlayerPrefs.GetFloat(KEY_TIME, 0f),
+            suspicion01:   PlayerPrefs.GetFloat(KEY_SUS, 0f),
+            failures:      SplitPipe(PlayerPrefs.GetString(KEY_FAILURES, "")),
+            tasks:         LoadTasksFromPrefs()
+        );
+    }
+
+    void OnWin()
+    {
+        gameObject.SetActive(true);
+        Time.timeScale = 0f;
+        PopulateUI(
+            isWin:         true,
+            grade:         GameManager.Instance?.CalculateGrade() ?? "S",
+            timeRemaining: GameManager.Instance?.TimeRemaining ?? 0f,
+            suspicion01:   GetSuspicion01(),
+            failures:      null,
+            tasks:         GameHUD.Instance?.GetTaskSnapshot()
+        );
+    }
+
+    void OnLoss()
+    {
+        gameObject.SetActive(true);
+        Time.timeScale = 0f;
+        PopulateUI(
+            isWin:         false,
+            grade:         GameManager.Instance?.CalculateGrade() ?? "F",
+            timeRemaining: GameManager.Instance?.TimeRemaining ?? 0f,
+            suspicion01:   GetSuspicion01(),
+            failures:      GameManager.Instance?.LastFailureReasons,
+            tasks:         GameHUD.Instance?.GetTaskSnapshot()
+        );
+    }
+
+    void PopulateUI(bool isWin, string grade, float timeRemaining, float suspicion01,
+                    List<string> failures, (string label, bool done)[] tasks)
+    {
+        // Titles
+        if (winTitle  != null) winTitle.SetActive(isWin);
+        if (loseTitle != null) loseTitle.SetActive(!isWin);
+
+        // Grade bubble
+        ActivateGrade(grade);
+
+        // Time remaining
+        if (timeText != null)
+        {
+            int m = Mathf.FloorToInt(timeRemaining / 60f);
+            int s = Mathf.FloorToInt(timeRemaining % 60f);
+            timeText.text = $"{m:00}:{s:00}";
+        }
+
+        // Suspicion percentage text
+        if (susText != null)
+            susText.text = $"{Mathf.RoundToInt(suspicion01 * 100f)}%";
+
+        // Suspicion fill bar
+        if (susFillImage != null)
+            susFillImage.fillAmount = Mathf.Clamp01(suspicion01);
+
+        // Task rows — show only as many as the level has, hide the rest
+        PopulateTaskRows(tasks);
+
+        // Failure reasons list (optional separate display)
+        if (listText != null)
+        {
+            bool show = !isWin && failures != null && failures.Count > 0;
+            listText.gameObject.SetActive(show);
+            if (show)
+                listText.text = "• " + string.Join("\n• ", failures);
+        }
+
+        // Buttons
+        if (retryButton     != null) retryButton.gameObject.SetActive(!isWin);
+        if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(isWin);
+    }
+
+    void PopulateTaskRows((string label, bool done)[] tasks)
+    {
+        if (taskRows == null || taskRows.Length == 0) return;
+
+        int taskCount = tasks != null ? tasks.Length : 0;
+        int doneCount = 0;
+
+        for (int i = 0; i < taskRows.Length; i++)
+        {
+            if (taskRows[i] == null) continue;
+
+            if (tasks != null && i < tasks.Length)
+            {
+                taskRows[i].gameObject.SetActive(true);
+                taskRows[i].text  = tasks[i].label;
+                taskRows[i].color = tasks[i].done ? taskDoneColor : taskPendingColor;
+                if (tasks[i].done) doneCount++;
+            }
+            else
+            {
+                // This level has fewer tasks than rows wired — hide the extra row
+                taskRows[i].gameObject.SetActive(false);
+            }
+        }
+
+        if (taskCountText != null)
+            taskCountText.text = $"{doneCount}/{taskCount}";
+    }
+
+    void ActivateGrade(string grade)
+    {
+        var map = new (string key, GameObject obj)[]
+        {
+            ("S", gradeS), ("A", gradeA), ("B", gradeB),
+            ("C", gradeC), ("D", gradeD), ("F", gradeF)
+        };
+        foreach (var (key, obj) in map)
+            if (obj != null) obj.SetActive(key == grade);
+    }
+
+    float GetSuspicion01()
+    {
+        if (SuspicionMeter.Instance == null) return 0f;
+        return SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
+    }
+
+    // ── PlayerPrefs helpers ──────────────────────────────────────────────────
+
+    static List<string> SplitPipe(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return new List<string>();
+        return new List<string>(raw.Split('|'));
+    }
+
+    static (string label, bool done)[] LoadTasksFromPrefs()
+    {
+        string namesRaw = PlayerPrefs.GetString(KEY_TASK_NAMES, "");
+        string doneRaw  = PlayerPrefs.GetString(KEY_TASK_DONE,  "");
+        if (string.IsNullOrEmpty(namesRaw)) return null;
+
+        string[] names = namesRaw.Split('|');
+        string[] dones = doneRaw.Split('|');
+        var result = new (string, bool)[names.Length];
+        for (int i = 0; i < names.Length; i++)
+            result[i] = (names[i], i < dones.Length && dones[i] == "1");
+        return result;
+    }
+
+    // ── Button handlers ──────────────────────────────────────────────────────
+
+    void Retry()
+    {
+        Time.timeScale = 1f;
+        string scene = PlayerPrefs.GetString(KEY_RETRY, "");
+        SceneManager.LoadScene(string.IsNullOrEmpty(scene)
+            ? SceneManager.GetActiveScene().name
+            : scene);
+    }
+
+    void NextLevel()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+
+    void QuitToMap()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("OverworldMap");
+    }
+
+    // ── Call this before loading the win-lose scene (separate-scene flow) ────
+    // Example:
+    //   var tasks = GameHUD.Instance?.GetTaskSnapshot();
+    //   WinLoseScreenManager.SaveResultToPrefs(true, "A", 120f, 0.2f, null, tasks, "Level1");
+    //   SceneManager.LoadScene("win-lose");
+    public static void SaveResultToPrefs(bool isWin, string grade, float timeRemaining,
+                                         float suspicion01, List<string> failures,
+                                         (string label, bool done)[] tasks, string retryScene)
+    {
+        PlayerPrefs.SetInt(KEY_WIN,      isWin ? 1 : 0);
+        PlayerPrefs.SetString(KEY_GRADE, grade);
+        PlayerPrefs.SetFloat(KEY_TIME,   timeRemaining);
+        PlayerPrefs.SetFloat(KEY_SUS,    suspicion01);
+        PlayerPrefs.SetString(KEY_FAILURES, failures != null ? string.Join("|", failures) : "");
+        PlayerPrefs.SetString(KEY_RETRY, retryScene);
+
+        if (tasks != null && tasks.Length > 0)
+        {
+            var names = new string[tasks.Length];
+            var dones = new string[tasks.Length];
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                names[i] = tasks[i].label;
+                dones[i] = tasks[i].done ? "1" : "0";
+            }
+            PlayerPrefs.SetString(KEY_TASK_NAMES, string.Join("|", names));
+            PlayerPrefs.SetString(KEY_TASK_DONE,  string.Join("|", dones));
+        }
+        else
+        {
+            PlayerPrefs.SetString(KEY_TASK_NAMES, "");
+            PlayerPrefs.SetString(KEY_TASK_DONE,  "");
+        }
+
+        PlayerPrefs.Save();
+    }
+}

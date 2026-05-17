@@ -198,6 +198,14 @@ public class GameHUD : MonoBehaviour
         return true;
     }
 
+    public (string label, bool done)[] GetTaskSnapshot()
+    {
+        var result = new (string, bool)[taskTexts.Length];
+        for (int i = 0; i < taskTexts.Length; i++)
+            result[i] = (taskTexts[i] != null ? taskTexts[i].text : "", taskDone[i]);
+        return result;
+    }
+
     IEnumerator BounceText(Transform t)
     {
         Vector3 orig = t.localScale;
