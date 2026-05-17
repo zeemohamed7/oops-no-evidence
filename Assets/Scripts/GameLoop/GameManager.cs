@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     public enum GameState { Waiting, Playing, Won, Lost }
+    public enum GameState { Waiting, Playing, Won, Lost }
 
     [Header("Timer")]
     public float levelDuration = 360f;
