@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public enum GameState { Playing, Won, Lost }
+    public enum GameState { Waiting, Playing, Won, Lost }
 
     [Header("Timer")]
-    public float levelDuration = 360f; // 6 minutes default
+    public float levelDuration = 360f;
 
     [Header("Events")]
     public UnityEvent OnWin;
@@ -20,7 +21,6 @@ public class GameManager : MonoBehaviour
     public bool IsPlaying => State == GameState.Playing;
     public int ActivePlayerCount { get; private set; }
 
-    /// <summary>Populated by TriggerLoss(reasons) — read by GameHUD to show failure details.</summary>
     public List<string> LastFailureReasons { get; private set; } = new List<string>();
 
     [Header("Level Setup")]
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         TimeRemaining = levelDuration;
-        State = GameState.Playing;
+        State = GameState.Waiting;  // timer only starts when truck arrives
     }
 
     private void OnEnable()
@@ -55,8 +55,6 @@ public class GameManager : MonoBehaviour
             SuspicionMeter.Instance.OnGameOver.AddListener(OnSuspicionGameOver);
     }
 
-    // Routes suspicion-max loss through MissionResultManager when available
-    // so the failure reason gets captured. Falls back to direct TriggerLoss.
     void OnSuspicionGameOver()
     {
         if (MissionResultManager.Instance != null)
@@ -74,7 +72,6 @@ public class GameManager : MonoBehaviour
         if (TimeRemaining <= 0f)
         {
             TimeRemaining = 0f;
-            // Routes through MissionResultManager so the failure reason is captured
             if (MissionResultManager.Instance != null)
                 MissionResultManager.Instance.ForceTimerLoss();
             else
@@ -95,8 +92,25 @@ public class GameManager : MonoBehaviour
         if (!IsPlaying) return;
         State = GameState.Won;
         LastFailureReasons.Clear();
+        UnlockNextLevel();
         OnWin.Invoke();
         Debug.Log($"WIN — Grade: {CalculateGrade()} | Time left: {FormatTime(TimeRemaining)}");
+        LoadWinLoseScene(isWin: true, failures: null);
+    }
+
+    void UnlockNextLevel()
+    {
+        int levelIndex = LobbyManager.Instance != null ? LobbyManager.Instance.currentLevelIndex : -1;
+        if (levelIndex < 0) return;
+
+        int currentLevelNum = levelIndex + 1;          // 0-indexed → 1-indexed
+        int highestReached  = PlayerPrefs.GetInt("ReachedLevel", 1);
+
+        if (currentLevelNum >= highestReached)
+        {
+            PlayerPrefs.SetInt("ReachedLevel", Mathf.Min(currentLevelNum + 1, 4));
+            PlayerPrefs.Save();
+        }
     }
 
     public void TriggerLoss()
@@ -108,41 +122,26 @@ public class GameManager : MonoBehaviour
     {
         if (!IsPlaying) return;
         State = GameState.Lost;
-        
-        SaveProgress();
-        
         LastFailureReasons = reasons ?? new List<string>();
         OnLoss.Invoke();
         Debug.Log($"LOSS — {string.Join(" | ", LastFailureReasons)}");
+        LoadWinLoseScene(isWin: false, failures: LastFailureReasons);
     }
-    private void SaveProgress()
+
+    void LoadWinLoseScene(bool isWin, List<string> failures)
     {
-        // 1. Get the current level name from LobbyManager (e.g., "Level1")
-        string currentLevelName = LobbyManager.Instance.GetSelectedLevelName();
-    
-        // 2. Extract the number from the string (Level1 -> 1)
-        string levelNumberString = currentLevelName.Replace("Level", "");
-        if (int.TryParse(levelNumberString, out int currentLevelNum))
-        {
-            int highestReached = PlayerPrefs.GetInt("ReachedLevel", 1);
+        string grade  = CalculateGrade();
+        float  sus01  = SuspicionMeter.Instance != null
+                        ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+                        : 0f;
+        var tasks = GameHUD.Instance?.GetTaskSnapshot();
 
-            // 3. If we just beat our record, unlock the next level
-            if (currentLevelNum >= highestReached)
-            {
-                int nextLevel = currentLevelNum + 1;
-            
-                // Cap it at 4
-                if (nextLevel > 4) nextLevel = 4;
-
-                PlayerPrefs.SetInt("ReachedLevel", nextLevel);
-                PlayerPrefs.Save();
-            }
-        }
+        WinLoseScreenManager.SaveResultToPrefs(isWin, grade, TimeRemaining, sus01, failures, tasks);
+        SceneManager.LoadScene("win-lose");
     }
-    
+
     // ── Grading ───────────────────────────────────────────────────────────────
 
-    // S-F grading: weighted average of time remaining and low suspicion
     public string CalculateGrade()
     {
         float timeScore = TimeRemaining / levelDuration;
@@ -157,8 +156,7 @@ public class GameManager : MonoBehaviour
         if (total >= 0.75f) return "A";
         if (total >= 0.60f) return "B";
         if (total >= 0.45f) return "C";
-        if (total >= 0.30f) return "D";
-        return "F";
+        return "D";
     }
 
     public string FormatTime(float seconds)
@@ -185,9 +183,6 @@ public class GameManager : MonoBehaviour
 
         if (SuspicionMeter.Instance != null)
             SuspicionMeter.Instance.globalSuspicion = 0f;
-
-        if (GameHUD.Instance != null)
-            Debug.Log("HUD: Checklist and Suspicion Bar revealed.");
 
         Debug.Log("The heist has begun! Start cleaning!");
     }
