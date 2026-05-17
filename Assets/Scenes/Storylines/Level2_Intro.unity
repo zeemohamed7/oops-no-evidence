@@ -803,7 +803,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyText: {fileID: 0}
   audioSource: {fileID: 0}
-  nextSceneName: Level1_Gameplay
+  nextSceneName: Level2
   lines:
   - "Fixers\u2026 we have a problem."
   - "One partner got greedy\u2026 now he\u2019s dead."
