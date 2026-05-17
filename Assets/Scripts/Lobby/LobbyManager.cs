@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
@@ -16,6 +17,9 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject creditsPanel;
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject warningPopupPanel;
+    [SerializeField] private TextMeshProUGUI readyForEveryone;
+    
 
     [Header("Input")]
     [SerializeField] private InputActionAsset lobbyInputAsset;
@@ -97,6 +101,9 @@ public class LobbyManager : MonoBehaviour
 
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+        
+        if (warningPopupPanel != null)
+            warningPopupPanel.SetActive(false);
     }
 
     private void OnEnable()
@@ -301,7 +308,8 @@ public class LobbyManager : MonoBehaviour
     public void OnStartButtonClicked()
     {
         if (activeGhosts.Count == 0)
-        {
+        {   
+            ShowWarningPopup("No players have joined!");
             Debug.LogWarning("No players joined");
             return;
         }
@@ -312,6 +320,7 @@ public class LobbyManager : MonoBehaviour
 
         if (!allReady)
         {
+            ShowWarningPopup("Not everyone is ready!");
             Debug.LogWarning("Not everyone ready");
             return;
         }
@@ -319,6 +328,63 @@ public class LobbyManager : MonoBehaviour
         CommitAndLoad();
     }
 
+    private void ShowWarningPopup(string message)
+    {
+        if (readyForEveryone != null && warningPopupPanel != null)
+        {
+            readyForEveryone.text = message;
+            
+            // Stop any active fade routines so they don't overlap
+            StopAllCoroutines(); 
+            StartCoroutine(FadeWarningWindow());
+        }
+    }
+
+    private IEnumerator FadeWarningWindow()
+    {
+        CanvasGroup canvasGroup = warningPopupPanel.GetComponent<CanvasGroup>();
+        if (canvasGroup == null) yield break;
+
+        warningPopupPanel.SetActive(true);
+        float duration = 0.4f; // How fast to fade in/out (in seconds)
+        float elapsed = 0f;
+
+        // 1. FADE IN
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            canvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
+            yield return null;
+        }
+        canvasGroup.alpha = 1f;
+
+        // 2. WAIT ON SCREEN
+        yield return new WaitForSecondsRealtime(2.0f); 
+
+        // 3. FADE OUT
+        elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            yield return null;
+        }
+        canvasGroup.alpha = 0f;
+        
+        warningPopupPanel.SetActive(false);
+    }
+
+    // Coroutine that handles the visual display timer
+    private IEnumerator FlashWarningWindow()
+    {
+        warningPopupPanel.SetActive(true);
+        
+        // Wait on screen for 2.5 seconds
+        yield return new WaitForSecondsRealtime(2.5f); 
+        
+        warningPopupPanel.SetActive(false);
+    }
+    
     private void CommitAndLoad()
     {
         isTransitioning = true;

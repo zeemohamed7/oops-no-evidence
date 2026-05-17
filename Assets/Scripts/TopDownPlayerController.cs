@@ -8,6 +8,7 @@ public class TopDownPlayerController : MonoBehaviour
     private CharacterController controller;
     private PlayerAnimationDriver animationDriver;
     private PlayerInput playerInput;
+    private Animator animator;
 
     [Header("Setup")]
     public Camera playerCamera;
@@ -70,6 +71,7 @@ public class TopDownPlayerController : MonoBehaviour
 
     private void Update()
     {
+        
         // Ignore movement in lobby
         if (UnityEngine.SceneManagement.SceneManager
             .GetActiveScene().name == "Lobby")
@@ -86,8 +88,7 @@ public class TopDownPlayerController : MonoBehaviour
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
-
-        Debug.Log($"MOVE: {moveInput}");
+        
     }
     // Matches the "Sprint" action
     public void OnSprint(InputValue value)
@@ -100,21 +101,27 @@ public class TopDownPlayerController : MonoBehaviour
     {
         crouchHeld = value.isPressed;
     }
-
-    // Matches the "AnyButton" action
-    public void OnAnyButton()
-    {
-        Debug.Log("ANY BUTTON PRESSED");
-    }
+    
 
     // ─────────────────────────────────────────────
     // MOVEMENT
     // ─────────────────────────────────────────────
 
-    private void HandleMovement()
+private void HandleMovement()
     {
+        if (playerInput != null && !playerInput.enabled)
+        {
+            // Reset our internal tracking so we don't slide
+            moveInput = Vector2.zero;
+            
+            // Send a false signal to the animator so it knows we aren't walking
+            animationDriver?.SetWalking(false);
+            return; 
+        }
+        
         float speed = walkSpeed;
 
+        // Apply the carry multiplier to our base walking speed
         if (isCarrying)
             speed *= carryMultiplier;
 
@@ -127,8 +134,11 @@ public class TopDownPlayerController : MonoBehaviour
         {
             controller.height = standingHeight;
 
-            if (sprintHeld)
+            //Only allow the sprint speed upgrade if the player IS NOT carrying an object
+            if (sprintHeld && !isCarrying)
+            {
                 speed = sprintSpeed;
+            }
         }
 
         controller.center = new Vector3(0, controller.height / 2f, 0);
@@ -147,6 +157,14 @@ public class TopDownPlayerController : MonoBehaviour
         right.Normalize();
 
         Vector3 moveDirection = (forward * moveInput.y) + (right * moveInput.x);
+
+        // IMMOBILIZATION WINDOW CHECK
+        // Look at Layer 0 of our Animator. If the current active state name is 
+        // string matched to "lift body", zero out speed vectors to lock positions.
+        if (animator != null && animator.GetCurrentAnimatorStateInfo(0).IsName("lift body"))
+        {
+            moveDirection = Vector3.zero;
+        }
 
         bool isWalking = moveDirection.sqrMagnitude > 0.01f;
         animationDriver?.SetWalking(isWalking);
