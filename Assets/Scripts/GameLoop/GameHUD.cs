@@ -44,9 +44,6 @@ public class GameHUD : MonoBehaviour
     public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
     bool[] taskDone;
 
-    [Header("Task Sparkle Effect")]
-    public ParticleSystem taskSparkle;   // one reusable particle system, purple sparkles
-
     // ── PAUSE ──────────────────────────────────────────────────────────────
     [Header("Pause")]
     public Button pauseButton;
@@ -177,30 +174,16 @@ public class GameHUD : MonoBehaviour
 
         if (taskTexts[index] != null)
         {
-            taskTexts[index].color = taskDoneColor;
-            taskTexts[index].text  = $"<s>{taskTexts[index].text}</s>";
+            taskTexts[index].color    = taskDoneColor;
+            taskTexts[index].richText = true;
+            taskTexts[index].text     = $"<s>{taskTexts[index].text}</s>";
             StartCoroutine(BounceText(taskTexts[index].transform));
-            PlaySparkleAt(taskTexts[index].rectTransform);
         }
 
         RefreshCounter();
 
         if (AllTasksDone())
             Debug.Log("All tasks done — head to the van!");
-    }
-
-    void PlaySparkleAt(RectTransform target)
-    {
-        if (taskSparkle == null) return;
-
-        // Convert UI rect centre to world/screen position
-        Vector3[] corners = new Vector3[4];
-        target.GetWorldCorners(corners);
-        Vector3 centre = (corners[0] + corners[2]) * 0.5f;
-
-        taskSparkle.transform.position = centre;
-        taskSparkle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        taskSparkle.Play();
     }
 
     void RefreshCounter()
