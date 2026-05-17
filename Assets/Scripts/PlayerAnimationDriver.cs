@@ -1,11 +1,11 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class PlayerAnimationDriver : MonoBehaviour
 {
     [SerializeField] private Animator animator;
 
-    private bool isCarrying;
+    private bool isCarryingBody;
+    private bool isCarryingObject;
     private bool hasMop;
 
     private void Reset()
@@ -18,24 +18,31 @@ public class PlayerAnimationDriver : MonoBehaviour
         animator.SetBool("IsWalking", value);
     }
 
-    public void SetCarrying(bool value)
+    public void SetCarryingObject(bool value)
     {
-        isCarrying = value;
-        Debug.Log(isCarrying);
-        animator.SetBool("IsCarrying", value);
+        isCarryingObject = value;
+        animator.SetBool("IsCarryingObject", value);
+    }
+
+    public void SetCarryingBody(bool value)
+    {
+        isCarryingBody = value;
+        animator.SetBool("IsCarryingBody", value);
     }
 
     public void SelectMop()
     {
         hasMop = true;
-
         animator.SetBool("HasMop", true);
+        animator.SetBool("HasTool", false);
         animator.SetBool("HasFlashlight", false);
     }
 
     public void SelectTool()
     {
+        hasMop = false;
         animator.SetBool("HasTool", true);
+        animator.SetBool("HasMop", false);
     }
 
     public void ClearTool()
@@ -43,22 +50,23 @@ public class PlayerAnimationDriver : MonoBehaviour
         animator.SetBool("HasTool", false);
     }
 
-
     public void ClearSelectedItem()
     {
         hasMop = false;
-
         animator.SetBool("HasMop", false);
+        animator.SetBool("HasTool", false);
         animator.SetBool("HasFlashlight", false);
     }
 
     public void PlayPickUpObject()
     {
+        animator.ResetTrigger("PickUpBody");
         animator.SetTrigger("PickUpObject");
     }
 
     public void PlayPickUpBody()
     {
+        animator.ResetTrigger("PickUpObject");
         animator.SetTrigger("PickUpBody");
     }
 
@@ -69,13 +77,13 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     public void PlayMop()
     {
-        if (hasMop && !isCarrying)
+        if (hasMop && !isCarryingBody && !isCarryingObject)
             animator.SetTrigger("Mop");
     }
 
     public void PlayDipMop()
     {
-        if (hasMop && !isCarrying)
+        if (hasMop && !isCarryingBody && !isCarryingObject)
             animator.SetTrigger("DipMop");
     }
 }
