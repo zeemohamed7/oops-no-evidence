@@ -56,7 +56,7 @@ public class LobbySlotUI : MonoBehaviour
         _activeState?.SetActive(true);
 
         if (_playerLabel)  _playerLabel.text  = $"Player {playerIndex + 1}";
-        if (_navHint)      _navHint.text       = "← → Change  |  R Ready";
+        if (_navHint)      _navHint.text       = "Arrows to Change  |  R Ready";
         if (_readyLabel)   _readyLabel.gameObject.SetActive(false);
     }
 
