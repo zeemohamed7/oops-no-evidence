@@ -62,6 +62,8 @@ GameObject:
   - component: {fileID: 6359852099167381722}
   - component: {fileID: 8617220311320670936}
   - component: {fileID: -3238312521833933844}
+  - component: {fileID: 1196476242416097551}
+  - component: {fileID: 7469543434196683108}
   m_Layer: 8
   m_Name: Noora
   m_TagString: Player
@@ -687,6 +689,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushForce: 5
+--- !u!114 &1196476242416097551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4440514497751259427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdPoint: {fileID: 9014530289380535488}
+  grabRange: 3
+  furnitureLayer:
+    serializedVersion: 2
+    m_Bits: 32768
+  localCarryPosition: {x: 0, y: 0, z: 0}
+  localCarryRotation: {x: 0, y: 0, z: 0}
+--- !u!114 &7469543434196683108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4440514497751259427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866abf1511bd6409cbd524fee2428b44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  snapDistance: 3
+  snapRotation: 45
+  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  closeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1001 &619100940875364383
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -27,6 +27,8 @@ GameObject:
   - component: {fileID: 122339518677182999}
   - component: {fileID: 3739831772842377604}
   - component: {fileID: -6884115168285739853}
+  - component: {fileID: 1331743495069076083}
+  - component: {fileID: 4437520653905817629}
   m_Layer: 8
   m_Name: Hajar
   m_TagString: Player
@@ -656,6 +658,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushForce: 5
+--- !u!114 &1331743495069076083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2948228099054033174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdPoint: {fileID: 8976773579233208843}
+  grabRange: 3
+  furnitureLayer:
+    serializedVersion: 2
+    m_Bits: 32768
+  localCarryPosition: {x: 0, y: 0, z: 0}
+  localCarryRotation: {x: 0, y: 0, z: 0}
+--- !u!114 &4437520653905817629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2948228099054033174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866abf1511bd6409cbd524fee2428b44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  snapDistance: 3
+  snapRotation: 45
+  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  closeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &9119689380004785877
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,7 +719,7 @@ Transform:
   m_GameObject: {fileID: 9119689380004785877}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.62399995, z: 0.27}
+  m_LocalPosition: {x: -0.017, y: 0.813, z: 0.219}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
