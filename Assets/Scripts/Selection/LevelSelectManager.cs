@@ -110,7 +110,7 @@ public class LevelSelectManager : MonoBehaviour
         int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
         if (currentIndex + 1 <= unlockedLevel)
         {
-            SceneManager.LoadScene("Level" + (currentIndex + 1) + "_Intro");
+            SceneManager.LoadScene("Level" + (currentIndex + 1));
         }
     }
 }

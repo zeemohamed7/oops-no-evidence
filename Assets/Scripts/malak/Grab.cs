@@ -62,16 +62,46 @@ public class Grab : MonoBehaviour
 
     void Update()
     {
-        // Dynamic Destination Pick: Track chest transform coordinates for ragdolls, default to arm holdPoint for items
-        if (heldGrabbable != null && heldGrabbable.isRagdoll && chestHoldPoint != null)
+        // Force both weapons and ragdolls to look for the chest anchor point
+        if (heldGrabbable != null && chestHoldPoint != null)
         {
-            // FIX: Add transform.forward multiplication multiplied by your bodyForwardOffset value 
-            // This pushes the physical connection point out in front of the player's culling volume boundary.
+            // Both weapons and deadbodies will now snap forward relative to your chest pivot
             cachedHoldPoint = chestHoldPoint.position + (transform.forward * bodyForwardOffset);
         }
         else
         {
-            cachedHoldPoint = holdPoint.position;
+            // Fail-safe: Defaults to regular hand hold point if chestHoldPoint is left empty in Inspector
+            cachedHoldPoint = holdPoint != null ? holdPoint.position : transform.position;
+        }
+
+        // --- Keep your stretch prevention guard code right here ---
+// Prevent infinite stretching/spazzing
+        if (heldObject != null && anchorObject != null)
+        {
+            float currentDistance =
+                Vector3.Distance(
+                    heldRigidbody.worldCenterOfMass,
+                    cachedHoldPoint
+                );
+
+            // Body got stuck behind wall
+            if (currentDistance > 2.2f)
+            {
+                Debug.Log("Body stuck — dropping");
+
+                Drop();
+                return;
+            }
+
+            // Minor correction only
+            if (currentDistance > 1.2f)
+            {
+                anchorObject.transform.position = Vector3.Lerp(
+                    anchorObject.transform.position,
+                    cachedHoldPoint,
+                    Time.deltaTime * 15f
+                );
+            }
         }
 
         if (grabAction == null || grabAction.action == null) return;
@@ -86,9 +116,17 @@ public class Grab : MonoBehaviour
     {
         if (heldRigidbody == null) return;
 
+        float dist = Vector3.Distance(
+            heldRigidbody.worldCenterOfMass,
+            cachedHoldPoint
+        );
+
+        // Body stuck on wall
+        if (dist > 1.5f)
+            return;
+
         anchorRigidbody.MovePosition(cachedHoldPoint);
 
-        // Only clamp velocity on non-kinematic bones
         if (!heldRigidbody.isKinematic &&
             heldRigidbody.linearVelocity.magnitude > 8f)
         {
@@ -102,8 +140,6 @@ void TryGrab()
     {
         Debug.Log("Trying to grab...");
 
-        // FIX: Choose the search origin based on the target type to avoid physics snapping gaps
-        // We cast from the chest pivot if we have one available, otherwise default to the hand point.
         Vector3 searchPosition = (chestHoldPoint != null) ? chestHoldPoint.position : holdPoint.position;
 
         Collider[] hits = Physics.OverlapSphere(
@@ -176,23 +212,30 @@ void TryGrab()
             AttachJoint(targetRb);
 
             if (playerController != null)
-                playerController.isCarrying = true;
-
-            // Only ignore collision for ragdoll bodies, not regular items like boxes
-            if (heldGrabbable.isRagdoll)
             {
-                CharacterController cc = GetComponent<CharacterController>();
-                if (cc != null)
+                // Only trigger the movement slowdown if it's a heavy ragdoll body
+                if (heldGrabbable.isRagdoll)
                 {
-                    Collider[] bodyColliders =
-                        heldGrabbable.GetComponentsInChildren<Collider>();
-                    foreach (var col in bodyColliders)
-                        Physics.IgnoreCollision(cc, col, true);
+                    playerController.isCarrying = true; 
+                }
+                else
+                {
+                    playerController.isCarrying = false; // Weapons keep you at full speed
+                }
+            }
+            CharacterController cc = GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                Collider[] heldColliders = heldGrabbable.GetComponentsInChildren<Collider>();
+                foreach (var col in heldColliders)
+                {
+                    Physics.IgnoreCollision(cc, col, true); // Turning this to true stops the flying completely
                 }
             }
 
             Debug.Log($"GRAB SUCCESS — bone: {targetRb.name}");
             return;
+            
         }
 
         Debug.Log("No grabbable object in range");
@@ -288,8 +331,6 @@ void TryGrab()
         joint.projectionMode = JointProjectionMode.PositionAndRotation;
         joint.projectionDistance = 0.02f;
         joint.projectionAngle = 1f;
-        joint.breakForce = Mathf.Infinity;
-        joint.breakTorque = Mathf.Infinity;
     }
 
     void Drop()
