@@ -133,7 +133,6 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
-<<<<<<< HEAD
 --- !u!1101 &-7725740397157901301
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -189,8 +188,6 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
-=======
->>>>>>> main
 --- !u!1101 &-6235194541558019678
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -255,16 +252,11 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-<<<<<<< HEAD
   - m_ConditionMode: 2
     m_ConditionEvent: IsCarrying
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: IsWalking
-=======
-  - m_ConditionMode: 1
-    m_ConditionEvent: IsCarryingBody
->>>>>>> main
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -9038793201559579548}
@@ -1266,7 +1258,6 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
-<<<<<<< HEAD
 --- !u!114 &7539794368256141021
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1301,8 +1292,6 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
-=======
->>>>>>> main
 --- !u!1101 &9050017148387732103
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
