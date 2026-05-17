@@ -80,7 +80,6 @@ public class LevelMenuManager : MonoBehaviour
 
     private void OnPlay()
     {
-        // Hide the menu buttons, show the Big Boss briefing, then load the scene.
         playButton.gameObject.SetActive(false);
         instructionsButton.gameObject.SetActive(false);
         exitButton.gameObject.SetActive(false);
@@ -92,7 +91,12 @@ public class LevelMenuManager : MonoBehaviour
                 bigBossDialogueText.text = currentLevel.bigBossDialogue;
         }
 
-        StartCoroutine(LoadAfterDelay(currentLevel.sceneName, storylineDisplaySeconds));
+        // Go to intro scene if defined, otherwise straight to gameplay
+        string target = !string.IsNullOrEmpty(currentLevel.introSceneName)
+                        ? currentLevel.introSceneName
+                        : currentLevel.sceneName;
+
+        StartCoroutine(LoadAfterDelay(target, storylineDisplaySeconds));
     }
 
     private void OnInstructions()
@@ -115,7 +119,10 @@ public class LevelMenuManager : MonoBehaviour
     private void OnSkipStoryline()
     {
         StopAllCoroutines();
-        SceneManager.LoadScene(currentLevel.sceneName);
+        string target = !string.IsNullOrEmpty(currentLevel.introSceneName)
+                        ? currentLevel.introSceneName
+                        : currentLevel.sceneName;
+        SceneManager.LoadScene(target);
     }
 
     // ── helpers ───────────────────────────────────────────────────────────────

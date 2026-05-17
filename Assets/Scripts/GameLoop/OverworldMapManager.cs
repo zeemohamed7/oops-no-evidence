@@ -31,6 +31,8 @@ public class OverworldMapManager : MonoBehaviour
         public string        instructionsText;    // shown in the Level Menu instructions panel
         [TextArea(1, 2)]
         public string        bigBossDialogue;     // intro briefing line
+        [Tooltip("Storyline/intro scene to load before gameplay. Leave empty to skip.")]
+        public string        introSceneName;
     }
 
     [Header("Level Tiles (5 in order)")]
@@ -97,6 +99,9 @@ public class OverworldMapManager : MonoBehaviour
     {
         bool unlocked = PlayerPrefs.GetInt(UnlockedKey + index, 0) == 1;
         if (!unlocked) return;
+
+        if (LobbyManager.Instance != null)
+            LobbyManager.Instance.SetCurrentLevel(index);
 
         levelMenuPanel.Open(levels[index]);
     }
