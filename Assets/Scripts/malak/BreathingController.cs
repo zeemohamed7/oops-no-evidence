@@ -2,21 +2,17 @@ using UnityEngine;
 
 public class BreathingController : MonoBehaviour
 {
-    public AudioSource breathingSource;
-
-    void Start()
-    {
-        breathingSource.Stop();
-    }
+    [SerializeField] private AudioSource breathingAudio;
 
     public void StartBreathing()
     {
-        if (!breathingSource.isPlaying)
-            breathingSource.Play();
+        if (!breathingAudio.isPlaying)
+            breathingAudio.Play();
     }
 
     public void StopBreathing()
     {
-        breathingSource.Stop();
+        if (breathingAudio.isPlaying)
+            breathingAudio.Stop();
     }
 }

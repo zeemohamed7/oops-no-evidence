@@ -9,17 +9,17 @@ public class GameHUD : MonoBehaviour
     public static GameHUD Instance;
     private void Awake() { Instance = this; }
 
-    // ── TIMER ─────────────────────────────────────────────────────────────
+    // â”€â”€ TIMER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [Header("Timer  (TimePanel > timeText)")]
     public TextMeshProUGUI timeText;
-    public float levelDurationOverride = 180f; // 3 min for level 1 — set per level in Inspector
+    public float levelDurationOverride = 180f; // 3 min for level 1 â€” set per level in Inspector
 
     [Header("Timer Warning Colors")]
     public Color timerNormal   = Color.white;
     public Color timerWarning  = new Color(1f, 0.85f, 0f);   // yellow  < 60s
     public Color timerCritical = new Color(0.9f, 0.1f, 0.1f); // red     < 30s
 
-    // ── SUSPICION BAR ──────────────────────────────────────────────────────
+    // â”€â”€ SUSPICION BAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [Header("Suspicion Bar  (susPanel children)")]
     public Image susFill;               // susPanel > fill
     public TextMeshProUGUI susText;     // susPanel > text
@@ -37,14 +37,14 @@ public class GameHUD : MonoBehaviour
     public string[] midMsgs   = { "They're looking!", "Watch out!" };
     public string[] highMsgs  = { "GET OUT!", "THEY KNOW!" };
 
-    // ── TASKS ──────────────────────────────────────────────────────────────
+    // â”€â”€ TASKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [Header("Tasks  (TaskPanel children)")]
     public TextMeshProUGUI[] taskTexts;   // drag the 3 task TMP objects here
     public TextMeshProUGUI counterText;   // TaskPanel > counter
     public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
     bool[] taskDone;
 
-    // ── PAUSE ──────────────────────────────────────────────────────────────
+    // â”€â”€ PAUSE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [Header("Pause")]
     public Button pauseButton;
     public GameObject pausePanel;
@@ -53,13 +53,14 @@ public class GameHUD : MonoBehaviour
     public Button quitToMapButton;
     bool isPaused;
 
-    // ── RESULT SCREEN ──────────────────────────────────────────────────────
+    // â”€â”€ RESULT SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     [Header("Result Screen")]
     public GameObject resultPanel;
-    public TextMeshProUGUI resultHeader;   // WIN / LOSE
-    public TextMeshProUGUI gradeText;      // S / F
+    public TextMeshProUGUI resultHeader;        // WIN / LOSE
+    public TextMeshProUGUI gradeText;           // S / F
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI finalTimeText;
+    public TextMeshProUGUI failureReasonsText;  // bullet list of failure reasons (loss only)
     public Button nextLevelButton;
     public Button retryButton;
     public Button quitResultButton;
@@ -68,7 +69,7 @@ public class GameHUD : MonoBehaviour
     public Color winColor  = new Color(0.2f, 0.8f, 0.3f);
     public Color loseColor = new Color(0.9f, 0.2f, 0.2f);
 
-    // ─────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     void Start()
     {
@@ -113,7 +114,7 @@ public class GameHUD : MonoBehaviour
         UpdateSusBar();
     }
 
-    // ── Timer ─────────────────────────────────────────────────────────────
+    // â”€â”€ Timer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     void UpdateTimer()
     {
@@ -123,7 +124,7 @@ public class GameHUD : MonoBehaviour
         timeText.color = t <= 30f ? timerCritical : t <= 60f ? timerWarning : timerNormal;
     }
 
-    // ── Suspicion ─────────────────────────────────────────────────────────
+    // â”€â”€ Suspicion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     void UpdateSusBar()
     {
@@ -161,7 +162,7 @@ public class GameHUD : MonoBehaviour
         };
     }
 
-    // ── Tasks ─────────────────────────────────────────────────────────────
+    // â”€â”€ Tasks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     // Call from gameplay scripts:  GameHUD.Instance.CompleteTask(0);  (0, 1, or 2)
     public void CompleteTask(int index)
@@ -180,7 +181,7 @@ public class GameHUD : MonoBehaviour
         RefreshCounter();
 
         if (AllTasksDone())
-            Debug.Log("All tasks done — head to the van!");
+            Debug.Log("All tasks done â€” head to the van!");
     }
 
     void RefreshCounter()
@@ -197,6 +198,14 @@ public class GameHUD : MonoBehaviour
         return true;
     }
 
+    public (string label, bool done)[] GetTaskSnapshot()
+    {
+        var result = new (string, bool)[taskTexts.Length];
+        for (int i = 0; i < taskTexts.Length; i++)
+            result[i] = (taskTexts[i] != null ? taskTexts[i].text : "", taskDone[i]);
+        return result;
+    }
+
     IEnumerator BounceText(Transform t)
     {
         Vector3 orig = t.localScale;
@@ -211,7 +220,7 @@ public class GameHUD : MonoBehaviour
         t.localScale = orig;
     }
 
-    // ── Pause ─────────────────────────────────────────────────────────────
+    // â”€â”€ Pause â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     void TogglePause()
     {
@@ -232,7 +241,7 @@ public class GameHUD : MonoBehaviour
     void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("OverworldMap"); }
     void LoadNextLevel(){ Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); }
 
-    // ── Result Screens ────────────────────────────────────────────────────
+    // â”€â”€ Result Screens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     void ShowWinScreen()
     {
@@ -245,8 +254,10 @@ public class GameHUD : MonoBehaviour
 
         resultHeader.text  = "WIN";  resultHeader.color = winColor;
         gradeText.text     = grade;  gradeText.color    = winColor;
-        scoreText.text     = $"SCORE: {grade} — Tasks Complete!";
+        scoreText.text     = $"SCORE: {grade} â€” Tasks Complete!";
         finalTimeText.text = $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
+
+        if (failureReasonsText != null) failureReasonsText.gameObject.SetActive(false);
 
         nextLevelButton.gameObject.SetActive(true);
         retryButton.gameObject.SetActive(false);
@@ -259,12 +270,26 @@ public class GameHUD : MonoBehaviour
         Time.timeScale = 0f;
 
         float timeLeft = GameManager.Instance?.TimeRemaining ?? 0f;
+        var reasons    = GameManager.Instance?.LastFailureReasons;
 
         resultHeader.text  = "LOSE";  resultHeader.color = loseColor;
         gradeText.text     = "F";     gradeText.color    = loseColor;
         scoreText.text     = "SCORE: F";
         finalTimeText.text = timeLeft <= 0f ? "TIME EXPIRED: 00:00"
                            : $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
+
+        if (failureReasonsText != null)
+        {
+            if (reasons != null && reasons.Count > 0)
+            {
+                failureReasonsText.gameObject.SetActive(true);
+                failureReasonsText.text = "â€¢ " + string.Join("\nâ€¢ ", reasons);
+            }
+            else
+            {
+                failureReasonsText.gameObject.SetActive(false);
+            }
+        }
 
         nextLevelButton.gameObject.SetActive(false);
         retryButton.gameObject.SetActive(true);

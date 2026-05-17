@@ -108,9 +108,13 @@ public class LevelSelectManager : MonoBehaviour
     void TryStartLevel()
     {
         int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
-        if (currentIndex + 1 <= unlockedLevel)
-        {
-            SceneManager.LoadScene("Level" + (currentIndex + 1));
-        }
+        if (currentIndex + 1 > unlockedLevel) return;
+
+        // Tell GameManager which level index is being played
+        if (LobbyManager.Instance != null)
+            LobbyManager.Instance.SetCurrentLevel(currentIndex);
+
+        // Load intro → intro scene loads the gameplay scene
+        SceneManager.LoadScene("Level" + (currentIndex + 1) + "_Intro");
     }
 }

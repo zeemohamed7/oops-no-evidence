@@ -417,6 +417,14 @@ public class LobbyManager : MonoBehaviour
     {
         return selectedLevelName;
     }
+
+    // Set by LevelMenuManager when the player picks a level on the overworld map
+    public int currentLevelIndex = -1;
+
+    public void SetCurrentLevel(int levelIndex)
+    {
+        currentLevelIndex = levelIndex;
+    }
     // ─────────────────────────────────────────────────────────────
     // SPAWN PLAYERS
     // ─────────────────────────────────────────────────────────────
