@@ -130,14 +130,22 @@ public class GameManager : MonoBehaviour
 
     void LoadWinLoseScene(bool isWin, List<string> failures)
     {
-        // If an in-scene WinLoseScreenManager panel exists, the OnWin/OnLoss events
-        // already showed it — skip loading the separate scene.
-        if (WinLoseScreenManager.Instance != null) return;
+        // Find the in-scene panel even if it started inactive (Awake may not have run).
+        var panel = WinLoseScreenManager.Instance
+                    ?? FindFirstObjectByType<WinLoseScreenManager>(FindObjectsInactive.Include);
 
-        string grade  = CalculateGrade();
-        float  sus01  = SuspicionMeter.Instance != null
-                        ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
-                        : 0f;
+        if (panel != null)
+        {
+            if (isWin) panel.ShowWin();
+            else       panel.ShowLoss();
+            return;
+        }
+
+        // No in-scene panel — fall back to the separate win-lose scene.
+        string grade = CalculateGrade();
+        float  sus01 = SuspicionMeter.Instance != null
+                       ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+                       : 0f;
         var tasks = GameHUD.Instance?.GetTaskSnapshot();
 
         WinLoseScreenManager.SaveResultToPrefs(isWin, grade, TimeRemaining, sus01, failures, tasks);

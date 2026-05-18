@@ -73,8 +73,8 @@ public class WinLoseScreenManager : MonoBehaviour
         // In-scene overlay: hook GameManager events and hide until the game ends
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnWin.AddListener(OnWin);
-            GameManager.Instance.OnLoss.AddListener(OnLoss);
+            GameManager.Instance.OnWin.AddListener(ShowWin);
+            GameManager.Instance.OnLoss.AddListener(ShowLoss);
             gameObject.SetActive(false);
             return;
         }
@@ -90,7 +90,7 @@ public class WinLoseScreenManager : MonoBehaviour
         );
     }
 
-    void OnWin()
+    public void ShowWin()
     {
         gameObject.SetActive(true);
         Time.timeScale = 0f;
@@ -104,7 +104,7 @@ public class WinLoseScreenManager : MonoBehaviour
         );
     }
 
-    void OnLoss()
+    public void ShowLoss()
     {
         gameObject.SetActive(true);
         Time.timeScale = 0f;
