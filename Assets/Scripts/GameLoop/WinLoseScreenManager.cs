@@ -23,6 +23,9 @@ public class WinLoseScreenManager : MonoBehaviour
 
     void Awake() { Instance = this; }
 
+    [Header("Panel Root")]
+    public GameObject panelRoot;   // drag the inner WinLoseCanvas here
+
     [Header("Title GameObjects")]
     public GameObject winTitle;
     public GameObject loseTitle;
@@ -72,7 +75,8 @@ public class WinLoseScreenManager : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            gameObject.SetActive(false);
+            if (panelRoot != null) panelRoot.SetActive(false);
+            else gameObject.SetActive(false);
             return;
         }
 
@@ -106,6 +110,7 @@ public class WinLoseScreenManager : MonoBehaviour
         var tasks = hud?.GetTaskSnapshot();
 
         ActivateHierarchy();
+        if (panelRoot != null) panelRoot.SetActive(true);
         Time.timeScale = 0f;
         PopulateUI(isWin: true, grade: grade, timeRemaining: time,
                    suspicion01: sus01, failures: null, tasks: tasks);
@@ -123,6 +128,7 @@ public class WinLoseScreenManager : MonoBehaviour
         var tasks    = hud?.GetTaskSnapshot();
 
         ActivateHierarchy();
+        if (panelRoot != null) panelRoot.SetActive(true);
         Time.timeScale = 0f;
         PopulateUI(isWin: false, grade: grade, timeRemaining: time,
                    suspicion01: sus01, failures: failures, tasks: tasks);
