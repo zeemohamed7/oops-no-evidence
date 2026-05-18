@@ -155,18 +155,36 @@ public class GameManager : MonoBehaviour
 
     public string CalculateGrade()
     {
-        float timeScore = TimeRemaining / levelDuration;
+        // Count completed tasks from the HUD snapshot
+        int doneCount = 0, totalCount = 0;
+        var snapshot = GameHUD.Instance?.GetTaskSnapshot();
+        if (snapshot != null)
+        {
+            totalCount = snapshot.Length;
+            foreach (var t in snapshot) if (t.done) doneCount++;
+        }
+        bool allDone = totalCount > 0 && doneCount >= totalCount;
 
-        float suspicionScore = 0f;
-        if (SuspicionMeter.Instance != null)
-            suspicionScore = 1f - (SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion);
+        float sus01 = SuspicionMeter.Instance != null
+            ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+            : 0f;
+        bool susHigh = sus01 >= 0.5f;
 
-        float total = (timeScore * 0.5f) + (suspicionScore * 0.5f);
+        // D — timer ran out
+        if (TimeRemaining <= 0f) return "D";
 
-        if (total >= 0.90f) return "S";
-        if (total >= 0.75f) return "A";
-        if (total >= 0.60f) return "B";
-        if (total >= 0.45f) return "C";
+        // S — all tasks done, 2+ min left, sus not high
+        if (allDone && TimeRemaining > 120f && !susHigh) return "S";
+
+        // A — 3+ tasks done, time left, sus not high
+        if (doneCount >= 3 && TimeRemaining > 0f && !susHigh) return "A";
+
+        // B — 2+ tasks done, less than 1 min left, sus high
+        if (doneCount >= 2 && TimeRemaining <= 60f && susHigh) return "B";
+
+        // C — 1+ task done, less than 30 sec left, sus high
+        if (doneCount >= 1 && TimeRemaining <= 30f && susHigh) return "C";
+
         return "D";
     }
 
