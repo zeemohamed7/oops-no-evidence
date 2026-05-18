@@ -19,6 +19,8 @@ using TMPro;
 public class WinLoseScreenManager : MonoBehaviour
 {
     public static WinLoseScreenManager Instance { get; private set; }
+    bool _shown;
+
     void Awake() { Instance = this; }
 
     [Header("Title GameObjects")]
@@ -65,11 +67,11 @@ public class WinLoseScreenManager : MonoBehaviour
         if (nextLevelButton != null) nextLevelButton.onClick.AddListener(NextLevel);
         if (quitButton      != null) quitButton.onClick.AddListener(QuitToMap);
 
-        // In-scene overlay: hook GameManager events and hide until the game ends
+        // In-scene overlay: already shown by direct call — don't hide it again.
+        if (_shown) return;
+
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnWin.AddListener(ShowWin);
-            GameManager.Instance.OnLoss.AddListener(ShowLoss);
             gameObject.SetActive(false);
             return;
         }
@@ -95,30 +97,32 @@ public class WinLoseScreenManager : MonoBehaviour
 
     public void ShowWin()
     {
+        _shown = true;
+        // Snapshot data before activating (so instances are still valid)
+        string grade   = GameManager.Instance?.CalculateGrade() ?? "S";
+        float  time    = GameManager.Instance?.TimeRemaining ?? 0f;
+        float  sus01   = GetSuspicion01();
+        var    tasks   = GameHUD.Instance?.GetTaskSnapshot();
+
         ActivateHierarchy();
         Time.timeScale = 0f;
-        PopulateUI(
-            isWin:         true,
-            grade:         GameManager.Instance?.CalculateGrade() ?? "S",
-            timeRemaining: GameManager.Instance?.TimeRemaining ?? 0f,
-            suspicion01:   GetSuspicion01(),
-            failures:      null,
-            tasks:         GameHUD.Instance?.GetTaskSnapshot()
-        );
+        PopulateUI(isWin: true, grade: grade, timeRemaining: time,
+                   suspicion01: sus01, failures: null, tasks: tasks);
     }
 
     public void ShowLoss()
     {
+        _shown = true;
+        string grade    = GameManager.Instance?.CalculateGrade() ?? "F";
+        float  time     = GameManager.Instance?.TimeRemaining ?? 0f;
+        float  sus01    = GetSuspicion01();
+        var    failures = GameManager.Instance?.LastFailureReasons;
+        var    tasks    = GameHUD.Instance?.GetTaskSnapshot();
+
         ActivateHierarchy();
         Time.timeScale = 0f;
-        PopulateUI(
-            isWin:         false,
-            grade:         GameManager.Instance?.CalculateGrade() ?? "F",
-            timeRemaining: GameManager.Instance?.TimeRemaining ?? 0f,
-            suspicion01:   GetSuspicion01(),
-            failures:      GameManager.Instance?.LastFailureReasons,
-            tasks:         GameHUD.Instance?.GetTaskSnapshot()
-        );
+        PopulateUI(isWin: false, grade: grade, timeRemaining: time,
+                   suspicion01: sus01, failures: failures, tasks: tasks);
     }
 
     void PopulateUI(bool isWin, string grade, float timeRemaining, float suspicion01,
