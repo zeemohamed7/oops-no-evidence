@@ -102,15 +102,25 @@ public class WinLoseScreenManager : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+    static float CaptureSus()
+    {
+        if (SuspicionMeter.Instance == null)
+        {
+            Debug.LogWarning("WinLoseScreenManager: SuspicionMeter.Instance is null — sus will show 0%");
+            return 0f;
+        }
+        float v = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
+        Debug.Log($"[WinLose] sus captured = {v * 100f:0}%");
+        return v;
+    }
+
     public void ShowWin(GameManager gm, GameHUD hud)
     {
         _shown = true;
-        string grade = gm?.CalculateGrade() ?? "S";
-        float  time  = gm?.TimeRemaining ?? 0f;
-        float  sus01 = gm != null && SuspicionMeter.Instance != null
-                       ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
-                       : 0f;
-        var tasks = hud?.GetTaskSnapshot();
+        float  sus01  = CaptureSus();                    // read BEFORE hiding anything
+        string grade  = gm?.CalculateGrade() ?? "S";
+        float  time   = gm?.TimeRemaining ?? 0f;
+        var    tasks  = hud?.GetTaskSnapshot();
 
         if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
         ActivateHierarchy();
@@ -123,13 +133,11 @@ public class WinLoseScreenManager : MonoBehaviour
     public void ShowLoss(GameManager gm, GameHUD hud)
     {
         _shown = true;
+        float  sus01    = CaptureSus();                  // read BEFORE hiding anything
         string grade    = gm?.CalculateGrade() ?? "F";
         float  time     = gm?.TimeRemaining ?? 0f;
-        float  sus01    = gm != null && SuspicionMeter.Instance != null
-                          ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
-                          : 0f;
-        var failures = gm?.LastFailureReasons;
-        var tasks    = hud?.GetTaskSnapshot();
+        var    failures = gm?.LastFailureReasons;
+        var    tasks    = hud?.GetTaskSnapshot();
 
         if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
         ActivateHierarchy();
