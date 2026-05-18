@@ -124,11 +124,25 @@ public class GameManager : MonoBehaviour
     public void TriggerLoss(List<string> reasons)
     {
         if (!IsPlaying) return;
-        State = GameState.Lost;
         LastFailureReasons = reasons ?? new List<string>();
-        OnLoss.Invoke();
-        Debug.Log($"LOSS — {string.Join(" | ", LastFailureReasons)}");
-        LoadWinLoseScene(isWin: false, failures: LastFailureReasons);
+
+        string grade = CalculateGrade();
+        bool isWin = grade != "D";   // S/A/B/C = win panel, D = lose panel
+
+        if (isWin)
+        {
+            State = GameState.Won;
+            UnlockNextLevel();
+            OnWin.Invoke();
+        }
+        else
+        {
+            State = GameState.Lost;
+            OnLoss.Invoke();
+        }
+
+        Debug.Log($"{(isWin ? "WIN" : "LOSS")} — Grade: {grade}");
+        LoadWinLoseScene(isWin: isWin, failures: isWin ? null : LastFailureReasons);
     }
 
     void LoadWinLoseScene(bool isWin, List<string> failures)
@@ -170,24 +184,19 @@ public class GameManager : MonoBehaviour
             : 0f;
         bool susHigh = sus01 >= 0.5f;
 
-        bool timerOut = TimeRemaining <= 0f;
-
-        // S: all done + sus low (any time)
+        // S: all done + sus low
         if (allDone && !susHigh) return "S";
 
-        // A: (all done + sus high) OR (3+ done + timer out + sus low)
-        if ((allDone && susHigh) ||
-            (doneCount >= 3 && timerOut && !susHigh)) return "A";
+        // A: (all done + sus high) OR (3+ done + sus low)
+        if ((allDone && susHigh) || (doneCount >= 3 && !susHigh)) return "A";
 
-        // B: (3+ done + timer out + sus high) OR (2+ done + timer out + sus low)
-        if ((doneCount >= 3 && timerOut && susHigh) ||
-            (doneCount >= 2 && timerOut && !susHigh)) return "B";
+        // B: (3+ done + sus high) OR (2+ done + sus low)
+        if ((doneCount >= 3 && susHigh) || (doneCount >= 2 && !susHigh)) return "B";
 
-        // C: (2+ done + timer out + sus high) OR (1+ done + timer out + sus low)
-        if ((doneCount >= 2 && timerOut && susHigh) ||
-            (doneCount >= 1 && timerOut && !susHigh)) return "C";
+        // C: (2+ done + sus high) OR (1+ done + sus low)
+        if ((doneCount >= 2 && susHigh) || (doneCount >= 1 && !susHigh)) return "C";
 
-        // D: (1+ done + timer out + sus high) OR (0 tasks done)
+        // D: 0 done OR (1 done + sus high)
         return "D";
     }
 
