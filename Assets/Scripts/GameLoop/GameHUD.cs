@@ -39,10 +39,12 @@ public class GameHUD : MonoBehaviour
 
     // ── TASKS ──────────────────────────────────────────────────────────────
     [Header("Tasks  (TaskPanel children)")]
-    public TextMeshProUGUI[] taskTexts;   // drag the 3 task TMP objects here
-    public TextMeshProUGUI counterText;   // TaskPanel > counter
+    public TextMeshProUGUI[] taskTexts;   // drag task-1 … task-N TMPs here
+    public string[]          taskIds;     // matching event IDs e.g. "dispose_weapon"
+    public TextMeshProUGUI counterText;
     public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
-    bool[] taskDone;
+    bool[]   taskDone;
+    string[] taskOriginalLabels;
 
     // ── PAUSE ──────────────────────────────────────────────────────────────
     [Header("Pause")]
@@ -77,8 +79,17 @@ public class GameHUD : MonoBehaviour
         if (GameManager.Instance != null)
             GameManager.Instance.levelDuration = levelDurationOverride;
 
-        // Tasks
-        taskDone = new bool[taskTexts.Length];
+        // Tasks — store originals and reset any leftover state from previous run
+        taskDone           = new bool[taskTexts.Length];
+        taskOriginalLabels = new string[taskTexts.Length];
+        for (int i = 0; i < taskTexts.Length; i++)
+        {
+            if (taskTexts[i] == null) continue;
+            string raw = taskTexts[i].text.Replace("<s>", "").Replace("</s>", "");
+            taskOriginalLabels[i]  = raw;
+            taskTexts[i].text      = raw;
+            taskTexts[i].color     = Color.white;
+        }
         RefreshCounter();
 
         // Panels off
@@ -103,6 +114,25 @@ public class GameHUD : MonoBehaviour
 
         if (SuspicionMeter.Instance != null)
             SuspicionMeter.Instance.OnStateChangedEvent.AddListener(OnSusStateChanged);
+
+        GameEvents.OnTaskCompleted += OnTaskCompleted;
+    }
+
+    void OnDestroy()
+    {
+        GameEvents.OnTaskCompleted -= OnTaskCompleted;
+    }
+
+    void OnTaskCompleted(string taskId)
+    {
+        for (int i = 0; i < taskIds.Length; i++)
+        {
+            if (taskIds[i] == taskId)
+            {
+                CompleteTask(i);
+                return;
+            }
+        }
     }
 
     void Update()
@@ -204,12 +234,7 @@ public class GameHUD : MonoBehaviour
     {
         var result = new (string, bool)[taskTexts.Length];
         for (int i = 0; i < taskTexts.Length; i++)
-        {
-            string raw = taskTexts[i] != null ? taskTexts[i].text : "";
-            // Strip <s>…</s> so the win-lose screen applies its own strikethrough
-            raw = raw.Replace("<s>", "").Replace("</s>", "");
-            result[i] = (raw, taskDone[i]);
-        }
+            result[i] = (taskOriginalLabels != null ? taskOriginalLabels[i] : "", taskDone[i]);
         return result;
     }
 
