@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 3275263672882440388}
   - component: {fileID: 2243698783986220261}
   - component: {fileID: -9169580794464414274}
+  - component: {fileID: 3090330314108630002}
   m_Layer: 8
   m_Name: Zainab
   m_TagString: Player
@@ -816,6 +817,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushForce: 5
+--- !u!114 &3090330314108630002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668360290350740002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdPoint: {fileID: 2739016838828355998}
+  grabRange: 3
+  furnitureLayer:
+    serializedVersion: 2
+    m_Bits: 32768
+  localCarryPosition: {x: 0, y: 0, z: 0}
+  localCarryRotation: {x: 0, y: 0, z: 0}
 --- !u!1001 &2014648397119755274
 PrefabInstance:
   m_ObjectHideFlags: 0

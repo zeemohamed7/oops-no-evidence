@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 3518567039009372169}
   - component: {fileID: 564867655118089455}
   - component: {fileID: 33746655525650113}
+  - component: {fileID: 1685680132345454015}
   m_Layer: 8
   m_Name: Maryam
   m_TagString: Player
@@ -656,6 +657,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushForce: 5
+--- !u!114 &1685680132345454015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10941082111468798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdPoint: {fileID: 7379420364766568476}
+  grabRange: 3
+  furnitureLayer:
+    serializedVersion: 2
+    m_Bits: 32768
+  localCarryPosition: {x: 0, y: 0, z: 0}
+  localCarryRotation: {x: 0, y: 0, z: 0}
 --- !u!1 &1963859139879853340
 GameObject:
   m_ObjectHideFlags: 0

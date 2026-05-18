@@ -62,6 +62,7 @@ GameObject:
   - component: {fileID: 874813437261445528}
   - component: {fileID: 8465124283226562044}
   - component: {fileID: 7897002994708891997}
+  - component: {fileID: 1660742739523987983}
   m_Layer: 8
   m_Name: Malak
   m_TagString: Player
@@ -691,6 +692,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushForce: 5
+--- !u!114 &1660742739523987983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4321487422150439978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdPoint: {fileID: 5489997910750114918}
+  grabRange: 3
+  furnitureLayer:
+    serializedVersion: 2
+    m_Bits: 32768
+  localCarryPosition: {x: 0, y: 0, z: 0}
+  localCarryRotation: {x: 0, y: 0, z: 0}
 --- !u!1 &4775745545624298615
 GameObject:
   m_ObjectHideFlags: 0

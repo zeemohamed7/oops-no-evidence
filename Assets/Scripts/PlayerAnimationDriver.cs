@@ -4,8 +4,7 @@ public class PlayerAnimationDriver : MonoBehaviour
 {
     [SerializeField] private Animator animator;
 
-    private bool isCarryingBody;
-    private bool isCarryingObject;
+    private bool isCarrying;
     private bool hasMop;
 
     private void Reset()
@@ -13,25 +12,28 @@ public class PlayerAnimationDriver : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+    private void Awake()
+    {
+        if (animator == null)
+            animator = GetComponent<Animator>();
+    }
+
     public void SetWalking(bool value)
     {
         animator.SetBool("IsWalking", value);
     }
 
-    public void SetCarryingObject(bool value)
+    // CHANGED: one shared carry bool for body + furniture
+    public void SetCarrying(bool value)
     {
-        isCarryingObject = value;
-        animator.SetBool("IsCarryingObject", value);
-    }
-
-    public void SetCarryingBody(bool value)
-    {
-        isCarryingBody = value;
-        animator.SetBool("IsCarryingBody", value);
+        isCarrying = value;
+        animator.SetBool("IsCarrying", value);
     }
 
     public void SelectMop()
     {
+        if (isCarrying) return;
+
         hasMop = true;
         animator.SetBool("HasMop", true);
         animator.SetBool("HasTool", false);
@@ -40,6 +42,8 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     public void SelectTool()
     {
+        if (isCarrying) return;
+
         hasMop = false;
         animator.SetBool("HasTool", true);
         animator.SetBool("HasMop", false);
@@ -58,15 +62,9 @@ public class PlayerAnimationDriver : MonoBehaviour
         animator.SetBool("HasFlashlight", false);
     }
 
-    public void PlayPickUpObject()
-    {
-        animator.ResetTrigger("PickUpBody");
-        animator.SetTrigger("PickUpObject");
-    }
-
+    // CHANGED: removed object pickup animation completely
     public void PlayPickUpBody()
     {
-        animator.ResetTrigger("PickUpObject");
         animator.SetTrigger("PickUpBody");
     }
 
@@ -77,13 +75,13 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     public void PlayMop()
     {
-        if (hasMop && !isCarryingBody && !isCarryingObject)
+        if (hasMop && !isCarrying)
             animator.SetTrigger("Mop");
     }
 
     public void PlayDipMop()
     {
-        if (hasMop && !isCarryingBody && !isCarryingObject)
+        if (hasMop && !isCarrying)
             animator.SetTrigger("DipMop");
     }
 }
