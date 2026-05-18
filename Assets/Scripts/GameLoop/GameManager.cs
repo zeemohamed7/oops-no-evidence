@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
 
     public List<string> LastFailureReasons { get; private set; } = new List<string>();
 
+    [Header("Win/Lose Panel")]
+    public WinLoseScreenManager winLosePanel;   // drag manager-win-lose here
+
     [Header("Level Setup")]
     public Transform truckSpawnPoint;
 
@@ -130,18 +133,14 @@ public class GameManager : MonoBehaviour
 
     void LoadWinLoseScene(bool isWin, List<string> failures)
     {
-        // Find the in-scene panel even if it started inactive (Awake may not have run).
-        var panel = WinLoseScreenManager.Instance
-                    ?? FindFirstObjectByType<WinLoseScreenManager>(FindObjectsInactive.Include);
-
-        if (panel != null)
+        if (winLosePanel != null)
         {
-            if (isWin) panel.ShowWin();
-            else       panel.ShowLoss();
+            if (isWin) winLosePanel.ShowWin();
+            else       winLosePanel.ShowLoss();
             return;
         }
 
-        // No in-scene panel — fall back to the separate win-lose scene.
+        // No in-scene panel wired — fall back to the separate win-lose scene.
         string grade = CalculateGrade();
         float  sus01 = SuspicionMeter.Instance != null
                        ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
