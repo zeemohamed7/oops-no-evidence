@@ -54,6 +54,7 @@ public class WinLoseScreenManager : MonoBehaviour
 
     [Header("Buttons")]
     public Button nextLevelButton;  // shown on win
+    public Button retryButton;      // shown on loss
     public Button quitButton;       // home — always visible
 
     // PlayerPrefs keys — written by SaveResultToPrefs() before loading this scene
@@ -68,6 +69,7 @@ public class WinLoseScreenManager : MonoBehaviour
     void Start()
     {
         if (nextLevelButton != null) nextLevelButton.onClick.AddListener(NextLevel);
+        if (retryButton     != null) retryButton.onClick.AddListener(RetryLevel);
         if (quitButton      != null) quitButton.onClick.AddListener(QuitToMap);
 
         // In-scene overlay: already shown by direct call — don't hide it again.
@@ -172,8 +174,9 @@ public class WinLoseScreenManager : MonoBehaviour
                 listText.text = "• " + string.Join("\n• ", failures);
         }
 
-        // Next level only shows on win; home is always visible
+        // Next level on win, retry on loss; home always visible
         if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(isWin);
+        if (retryButton     != null) retryButton.gameObject.SetActive(!isWin);
     }
 
     void PopulateTaskRows((string label, bool done)[] tasks)
@@ -255,6 +258,12 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("LevelSelection");
+    }
+
+    void RetryLevel()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void QuitToMap()
