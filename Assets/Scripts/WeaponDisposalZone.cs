@@ -12,8 +12,6 @@ public class WeaponDisposalZone : MonoBehaviour
     public GameObject promptUI;   // optional "Press E to dispose" world UI
 
     private bool completed;
-    private readonly HashSet<GameObject> playersInZone  = new HashSet<GameObject>();
-    private readonly HashSet<GameObject> weaponsInZone  = new HashSet<GameObject>();
 
     void Start()
     {
@@ -24,70 +22,17 @@ public class WeaponDisposalZone : MonoBehaviour
             promptUI.SetActive(false);
     }
 
-    void Update()
-    {
-        if (completed) return;
-        if (playersInZone.Count == 0) return;
-        if (!Input.GetKeyDown(KeyCode.E)) return;
-
-        weaponsInZone.RemoveWhere(w => w == null);
-
-        foreach (var weapon in weaponsInZone)
-        {
-            var grabbable = weapon.GetComponent<GrabbableObject>();
-            if (grabbable != null && grabbable.isGrabbed) continue;   // must be dropped
-
-            completed = true;
-            GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
-            PlaySparkle();
-            if (promptUI != null) promptUI.SetActive(false);
-            Destroy(weapon);
-            Debug.Log("Weapon disposed");
-            return;
-        }
-    }
-
     void OnTriggerEnter(Collider other)
     {
         if (completed) return;
+        if (!other.CompareTag("Weapon")) return;
 
-        if (other.CompareTag("Player"))
-        {
-            playersInZone.Add(other.gameObject);
-            RefreshPrompt();
-        }
-        else if (other.CompareTag("Weapon"))
-        {
-            weaponsInZone.Add(other.gameObject);
-            RefreshPrompt();
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playersInZone.Remove(other.gameObject);
-            RefreshPrompt();
-        }
-        else if (other.CompareTag("Weapon"))
-        {
-            weaponsInZone.Remove(other.gameObject);
-            RefreshPrompt();
-        }
-    }
-
-    void RefreshPrompt()
-    {
-        if (promptUI == null || completed) return;
-        bool hasDroppedWeapon = false;
-        foreach (var w in weaponsInZone)
-        {
-            if (w == null) continue;
-            var g = w.GetComponent<GrabbableObject>();
-            if (g == null || !g.isGrabbed) { hasDroppedWeapon = true; break; }
-        }
-        promptUI.SetActive(playersInZone.Count > 0 && hasDroppedWeapon);
+        completed = true;
+        GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
+        PlaySparkle();
+        if (promptUI != null) promptUI.SetActive(false);
+        Destroy(other.gameObject);
+        Debug.Log("Weapon disposed");
     }
 
     void PlaySparkle()
