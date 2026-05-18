@@ -137,7 +137,6 @@ public class GameHUD : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         if (GameManager.Instance == null) return;
 
         UpdateTimer();
