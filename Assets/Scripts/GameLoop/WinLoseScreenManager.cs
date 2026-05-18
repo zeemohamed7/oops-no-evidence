@@ -165,20 +165,17 @@ public class WinLoseScreenManager : MonoBehaviour
             timeText.text = $"{m:00}:{s:00}";
         }
 
-        // Suspicion percentage text — hide when 0
+        // Suspicion percentage text
         if (susText != null)
-        {
-            bool hasSus = suspicion01 > 0f;
-            susText.gameObject.SetActive(hasSus);
-            if (hasSus) susText.text = $"{Mathf.RoundToInt(suspicion01 * 100f)}%";
-        }
+            susText.text = $"{Mathf.RoundToInt(suspicion01 * 100f)}%";
 
-        // Suspicion fill bar — hide entirely when 0, otherwise clip gradient photo
+        // Suspicion fill bar — force Filled/Horizontal so fillAmount actually clips the image
         if (susFillImage != null)
         {
-            bool hasSus = suspicion01 > 0f;
-            susFillImage.gameObject.SetActive(hasSus);
-            if (hasSus) susFillImage.fillAmount = Mathf.Clamp01(suspicion01);
+            susFillImage.type        = Image.Type.Filled;
+            susFillImage.fillMethod  = Image.FillMethod.Horizontal;
+            susFillImage.fillOrigin  = (int)Image.OriginHorizontal.Left;
+            susFillImage.fillAmount  = Mathf.Clamp01(suspicion01);
         }
 
         // Task rows — show only as many as the level has, hide the rest
