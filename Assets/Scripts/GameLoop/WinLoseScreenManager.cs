@@ -18,6 +18,9 @@ using TMPro;
 //   - retryButton / nextLevelButton / quitButton → Button components
 public class WinLoseScreenManager : MonoBehaviour
 {
+    public static WinLoseScreenManager Instance { get; private set; }
+    void Awake() { Instance = this; }
+
     [Header("Title GameObjects")]
     public GameObject winTitle;
     public GameObject loseTitle;
@@ -35,6 +38,12 @@ public class WinLoseScreenManager : MonoBehaviour
 
     [Header("Sus Fill")]
     public Image susFillImage;         // Image (Filled, Horizontal) for sus bar
+
+    [Header("Sus Bar Colors")]
+    public Color colorCalm       = new Color(0.3f, 0.85f, 0.3f);
+    public Color colorSuspicious = new Color(1f,   0.85f, 0f);
+    public Color colorAlert      = new Color(1f,   0.5f,  0f);
+    public Color colorPanic      = new Color(0.9f, 0.1f,  0.1f);
 
     [Header("Grade Letter GameObjects")]
     public GameObject gradeS;
@@ -133,7 +142,13 @@ public class WinLoseScreenManager : MonoBehaviour
 
         // Suspicion fill bar
         if (susFillImage != null)
+        {
             susFillImage.fillAmount = Mathf.Clamp01(suspicion01);
+            susFillImage.color = suspicion01 < 0.25f ? colorCalm
+                               : suspicion01 < 0.50f ? colorSuspicious
+                               : suspicion01 < 0.75f ? colorAlert
+                               : colorPanic;
+        }
 
         // Task rows — show only as many as the level has, hide the rest
         PopulateTaskRows(tasks);

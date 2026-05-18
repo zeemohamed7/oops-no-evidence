@@ -130,9 +130,9 @@ public class GameManager : MonoBehaviour
 
     void LoadWinLoseScene(bool isWin, List<string> failures)
     {
-        // If win/lose panels are embedded in this scene, the OnWin/OnLoss events
-        // already showed them — skip loading the separate scene.
-        if (FindObjectOfType<WinLoseScreenManager>(true) != null) return;
+        // If an in-scene WinLoseScreenManager panel exists, the OnWin/OnLoss events
+        // already showed it — skip loading the separate scene.
+        if (WinLoseScreenManager.Instance != null) return;
 
         string grade  = CalculateGrade();
         float  sus01  = SuspicionMeter.Instance != null

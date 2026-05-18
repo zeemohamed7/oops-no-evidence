@@ -1,34 +1,93 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponDisposalZone : MonoBehaviour
 {
     [Header("Sparkle")]
-    public ParticleSystem sparkles;   // leave empty to auto-create gold burst
-    public Light sparkleLight;        // optional Point Light child for flash
+    public ParticleSystem sparkles;
+    public Light sparkleLight;
+
+    [Header("Prompt")]
+    public GameObject promptUI;   // optional "Press E to dispose" world UI
 
     private bool completed;
+    private readonly HashSet<GameObject> playersInZone  = new HashSet<GameObject>();
+    private readonly HashSet<GameObject> weaponsInZone  = new HashSet<GameObject>();
 
     void Start()
     {
         if (sparkles == null)
             sparkles = CreateSparkleSystem();
+
+        if (promptUI != null)
+            promptUI.SetActive(false);
     }
 
-    private void OnTriggerEnter(Collider other)
+    void Update()
+    {
+        if (completed) return;
+        if (playersInZone.Count == 0) return;
+        if (!Input.GetKeyDown(KeyCode.E)) return;
+
+        weaponsInZone.RemoveWhere(w => w == null);
+
+        foreach (var weapon in weaponsInZone)
+        {
+            var grabbable = weapon.GetComponent<GrabbableObject>();
+            if (grabbable != null && grabbable.isGrabbed) continue;   // must be dropped
+
+            completed = true;
+            GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
+            PlaySparkle();
+            if (promptUI != null) promptUI.SetActive(false);
+            Destroy(weapon);
+            Debug.Log("Weapon disposed");
+            return;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
     {
         if (completed) return;
 
-        if (other.CompareTag("Weapon"))
+        if (other.CompareTag("Player"))
         {
-            completed = true;
-
-            GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
-            Destroy(other.gameObject);
-            PlaySparkle();
-
-            Debug.Log("Weapon disposed");
+            playersInZone.Add(other.gameObject);
+            RefreshPrompt();
         }
+        else if (other.CompareTag("Weapon"))
+        {
+            weaponsInZone.Add(other.gameObject);
+            RefreshPrompt();
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playersInZone.Remove(other.gameObject);
+            RefreshPrompt();
+        }
+        else if (other.CompareTag("Weapon"))
+        {
+            weaponsInZone.Remove(other.gameObject);
+            RefreshPrompt();
+        }
+    }
+
+    void RefreshPrompt()
+    {
+        if (promptUI == null || completed) return;
+        bool hasDroppedWeapon = false;
+        foreach (var w in weaponsInZone)
+        {
+            if (w == null) continue;
+            var g = w.GetComponent<GrabbableObject>();
+            if (g == null || !g.isGrabbed) { hasDroppedWeapon = true; break; }
+        }
+        promptUI.SetActive(playersInZone.Count > 0 && hasDroppedWeapon);
     }
 
     void PlaySparkle()
@@ -74,8 +133,8 @@ public class WeaponDisposalZone : MonoBehaviour
         main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 5f);
         main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.15f);
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.9f, 0.2f),  // gold
-            new Color(1f, 1f, 1f)        // white
+            new Color(1f, 0.9f, 0.2f),
+            new Color(1f, 1f, 1f)
         );
         main.gravityModifier = 0.3f;
         main.maxParticles = 40;
