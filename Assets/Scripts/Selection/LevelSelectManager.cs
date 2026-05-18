@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem; // Must have this!
+using UnityEngine.InputSystem; 
 
 public class LevelSelectManager : MonoBehaviour
 {
@@ -65,7 +65,7 @@ public class LevelSelectManager : MonoBehaviour
         }
 
         // Execute Move
-        if (moveRight && currentIndex < waypoints.Length - 1 && (currentIndex + 1) < unlockedLevel) // -1 for left, 1 for right
+        if (moveRight && currentIndex < waypoints.Length - 1 && (currentIndex + 2) <= unlockedLevel)
         {
             currentIndex++;
             UpdateSelection();
