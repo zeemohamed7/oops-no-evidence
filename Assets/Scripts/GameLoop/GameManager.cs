@@ -170,19 +170,24 @@ public class GameManager : MonoBehaviour
             : 0f;
         bool susHigh = sus01 >= 0.5f;
 
-        // S — all tasks done, sus not high (win at any time)
+        bool timerOut = TimeRemaining <= 0f;
+
+        // S: all done + sus low (any time)
         if (allDone && !susHigh) return "S";
 
-        // A — 3+ tasks done, sus not high (timer out)
-        if (doneCount >= 3 && !susHigh) return "A";
+        // A: (all done + sus high) OR (3+ done + timer out + sus low)
+        if ((allDone && susHigh) ||
+            (doneCount >= 3 && timerOut && !susHigh)) return "A";
 
-        // B — 2+ tasks done, sus high (timer out)
-        if (doneCount >= 2 && susHigh) return "B";
+        // B: (3+ done + timer out + sus high) OR (2+ done + timer out + sus low)
+        if ((doneCount >= 3 && timerOut && susHigh) ||
+            (doneCount >= 2 && timerOut && !susHigh)) return "B";
 
-        // C — 1 task done, sus high (timer out)
-        if (doneCount >= 1 && susHigh) return "C";
+        // C: (2+ done + timer out + sus high) OR (1+ done + timer out + sus low)
+        if ((doneCount >= 2 && timerOut && susHigh) ||
+            (doneCount >= 1 && timerOut && !susHigh)) return "C";
 
-        // D — 0 tasks done
+        // D: (1+ done + timer out + sus high) OR (0 tasks done)
         return "D";
     }
 
