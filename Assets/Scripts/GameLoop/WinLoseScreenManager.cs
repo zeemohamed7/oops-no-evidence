@@ -39,11 +39,6 @@ public class WinLoseScreenManager : MonoBehaviour
     [Header("Sus Fill")]
     public Image susFillImage;         // Image (Filled, Horizontal) for sus bar
 
-    [Header("Sus Bar Colors")]
-    public Color colorCalm       = new Color(0.3f, 0.85f, 0.3f);
-    public Color colorSuspicious = new Color(1f,   0.85f, 0f);
-    public Color colorAlert      = new Color(1f,   0.5f,  0f);
-    public Color colorPanic      = new Color(0.9f, 0.1f,  0.1f);
 
     [Header("Grade Letter GameObjects")]
     public GameObject gradeS;
@@ -90,9 +85,17 @@ public class WinLoseScreenManager : MonoBehaviour
         );
     }
 
+    void ActivateHierarchy()
+    {
+        // Walk up and enable any inactive parent so the panel actually appears.
+        Transform t = transform.parent;
+        while (t != null) { t.gameObject.SetActive(true); t = t.parent; }
+        gameObject.SetActive(true);
+    }
+
     public void ShowWin()
     {
-        gameObject.SetActive(true);
+        ActivateHierarchy();
         Time.timeScale = 0f;
         PopulateUI(
             isWin:         true,
@@ -106,7 +109,7 @@ public class WinLoseScreenManager : MonoBehaviour
 
     public void ShowLoss()
     {
-        gameObject.SetActive(true);
+        ActivateHierarchy();
         Time.timeScale = 0f;
         PopulateUI(
             isWin:         false,
