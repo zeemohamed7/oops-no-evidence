@@ -140,15 +140,9 @@ public class WinLoseScreenManager : MonoBehaviour
         if (susText != null)
             susText.text = $"{Mathf.RoundToInt(suspicion01 * 100f)}%";
 
-        // Suspicion fill bar
+        // Suspicion fill bar — fillAmount clips the gradient photo, no color tint.
         if (susFillImage != null)
-        {
             susFillImage.fillAmount = Mathf.Clamp01(suspicion01);
-            susFillImage.color = suspicion01 < 0.25f ? colorCalm
-                               : suspicion01 < 0.50f ? colorSuspicious
-                               : suspicion01 < 0.75f ? colorAlert
-                               : colorPanic;
-        }
 
         // Task rows — show only as many as the level has, hide the rest
         PopulateTaskRows(tasks);
