@@ -9,17 +9,17 @@ public class GameHUD : MonoBehaviour
     public static GameHUD Instance;
     private void Awake() { Instance = this; }
 
-    // â”€â”€ TIMER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── TIMER ─────────────────────────────────────────────────────────────
     [Header("Timer  (TimePanel > timeText)")]
     public TextMeshProUGUI timeText;
-    public float levelDurationOverride = 180f; // 3 min for level 1 â€” set per level in Inspector
+    public float levelDurationOverride = 180f; // 3 min for level 1 — set per level in Inspector
 
     [Header("Timer Warning Colors")]
     public Color timerNormal   = Color.white;
     public Color timerWarning  = new Color(1f, 0.85f, 0f);   // yellow  < 60s
     public Color timerCritical = new Color(0.9f, 0.1f, 0.1f); // red     < 30s
 
-    // â”€â”€ SUSPICION BAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── SUSPICION BAR ──────────────────────────────────────────────────────
     [Header("Suspicion Bar  (susPanel children)")]
     public Image susFill;               // susPanel > fill
     public TextMeshProUGUI susText;     // susPanel > text
@@ -37,14 +37,16 @@ public class GameHUD : MonoBehaviour
     public string[] midMsgs   = { "They're looking!", "Watch out!" };
     public string[] highMsgs  = { "GET OUT!", "THEY KNOW!" };
 
-    // â”€â”€ TASKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── TASKS ──────────────────────────────────────────────────────────────
     [Header("Tasks  (TaskPanel children)")]
-    public TextMeshProUGUI[] taskTexts;   // drag the 3 task TMP objects here
-    public TextMeshProUGUI counterText;   // TaskPanel > counter
+    public TextMeshProUGUI[] taskTexts;   // drag task-1 … task-N TMPs here
+    public string[]          taskIds;     // matching event IDs e.g. "dispose_weapon"
+    public TextMeshProUGUI counterText;
     public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
-    bool[] taskDone;
+    bool[]   taskDone;
+    string[] taskOriginalLabels;
 
-    // â”€â”€ PAUSE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── PAUSE ──────────────────────────────────────────────────────────────
     [Header("Pause")]
     public Button pauseButton;
     public GameObject pausePanel;
@@ -53,7 +55,7 @@ public class GameHUD : MonoBehaviour
     public Button quitToMapButton;
     bool isPaused;
 
-    // â”€â”€ RESULT SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── RESULT SCREEN ──────────────────────────────────────────────────────
     [Header("Result Screen")]
     public GameObject resultPanel;
     public TextMeshProUGUI resultHeader;        // WIN / LOSE
@@ -69,7 +71,7 @@ public class GameHUD : MonoBehaviour
     public Color winColor  = new Color(0.2f, 0.8f, 0.3f);
     public Color loseColor = new Color(0.9f, 0.2f, 0.2f);
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────────────────────────────
 
     void Start()
     {
@@ -77,8 +79,17 @@ public class GameHUD : MonoBehaviour
         if (GameManager.Instance != null)
             GameManager.Instance.levelDuration = levelDurationOverride;
 
-        // Tasks
-        taskDone = new bool[taskTexts.Length];
+        // Tasks — store originals and reset any leftover state from previous run
+        taskDone           = new bool[taskTexts.Length];
+        taskOriginalLabels = new string[taskTexts.Length];
+        for (int i = 0; i < taskTexts.Length; i++)
+        {
+            if (taskTexts[i] == null) continue;
+            string raw = taskTexts[i].text.Replace("<s>", "").Replace("</s>", "");
+            taskOriginalLabels[i]  = raw;
+            taskTexts[i].text      = raw;
+            taskTexts[i].color     = Color.white;
+        }
         RefreshCounter();
 
         // Panels off
@@ -103,6 +114,25 @@ public class GameHUD : MonoBehaviour
 
         if (SuspicionMeter.Instance != null)
             SuspicionMeter.Instance.OnStateChangedEvent.AddListener(OnSusStateChanged);
+
+        GameEvents.OnTaskCompleted += OnTaskCompleted;
+    }
+
+    void OnDestroy()
+    {
+        GameEvents.OnTaskCompleted -= OnTaskCompleted;
+    }
+
+    void OnTaskCompleted(string taskId)
+    {
+        for (int i = 0; i < taskIds.Length; i++)
+        {
+            if (taskIds[i] == taskId)
+            {
+                CompleteTask(i);
+                return;
+            }
+        }
     }
 
     void Update()
@@ -114,7 +144,7 @@ public class GameHUD : MonoBehaviour
         UpdateSusBar();
     }
 
-    // â”€â”€ Timer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Timer ─────────────────────────────────────────────────────────────
 
     void UpdateTimer()
     {
@@ -124,7 +154,7 @@ public class GameHUD : MonoBehaviour
         timeText.color = t <= 30f ? timerCritical : t <= 60f ? timerWarning : timerNormal;
     }
 
-    // â”€â”€ Suspicion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Suspicion ─────────────────────────────────────────────────────────
 
     void UpdateSusBar()
     {
@@ -162,7 +192,7 @@ public class GameHUD : MonoBehaviour
         };
     }
 
-    // â”€â”€ Tasks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Tasks ─────────────────────────────────────────────────────────────
 
     // Call from gameplay scripts:  GameHUD.Instance.CompleteTask(0);  (0, 1, or 2)
     public void CompleteTask(int index)
@@ -174,14 +204,16 @@ public class GameHUD : MonoBehaviour
 
         if (taskTexts[index] != null)
         {
-            taskTexts[index].color = taskDoneColor;
+            taskTexts[index].color    = taskDoneColor;
+            taskTexts[index].richText = true;
+            taskTexts[index].text     = $"<s>{taskTexts[index].text}</s>";
             StartCoroutine(BounceText(taskTexts[index].transform));
         }
 
         RefreshCounter();
 
         if (AllTasksDone())
-            Debug.Log("All tasks done â€” head to the van!");
+            Debug.Log("All tasks done — head to the van!");
     }
 
     void RefreshCounter()
@@ -202,7 +234,7 @@ public class GameHUD : MonoBehaviour
     {
         var result = new (string, bool)[taskTexts.Length];
         for (int i = 0; i < taskTexts.Length; i++)
-            result[i] = (taskTexts[i] != null ? taskTexts[i].text : "", taskDone[i]);
+            result[i] = (taskOriginalLabels != null ? taskOriginalLabels[i] : "", taskDone[i]);
         return result;
     }
 
@@ -220,7 +252,7 @@ public class GameHUD : MonoBehaviour
         t.localScale = orig;
     }
 
-    // â”€â”€ Pause â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Pause ─────────────────────────────────────────────────────────────
 
     void TogglePause()
     {
@@ -241,7 +273,7 @@ public class GameHUD : MonoBehaviour
     void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("OverworldMap"); }
     void LoadNextLevel(){ Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); }
 
-    // â”€â”€ Result Screens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Result Screens ────────────────────────────────────────────────────
 
     void ShowWinScreen()
     {
@@ -254,7 +286,7 @@ public class GameHUD : MonoBehaviour
 
         resultHeader.text  = "WIN";  resultHeader.color = winColor;
         gradeText.text     = grade;  gradeText.color    = winColor;
-        scoreText.text     = $"SCORE: {grade} â€” Tasks Complete!";
+        scoreText.text     = $"SCORE: {grade} — Tasks Complete!";
         finalTimeText.text = $"TIME REMAINING: {GameManager.Instance.FormatTime(timeLeft)}";
 
         if (failureReasonsText != null) failureReasonsText.gameObject.SetActive(false);
@@ -283,7 +315,7 @@ public class GameHUD : MonoBehaviour
             if (reasons != null && reasons.Count > 0)
             {
                 failureReasonsText.gameObject.SetActive(true);
-                failureReasonsText.text = "â€¢ " + string.Join("\nâ€¢ ", reasons);
+                failureReasonsText.text = "• " + string.Join("\n• ", reasons);
             }
             else
             {

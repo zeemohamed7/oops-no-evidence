@@ -165,8 +165,10 @@ public class WinLoseScreenManager : MonoBehaviour
             if (tasks != null && i < tasks.Length)
             {
                 taskRows[i].gameObject.SetActive(true);
-                taskRows[i].text  = tasks[i].label;
                 taskRows[i].color = tasks[i].done ? taskDoneColor : taskPendingColor;
+                taskRows[i].text  = tasks[i].done
+                    ? $"<s>{tasks[i].label}</s>"
+                    : tasks[i].label;
                 if (tasks[i].done) doneCount++;
             }
             else
