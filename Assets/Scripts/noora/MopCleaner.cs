@@ -31,6 +31,7 @@ public class MopCleaner : MonoBehaviour
     bool _mopIsDirty = false;
     BloodPool[] _bloodPools;
     InputAction _interactAction;
+    private PlayerAnimationDriver animationDriver;
 
     System.Collections.Generic.Dictionary<GameObject, float> _footprintProgress
         = new System.Collections.Generic.Dictionary<GameObject, float>();
@@ -53,6 +54,7 @@ public class MopCleaner : MonoBehaviour
         else
             Debug.LogWarning("[MopCleaner] No PlayerInput found — hold-to-mop won't work.");
 
+        animationDriver = GetComponent<PlayerAnimationDriver>();
         UpdateStatusUI();
     }
 
@@ -73,6 +75,11 @@ public class MopCleaner : MonoBehaviour
 
         bool waspainting = _painting;
         _painting = _interactAction != null && _interactAction.IsPressed();
+
+        if (_painting && !waspainting)
+        {
+            animationDriver?.PlayMop();
+        }
         if (!_painting)
         {
             if (waspainting) { _lastUV = -Vector2.one; _footprintProgress.Clear(); }
@@ -181,6 +188,7 @@ public class MopCleaner : MonoBehaviour
     {
         if (!_mopIsDirty) return;
         DipMop();
+        animationDriver?.PlayDipMop();
     }
 
     void DipMop()
@@ -190,6 +198,7 @@ public class MopCleaner : MonoBehaviour
         _lastUV = -Vector2.one;
         _footprintProgress.Clear();
         Debug.Log("[MopCleaner] Mop dipped — ready to clean again!");
+        animationDriver?.PlayDipMop();
         UpdateStatusUI();
     }
 
