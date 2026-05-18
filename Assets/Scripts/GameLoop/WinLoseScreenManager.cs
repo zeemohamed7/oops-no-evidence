@@ -24,7 +24,8 @@ public class WinLoseScreenManager : MonoBehaviour
     void Awake() { Instance = this; }
 
     [Header("Panel Root")]
-    public GameObject panelRoot;   // drag the inner WinLoseCanvas here
+    public GameObject panelRoot;      // drag the WinLoseCanvas here
+    public GameObject gamePlayCanvas; // drag the GamePlayCanvas here — hidden on win/loss
 
     [Header("Title GameObjects")]
     public GameObject winTitle;
@@ -111,6 +112,7 @@ public class WinLoseScreenManager : MonoBehaviour
                        : 0f;
         var tasks = hud?.GetTaskSnapshot();
 
+        if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
         ActivateHierarchy();
         if (panelRoot != null) panelRoot.SetActive(true);
         Time.timeScale = 0f;
@@ -129,6 +131,7 @@ public class WinLoseScreenManager : MonoBehaviour
         var failures = gm?.LastFailureReasons;
         var tasks    = hud?.GetTaskSnapshot();
 
+        if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
         ActivateHierarchy();
         if (panelRoot != null) panelRoot.SetActive(true);
         Time.timeScale = 0f;
