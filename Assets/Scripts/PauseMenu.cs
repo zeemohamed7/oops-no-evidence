@@ -28,10 +28,13 @@ public class PauseMenu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isPaused)
-                ResumeGame();
-            else
-                PauseGame();
+            // Don't pause if the win/lose panel is showing
+            if (WinLoseScreenManager.Instance != null &&
+                WinLoseScreenManager.Instance.panelRoot != null &&
+                WinLoseScreenManager.Instance.panelRoot.activeSelf) return;
+
+            if (isPaused) ResumeGame();
+            else          PauseGame();
         }
     }
 
@@ -39,6 +42,9 @@ public class PauseMenu : MonoBehaviour
     {
         isPaused = true;
         pauseCanvas.SetActive(true);
+        // Render on top of all other canvases
+        var canvas = pauseCanvas.GetComponent<Canvas>();
+        if (canvas != null) canvas.sortingOrder = 50;
         Time.timeScale = 0f;
     }
 
