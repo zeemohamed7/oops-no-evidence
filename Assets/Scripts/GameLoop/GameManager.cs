@@ -135,8 +135,8 @@ public class GameManager : MonoBehaviour
     {
         if (winLosePanel != null)
         {
-            if (isWin) winLosePanel.ShowWin();
-            else       winLosePanel.ShowLoss();
+            if (isWin) winLosePanel.ShowWin(this, GameHUD.Instance);
+            else       winLosePanel.ShowLoss(this, GameHUD.Instance);
             return;
         }
 

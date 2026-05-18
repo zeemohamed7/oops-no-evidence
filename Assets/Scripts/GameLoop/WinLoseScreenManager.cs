@@ -95,14 +95,15 @@ public class WinLoseScreenManager : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    public void ShowWin()
+    public void ShowWin(GameManager gm, GameHUD hud)
     {
         _shown = true;
-        // Snapshot data before activating (so instances are still valid)
-        string grade   = GameManager.Instance?.CalculateGrade() ?? "S";
-        float  time    = GameManager.Instance?.TimeRemaining ?? 0f;
-        float  sus01   = GetSuspicion01();
-        var    tasks   = GameHUD.Instance?.GetTaskSnapshot();
+        string grade = gm?.CalculateGrade() ?? "S";
+        float  time  = gm?.TimeRemaining ?? 0f;
+        float  sus01 = gm != null && SuspicionMeter.Instance != null
+                       ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+                       : 0f;
+        var tasks = hud?.GetTaskSnapshot();
 
         ActivateHierarchy();
         Time.timeScale = 0f;
@@ -110,14 +111,16 @@ public class WinLoseScreenManager : MonoBehaviour
                    suspicion01: sus01, failures: null, tasks: tasks);
     }
 
-    public void ShowLoss()
+    public void ShowLoss(GameManager gm, GameHUD hud)
     {
         _shown = true;
-        string grade    = GameManager.Instance?.CalculateGrade() ?? "F";
-        float  time     = GameManager.Instance?.TimeRemaining ?? 0f;
-        float  sus01    = GetSuspicion01();
-        var    failures = GameManager.Instance?.LastFailureReasons;
-        var    tasks    = GameHUD.Instance?.GetTaskSnapshot();
+        string grade    = gm?.CalculateGrade() ?? "F";
+        float  time     = gm?.TimeRemaining ?? 0f;
+        float  sus01    = gm != null && SuspicionMeter.Instance != null
+                          ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+                          : 0f;
+        var failures = gm?.LastFailureReasons;
+        var tasks    = hud?.GetTaskSnapshot();
 
         ActivateHierarchy();
         Time.timeScale = 0f;
