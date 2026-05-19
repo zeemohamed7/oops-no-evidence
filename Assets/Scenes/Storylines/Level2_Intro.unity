@@ -801,14 +801,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbebe5b9cbc42a84991f4f412591dcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  storyText: {fileID: 0}
+  storyText: {fileID: 1483497952}
   audioSource: {fileID: 0}
   nextSceneName: Level2
   lines:
-  - "Fixers\u2026 we have a problem."
-  - "One partner got greedy\u2026 now he\u2019s dead."
-  - Clean the kitchen. Hide the body.
-  - No evidence. No questions.
+  - Nice villa, quiet pool area!
+  - One serious problem. A crime happened here!
+  - Clean the scene, remove the evidence.
+  - "Make sure this place looks normal before \nsomeone arrives."
   typingSpeed: 0.04
   pauseBetweenLines: 1.2
 --- !u!82 &1496766762

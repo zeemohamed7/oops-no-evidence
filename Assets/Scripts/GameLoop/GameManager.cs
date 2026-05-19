@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
 
     public List<string> LastFailureReasons { get; private set; } = new List<string>();
 
+    [Header("Win/Lose Panel")]
+    public WinLoseScreenManager winLosePanel;   // drag manager-win-lose here
+
     [Header("Level Setup")]
     public Transform truckSpawnPoint;
 
@@ -121,19 +124,41 @@ public class GameManager : MonoBehaviour
     public void TriggerLoss(List<string> reasons)
     {
         if (!IsPlaying) return;
-        State = GameState.Lost;
         LastFailureReasons = reasons ?? new List<string>();
-        OnLoss.Invoke();
-        Debug.Log($"LOSS — {string.Join(" | ", LastFailureReasons)}");
-        LoadWinLoseScene(isWin: false, failures: LastFailureReasons);
+
+        string grade = CalculateGrade();
+        bool isWin = grade != "D";   // S/A/B/C = win panel, D = lose panel
+
+        if (isWin)
+        {
+            State = GameState.Won;
+            UnlockNextLevel();
+            OnWin.Invoke();
+        }
+        else
+        {
+            State = GameState.Lost;
+            OnLoss.Invoke();
+        }
+
+        Debug.Log($"{(isWin ? "WIN" : "LOSS")} — Grade: {grade}");
+        LoadWinLoseScene(isWin: isWin, failures: isWin ? null : LastFailureReasons);
     }
 
     void LoadWinLoseScene(bool isWin, List<string> failures)
     {
-        string grade  = CalculateGrade();
-        float  sus01  = SuspicionMeter.Instance != null
-                        ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
-                        : 0f;
+        if (winLosePanel != null)
+        {
+            if (isWin) winLosePanel.ShowWin(this, GameHUD.Instance);
+            else       winLosePanel.ShowLoss(this, GameHUD.Instance);
+            return;
+        }
+
+        // No in-scene panel wired — fall back to the separate win-lose scene.
+        string grade = CalculateGrade();
+        float  sus01 = SuspicionMeter.Instance != null
+                       ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+                       : 0f;
         var tasks = GameHUD.Instance?.GetTaskSnapshot();
 
         WinLoseScreenManager.SaveResultToPrefs(isWin, grade, TimeRemaining, sus01, failures, tasks);
@@ -144,18 +169,34 @@ public class GameManager : MonoBehaviour
 
     public string CalculateGrade()
     {
-        float timeScore = TimeRemaining / levelDuration;
+        // Count completed tasks from the HUD snapshot
+        int doneCount = 0, totalCount = 0;
+        var snapshot = GameHUD.Instance?.GetTaskSnapshot();
+        if (snapshot != null)
+        {
+            totalCount = snapshot.Length;
+            foreach (var t in snapshot) if (t.done) doneCount++;
+        }
+        bool allDone = totalCount > 0 && doneCount >= totalCount;
 
-        float suspicionScore = 0f;
-        if (SuspicionMeter.Instance != null)
-            suspicionScore = 1f - (SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion);
+        float sus01 = SuspicionMeter.Instance != null
+            ? SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion
+            : 0f;
+        bool susHigh = sus01 >= 0.5f;
 
-        float total = (timeScore * 0.5f) + (suspicionScore * 0.5f);
+        // S: all done + sus low
+        if (allDone && !susHigh) return "S";
 
-        if (total >= 0.90f) return "S";
-        if (total >= 0.75f) return "A";
-        if (total >= 0.60f) return "B";
-        if (total >= 0.45f) return "C";
+        // A: (all done + sus high) OR (3+ done + sus low)
+        if ((allDone && susHigh) || (doneCount >= 3 && !susHigh)) return "A";
+
+        // B: (3+ done + sus high) OR (2+ done + sus low)
+        if ((doneCount >= 3 && susHigh) || (doneCount >= 2 && !susHigh)) return "B";
+
+        // C: (2+ done + sus high) OR (1+ done + sus low)
+        if ((doneCount >= 2 && susHigh) || (doneCount >= 1 && !susHigh)) return "C";
+
+        // D: 0 done OR (1 done + sus high)
         return "D";
     }
 

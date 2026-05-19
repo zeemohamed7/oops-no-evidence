@@ -1,15 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponDisposalZone : MonoBehaviour
+public class BodyDisposalZone : MonoBehaviour
 {
     [Header("Sparkle")]
     public ParticleSystem sparkles;
     public Light sparkleLight;
 
     [Header("Prompt")]
-    public GameObject promptUI;   // optional "Press E to dispose" world UI
+    public GameObject promptUI;
 
     private bool completed;
 
@@ -25,14 +24,17 @@ public class WeaponDisposalZone : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (completed) return;
-        if (!other.CompareTag("Weapon")) return;
+
+        // Detect the ragdoll body via its GrabbableObject flag
+        GrabbableObject grabbable = other.GetComponentInParent<GrabbableObject>();
+        if (grabbable == null || !grabbable.isRagdoll) return;
 
         completed = true;
-        GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
+        GameEvents.OnTaskCompleted?.Invoke("dispose_body");
         PlaySparkle();
         if (promptUI != null) promptUI.SetActive(false);
-        Destroy(other.gameObject);
-        Debug.Log("Weapon disposed");
+        Destroy(grabbable.gameObject);
+        Debug.Log("Body disposed");
     }
 
     void PlaySparkle()

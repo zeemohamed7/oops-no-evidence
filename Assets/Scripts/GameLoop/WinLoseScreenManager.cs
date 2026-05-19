@@ -18,6 +18,15 @@ using TMPro;
 //   - retryButton / nextLevelButton / quitButton → Button components
 public class WinLoseScreenManager : MonoBehaviour
 {
+    public static WinLoseScreenManager Instance { get; private set; }
+    bool _shown;
+
+    void Awake() { Instance = this; }
+
+    [Header("Panel Root")]
+    public GameObject panelRoot;      // drag the WinLoseCanvas here
+    public GameObject gamePlayCanvas; // drag the GamePlayCanvas here — hidden on win/loss
+
     [Header("Title GameObjects")]
     public GameObject winTitle;
     public GameObject loseTitle;
@@ -36,6 +45,7 @@ public class WinLoseScreenManager : MonoBehaviour
     [Header("Sus Fill")]
     public Image susFillImage;         // Image (Filled, Horizontal) for sus bar
 
+
     [Header("Grade Letter GameObjects")]
     public GameObject gradeS;
     public GameObject gradeA;
@@ -45,6 +55,7 @@ public class WinLoseScreenManager : MonoBehaviour
 
     [Header("Buttons")]
     public Button nextLevelButton;  // shown on win
+    public Button retryButton;      // shown on loss
     public Button quitButton;       // home — always visible
 
     // PlayerPrefs keys — written by SaveResultToPrefs() before loading this scene
@@ -59,14 +70,16 @@ public class WinLoseScreenManager : MonoBehaviour
     void Start()
     {
         if (nextLevelButton != null) nextLevelButton.onClick.AddListener(NextLevel);
+        if (retryButton     != null) retryButton.onClick.AddListener(RetryLevel);
         if (quitButton      != null) quitButton.onClick.AddListener(QuitToMap);
 
-        // In-scene overlay: hook GameManager events and hide until the game ends
+        // In-scene overlay: already shown by direct call — don't hide it again.
+        if (_shown) return;
+
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnWin.AddListener(OnWin);
-            GameManager.Instance.OnLoss.AddListener(OnLoss);
-            gameObject.SetActive(false);
+            if (panelRoot != null) panelRoot.SetActive(false);
+            else gameObject.SetActive(false);
             return;
         }
 
@@ -81,32 +94,57 @@ public class WinLoseScreenManager : MonoBehaviour
         );
     }
 
-    void OnWin()
+    void ActivateHierarchy()
     {
+        // Walk up and enable any inactive parent so the panel actually appears.
+        Transform t = transform.parent;
+        while (t != null) { t.gameObject.SetActive(true); t = t.parent; }
         gameObject.SetActive(true);
-        Time.timeScale = 0f;
-        PopulateUI(
-            isWin:         true,
-            grade:         GameManager.Instance?.CalculateGrade() ?? "S",
-            timeRemaining: GameManager.Instance?.TimeRemaining ?? 0f,
-            suspicion01:   GetSuspicion01(),
-            failures:      null,
-            tasks:         GameHUD.Instance?.GetTaskSnapshot()
-        );
     }
 
-    void OnLoss()
+    static float CaptureSus()
     {
-        gameObject.SetActive(true);
+        if (SuspicionMeter.Instance == null)
+        {
+            Debug.LogWarning("WinLoseScreenManager: SuspicionMeter.Instance is null — sus will show 0%");
+            return 0f;
+        }
+        float v = SuspicionMeter.Instance.globalSuspicion / SuspicionMeter.Instance.maxSuspicion;
+        Debug.Log($"[WinLose] sus captured = {v * 100f:0}%");
+        return v;
+    }
+
+    public void ShowWin(GameManager gm, GameHUD hud)
+    {
+        _shown = true;
+        float  sus01  = CaptureSus();                    // read BEFORE hiding anything
+        string grade  = gm?.CalculateGrade() ?? "S";
+        float  time   = gm?.TimeRemaining ?? 0f;
+        var    tasks  = hud?.GetTaskSnapshot();
+
+        if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
+        ActivateHierarchy();
+        if (panelRoot != null) panelRoot.SetActive(true);
         Time.timeScale = 0f;
-        PopulateUI(
-            isWin:         false,
-            grade:         GameManager.Instance?.CalculateGrade() ?? "F",
-            timeRemaining: GameManager.Instance?.TimeRemaining ?? 0f,
-            suspicion01:   GetSuspicion01(),
-            failures:      GameManager.Instance?.LastFailureReasons,
-            tasks:         GameHUD.Instance?.GetTaskSnapshot()
-        );
+        PopulateUI(isWin: true, grade: grade, timeRemaining: time,
+                   suspicion01: sus01, failures: null, tasks: tasks);
+    }
+
+    public void ShowLoss(GameManager gm, GameHUD hud)
+    {
+        _shown = true;
+        float  sus01    = CaptureSus();                  // read BEFORE hiding anything
+        string grade    = gm?.CalculateGrade() ?? "F";
+        float  time     = gm?.TimeRemaining ?? 0f;
+        var    failures = gm?.LastFailureReasons;
+        var    tasks    = hud?.GetTaskSnapshot();
+
+        if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
+        ActivateHierarchy();
+        if (panelRoot != null) panelRoot.SetActive(true);
+        Time.timeScale = 0f;
+        PopulateUI(isWin: false, grade: grade, timeRemaining: time,
+                   suspicion01: sus01, failures: failures, tasks: tasks);
     }
 
     void PopulateUI(bool isWin, string grade, float timeRemaining, float suspicion01,
@@ -131,9 +169,14 @@ public class WinLoseScreenManager : MonoBehaviour
         if (susText != null)
             susText.text = $"{Mathf.RoundToInt(suspicion01 * 100f)}%";
 
-        // Suspicion fill bar
+        // Suspicion fill bar — force Filled/Horizontal so fillAmount actually clips the image
         if (susFillImage != null)
-            susFillImage.fillAmount = Mathf.Clamp01(suspicion01);
+        {
+            susFillImage.type        = Image.Type.Filled;
+            susFillImage.fillMethod  = Image.FillMethod.Horizontal;
+            susFillImage.fillOrigin  = (int)Image.OriginHorizontal.Left;
+            susFillImage.fillAmount  = Mathf.Clamp01(suspicion01);
+        }
 
         // Task rows — show only as many as the level has, hide the rest
         PopulateTaskRows(tasks);
@@ -147,8 +190,9 @@ public class WinLoseScreenManager : MonoBehaviour
                 listText.text = "• " + string.Join("\n• ", failures);
         }
 
-        // Next level only shows on win; home is always visible
+        // Next level on win, retry on loss; home always visible
         if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(isWin);
+        if (retryButton     != null) retryButton.gameObject.SetActive(!isWin);
     }
 
     void PopulateTaskRows((string label, bool done)[] tasks)
@@ -230,6 +274,12 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("LevelSelection");
+    }
+
+    void RetryLevel()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void QuitToMap()

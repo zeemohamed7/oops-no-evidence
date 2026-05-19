@@ -801,14 +801,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbebe5b9cbc42a84991f4f412591dcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  storyText: {fileID: 0}
+  storyText: {fileID: 47937749}
   audioSource: {fileID: 0}
   nextSceneName: Level4
   lines:
-  - "Fixers\u2026 we have a problem."
-  - "One partner got greedy\u2026 now he\u2019s dead."
-  - Clean the kitchen. Hide the body.
-  - No evidence. No questions.
+  - "Office job tonight. Desks, papers, \nand locked doors everywhere."
+  - "Something happened here, and \nno one should find out."
+  - "Clean the evidence, fix what is out of place, \nand watch your steps."
+  - "When morning comes, this should look like\n just another boring workday."
   typingSpeed: 0.04
   pauseBetweenLines: 1.2
 --- !u!82 &1496766762

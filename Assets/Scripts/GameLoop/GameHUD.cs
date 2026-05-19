@@ -137,7 +137,6 @@ public class GameHUD : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         if (GameManager.Instance == null) return;
 
         UpdateTimer();
@@ -181,15 +180,7 @@ public class GameHUD : MonoBehaviour
 
     void OnSusStateChanged(SuspicionMeter.SuspicionState state)
     {
-        if (susFill == null) return;
-        susFill.color = state switch
-        {
-            SuspicionMeter.SuspicionState.Calm       => colorCalm,
-            SuspicionMeter.SuspicionState.Suspicious => colorSuspicious,
-            SuspicionMeter.SuspicionState.Alert      => colorAlert,
-            SuspicionMeter.SuspicionState.Panic      => colorPanic,
-            _ => colorCalm
-        };
+        // Fill image uses its own gradient photo — no color tint needed.
     }
 
     // ── Tasks ─────────────────────────────────────────────────────────────
