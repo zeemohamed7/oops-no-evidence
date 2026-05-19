@@ -53,7 +53,6 @@ public class LobbyGhost : MonoBehaviour
         
         if (_lobbyManager == null)
         {
-            Debug.LogError("[LobbyGhost] Could not find LobbyManager in scene!");
             return;
         }
 
@@ -61,7 +60,6 @@ public class LobbyGhost : MonoBehaviour
 
         if (_claimedSlot == null)
         {
-            Debug.LogError("[LobbyGhost] No free slot available — destroying ghost.");
             Destroy(gameObject);
             return;
         }
@@ -70,8 +68,6 @@ public class LobbyGhost : MonoBehaviour
         _claimedSlot.SetCharacter(SelectedCharacterId, _characterIndex, Characters.Count);
         _claimedSlot.SetReady(false);
 
-        Debug.Log($"[LobbyGhost] P{PlayerIndex} claimed slot '{_claimedSlot.name}' " +
-                  $"with scheme '{ControlScheme}'");
     }
 
     private void Update()
@@ -126,8 +122,6 @@ public class LobbyGhost : MonoBehaviour
     {
         if (!value.isPressed) return;
 
-        // Reserved for future confirm / inspect behaviour
-        Debug.Log($"[LobbyGhost] P{PlayerIndex} Select pressed");
     }
 
     public void OnBack(InputValue value)
@@ -139,7 +133,6 @@ public class LobbyGhost : MonoBehaviour
             _isReady = false;
             _claimedSlot?.SetReady(false);
 
-            Debug.Log($"[LobbyGhost] P{PlayerIndex} un-readied.");
         }
     }
 
@@ -150,9 +143,7 @@ public class LobbyGhost : MonoBehaviour
 
         _isReady = !_isReady;
         _claimedSlot.SetReady(_isReady);
-
-        Debug.Log($"[LobbyGhost] P{PlayerIndex} ready state: {_isReady} " +
-                  $"| Character: {SelectedCharacterId}");
+        Debug.Log($"READY from P{PlayerIndex} Device {DeviceId}");
 
         if (_isReady)
         {

@@ -183,37 +183,32 @@ public class LobbyManager : MonoBehaviour
 
         // LOCK DEVICE IMMEDIATELY
         activeGhosts.Add(device.deviceId, null);
-        GameObject obj = Instantiate(ghostPrefab);
 
-        PlayerInput pi = obj.GetComponent<PlayerInput>();
-
-        pi.user.UnpairDevices();
-
-        InputUser.PerformPairingWithDevice(
-            device,
-            pi.user
+        // ─────────────────────────────────────────────────────────────
+        // FIXED: Use PlayerInput.Instantiate to strictly bind the device on spawn
+        // ─────────────────────────────────────────────────────────────
+        PlayerInput pi = PlayerInput.Instantiate(
+            ghostPrefab, 
+            pairWithDevice: device, 
+            controlScheme: scheme
         );
-
-        Debug.Log(
-            $"PLAYER {pi.playerIndex} PAIRED TO: " +
-            string.Join(", ", pi.devices)
-        );
-        
-        pi.SwitchCurrentActionMap("Player");
-
 
         if (pi == null)
         {
             activeGhosts.Remove(device.deviceId);
-            Debug.LogError("Failed to create player");
+            Debug.LogError("Failed to create player input ghost.");
             return;
         }
 
+        // CRITICAL: Ensure this player never dynamically swaps context if another device activates
+        pi.neverAutoSwitchControlSchemes = true;
+    
+        // Explicitly make sure they are using the Lobby inputs upon entering
+        pi.SwitchCurrentActionMap("Lobby");
+
         lastJoinTime = Time.unscaledTime;
-
-        Debug.Log($"Joined: {device.displayName}");
+        Debug.Log($"Successfully isolated Player {pi.playerIndex} to device: {device.displayName} using scheme {scheme}");
     }
-
     // ─────────────────────────────────────────────────────────────
     // PLAYER CALLBACKS
     // ─────────────────────────────────────────────────────────────
@@ -395,7 +390,11 @@ public class LobbyManager : MonoBehaviour
         {
             if (ghost == null)
                 continue;
-
+            PlayerInput ghostInput = ghost.GetComponent<PlayerInput>();
+            if (ghostInput != null)
+            {
+                ghostInput.SwitchCurrentActionMap("Player");
+            }
             playersToSpawn.Add(new PlayerSelectionData
             {
                 playerIndex = ghost.PlayerIndex,
