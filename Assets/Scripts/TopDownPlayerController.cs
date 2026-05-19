@@ -93,6 +93,8 @@ public class TopDownPlayerController : MonoBehaviour
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
+        Debug.Log($"MOVE: {value}");
+
         
     }
     // Matches the "Sprint" action
