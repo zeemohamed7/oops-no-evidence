@@ -25,15 +25,27 @@ public class BodyDisposalZone : MonoBehaviour
     {
         if (completed) return;
 
-        // Detect the ragdoll body via its GrabbableObject flag
         GrabbableObject grabbable = other.GetComponentInParent<GrabbableObject>();
         if (grabbable == null || !grabbable.isRagdoll) return;
 
         completed = true;
         GameEvents.OnTaskCompleted?.Invoke("dispose_body");
         PlaySparkle();
-        if (promptUI != null) promptUI.SetActive(false);
+
+        if (promptUI != null)
+            promptUI.SetActive(false);
+
+        PlayerAnimationDriver[] players = FindObjectsByType<PlayerAnimationDriver>(FindObjectsSortMode.None);
+
+        foreach (PlayerAnimationDriver playerAnim in players)
+        {
+            playerAnim.SetCarrying(false);
+            playerAnim.PlayDrop();
+        }
+
+        grabbable.transform.SetParent(null);
         Destroy(grabbable.gameObject);
+
         Debug.Log("Body disposed");
     }
 
