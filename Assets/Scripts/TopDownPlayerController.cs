@@ -51,44 +51,16 @@ public class TopDownPlayerController : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
     }
-
-    // private void Start()
-    // {
-    //     foreach (var map in playerInput.actions.actionMaps)
-    //     {
-    //         Debug.Log("MAP: " + map.name);
-    //
-    //         foreach (var action in map.actions)
-    //         {
-    //             Debug.Log(" - ACTION: " + action.name);
-    //         }
-    //     }
-    //     Debug.Log("PLAYER CONTROLLER STARTED");
-    //
-    //     if (playerInput != null)
-    //     {
-    //         Debug.Log("CURRENT MAP: " + playerInput.currentActionMap.name);
-    //         Debug.Log("CONTROL SCHEME: " + playerInput.currentControlScheme);
-    //     }
-    //
-    //     DynamicCamera.Instance?.RegisterPlayer(transform);
-    // }
     
     private void Start()
     {
         // 🟢 MULTIPLAYER MATCHING FIX: Force this instance to use its assigned control scheme
         if (playerInput != null && LobbyManager.Instance != null)
         {
-            // 1. Fetch the scheme that was saved during the lobby phase
-            // (Make sure your LobbyManager script exposes the scheme string it gave this ghost instance!)
-            // If your LobbyManager maps schemes differently, match that retrieval line here:
             int myDeviceId = playerInput.devices.Count > 0 ? playerInput.devices[0].deviceId : -1;
-        
-            // Let's print out what it currently thinks it is using
             Debug.Log($"[START] My physical device ID is: {myDeviceId}");
         }
 
-        // ─── LEAVE YOUR EXISTING START CODE BELOW ALONE ───
         foreach (var map in playerInput.actions.actionMaps)
         {
             Debug.Log("MAP: " + map.name);
@@ -110,10 +82,8 @@ public class TopDownPlayerController : MonoBehaviour
 
     private void Update()
     {
-        
         // Ignore movement in lobby
-        if (UnityEngine.SceneManagement.SceneManager
-            .GetActiveScene().name == "Lobby")
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Lobby")
             return;
 
         HandleMovement();
@@ -123,21 +93,16 @@ public class TopDownPlayerController : MonoBehaviour
     // SEND MESSAGES INPUT CALLBACKS
     // ─────────────────────────────────────────────
 
-    // Matches the "Move" action in your Input Action Asset
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
-        // Debug.Log($"MOVE: {value}");
-
-        
     }
-    // Matches the "Sprint" action
+
     public void OnSprint(InputValue value)
     {
         sprintHeld = value.isPressed;
     }
 
-    // Matches the "Crouch" action
     public void OnCrouch(InputValue value)
     {
         crouchHeld = value.isPressed;
@@ -148,25 +113,18 @@ public class TopDownPlayerController : MonoBehaviour
     // MOVEMENT
     // ─────────────────────────────────────────────
 
-private void HandleMovement()
+    private void HandleMovement()
     {
         if (playerInput != null && !playerInput.enabled)
         {
-            // Reset our internal tracking so we don't slide
             moveInput = Vector2.zero;
-            
-            // Send a false signal to the animator so it knows we aren't walking
             animationDriver?.SetWalking(false);
-
-            //malak
             HandleFootsteps(false);
-
             return; 
         }
         
         float speed = walkSpeed;
 
-        // Apply the carry multiplier to our base walking speed
         if (isCarrying)
             speed *= carryMultiplier;
 
@@ -178,8 +136,6 @@ private void HandleMovement()
         else
         {
             controller.height = standingHeight;
-
-            //Only allow the sprint speed upgrade if the player IS NOT carrying an object
             if (sprintHeld && !isCarrying)
             {
                 speed = sprintSpeed;
@@ -188,13 +144,9 @@ private void HandleMovement()
 
         controller.center = new Vector3(0, controller.height / 2f, 0);
 
-        // --- THE CRITICAL FIX START ---
-        // 1. Get the camera's forward and right vectors
         Vector3 forward = playerCamera.transform.forward;
         Vector3 right = playerCamera.transform.right;
 
-        // 2. "Flatten" them so the player doesn't walk into the ground 
-        // because the camera is tilted down
         forward.y = 0f;
         right.y = 0f;
 
@@ -203,9 +155,57 @@ private void HandleMovement()
 
         Vector3 moveDirection = (forward * moveInput.y) + (right * moveInput.x);
 
+        // ─────────────────────────────────────────────────────────────────────────
+        // 🟢 CO-OP SMOOTH TETHER ZONE: Dampens movement linearly to kill spazzing
+        // ─────────────────────────────────────────────────────────────────────────
+        if (isCarrying && moveDirection.sqrMagnitude > 0.01f)
+        {
+            Grab localGrabScript = GetComponent<Grab>();
+            if (localGrabScript != null && localGrabScript.GetHeldObject() != null)
+            {
+                GameObject body = localGrabScript.GetHeldObject();
+                DeadbodyCarry carryScript = body.GetComponentInParent<DeadbodyCarry>();
+                
+                if (carryScript != null && carryScript.GetCarrierCount() > 1)
+                {
+                    GameObject otherPlayer = carryScript.GetOtherPlayer(gameObject);
+                    if (otherPlayer != null)
+                    {
+                        float distanceBetweenPlayers = Vector3.Distance(transform.position, otherPlayer.transform.position);
+                        
+                        float minSlowingDistance = 1.3f; // 🟢 Point where elastic resistance begins
+                        float maxSeparation = 1.8f;      // 🟢 Concrete stopping boundary 
+
+                        if (distanceBetweenPlayers >= minSlowingDistance)
+                        {
+                            Vector3 dirToPartner = (otherPlayer.transform.position - transform.position).normalized;
+                            float movementDot = Vector3.Dot(moveDirection.normalized, dirToPartner);
+
+                            // Only penalize speed if walking AWAY from your co-op partner
+                            if (movementDot < 0)
+                            {
+                                if (distanceBetweenPlayers >= maxSeparation)
+                                {
+                                    // 🛑 HARD STOP BOUNDARY REACHED
+                                    moveDirection = Vector3.zero; 
+                                }
+                                else
+                                {
+                                    // 🟢 SLOW DOWN SMOOTHLY: Calculate a 1.0 to 0.0 modifier multiplier
+                                    float t = (distanceBetweenPlayers - minSlowingDistance) / (maxSeparation - minSlowingDistance);
+                                    float smoothMultiplier = Mathf.Lerp(1f, 0f, t);
+                                    
+                                    speed *= smoothMultiplier;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
+
         // IMMOBILIZATION WINDOW CHECK
-        // Look at Layer 0 of our Animator. If the current active state name is 
-        // string matched to "lift body", zero out speed vectors to lock positions.
         if (animator != null && animator.GetCurrentAnimatorStateInfo(0).IsName("lift body"))
         {
             moveDirection = Vector3.zero;
@@ -214,7 +214,6 @@ private void HandleMovement()
         bool isWalking = moveDirection.sqrMagnitude > 0.01f;
         animationDriver?.SetWalking(isWalking);
 
-        //malak
         HandleFootsteps(isWalking);
 
         controller.Move(moveDirection * speed * Time.deltaTime);
@@ -252,13 +251,11 @@ private void HandleMovement()
     // WEIGHT PENALTY FOR BODY
     // ─────────────────────────────────────────────
 
-    // Turn on weight penalty
     public void SetCarryWeight(float dynamicMultiplier)
     {
         isCarrying = true;
         carryMultiplier = dynamicMultiplier;
     }
-    // Turn off weight penalty (call when body is dropped)
 
     public void ClearCarryPenalty()
     {

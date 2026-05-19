@@ -14,6 +14,16 @@ public class DeadbodyCarry : MonoBehaviour
             UpdateBodyWeight();
         }
     }
+    public int GetCarrierCount() => holdingPlayers.Count;
+
+    public GameObject GetOtherPlayer(GameObject localPlayer)
+    {
+        foreach (GameObject player in holdingPlayers)
+        {
+            if (player != localPlayer) return player;
+        }
+        return null;
+    }
 
     public void UnregisterPlayer(GameObject player)
     {

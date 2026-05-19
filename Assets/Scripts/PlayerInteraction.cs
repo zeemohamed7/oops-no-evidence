@@ -8,7 +8,7 @@ public class PlayerInteraction : MonoBehaviour
 
     public float reach = 3f;
 
-    // 🟢 CHANGE 1: Track the components locally instead of using a global reference asset
+    // Track the components locally instead of using a global reference asset
     private PlayerInput playerInput;
     private InputAction localInteractAction;
 
@@ -18,7 +18,6 @@ public class PlayerInteraction : MonoBehaviour
 
         if (playerInput != null)
         {
-            // 🔍 DIAGNOSTIC 1: See if the Action can actually be found by this string name
             localInteractAction = playerInput.actions.FindAction("Interact");
         
             if (localInteractAction == null)
@@ -43,19 +42,14 @@ public class PlayerInteraction : MonoBehaviour
 
         if (toolInventory != null && toolInventory.GetSelectedSlot() != -1) return;
 
-        // 🔍 DIAGNOSTIC 2: See if the physical button press is registering at all
+        //  See if the physical button press is registering at all
         if (localInteractAction.WasPressedThisFrame()) 
         {
             Debug.Log($"[INTERACT CLICK] {gameObject.name} physically pressed the Interact button! Running proximity check next...");
             PerformProximityCheck();
         }
     }
-
-    // 🟢 CHANGE 4: Clean up OnEnable/OnDisable. 
-    // Since GameManager now manages waking up the action maps globally, 
-    // we don't want individual player instances turning entire global maps on and off randomly!
-    private void OnEnable() { }
-    private void OnDisable() { }
+    
 
     private void PerformProximityCheck()
     {

@@ -39,7 +39,7 @@ public class FurnitureGrab : MonoBehaviour
         playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
         if (playerInput != null)
         {
-            localGrabAction = playerInput.actions.FindAction("Interact");
+            localGrabAction = playerInput.actions.FindAction("Grab");
         }
         else
         {
