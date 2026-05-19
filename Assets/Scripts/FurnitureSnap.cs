@@ -80,8 +80,15 @@ public class FurnitureSnap : MonoBehaviour
     void CheckAllSnapped()
     {
         foreach (var snap in FindObjectsByType<FurnitureSnap>(FindObjectsSortMode.None))
-            if (!snap.IsSnapped) return;
-
+        {
+            var item = snap.GetComponent<FurnitureItem>();
+            if (item == null) continue;
+            if (!item.IsInOriginalPosition(snap.snapDistance, snap.snapRotation))
+            {
+                Debug.Log($"[FurnitureSnap] '{snap.name}' not in place yet.");
+                return;
+            }
+        }
         GameEvents.OnTaskCompleted?.Invoke("rearrange_furniture");
     }
 
