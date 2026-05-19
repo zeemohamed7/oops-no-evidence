@@ -249659,7 +249659,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1242387215}
   - {fileID: 570621323}
   - {fileID: 915490975}
   - {fileID: 1833347498}
@@ -249667,6 +249666,7 @@ Transform:
   - {fileID: 295740659}
   - {fileID: 462373955}
   - {fileID: 434232782}
+  - {fileID: 1242387215}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &940778399
@@ -392898,7 +392898,6 @@ MonoBehaviour:
   - {fileID: 1886150609}
   - {fileID: 295740659}
   - {fileID: 462373955}
-  - {fileID: 434232782}
   - {fileID: 1242387215}
   walkSpeed: 1.5
   minWait: 2
