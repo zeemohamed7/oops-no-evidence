@@ -789,10 +789,10 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   nextSceneName: Level1
   lines:
-  - "Fixers\u2026 we have a problem."
-  - "One partner got greedy\u2026 now he\u2019s dead."
-  - Clean the kitchen. Hide the body.
-  - No evidence. No questions.
+  - First job. Late-Night Shawarma Shop.
+  - " Simple. Clean the mess, don\u2019t panic!"
+  - Try not to turn one problem into five!
+  - "This place makes me money; I\u2019d like to keep it \nthat \r       way."
   typingSpeed: 0.04
   pauseBetweenLines: 1.2
 --- !u!82 &1496766762
