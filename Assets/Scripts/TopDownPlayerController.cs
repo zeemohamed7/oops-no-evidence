@@ -24,6 +24,7 @@ public class TopDownPlayerController : MonoBehaviour
 
     [Header("Carry")]
     public bool isCarrying = false;
+    private float currentCarryPenalty = 0f; // 0 means no penalty active
 
     [Range(0.1f, 1f)]
     public float carryMultiplier = 0.5f;
@@ -209,5 +210,23 @@ private void HandleMovement()
                 footstepSource.Stop();
             }
         }
+    }
+    
+    // ─────────────────────────────────────────────
+    // WEIGHT PENALTY FOR BODY
+    // ─────────────────────────────────────────────
+
+    // Turn on weight penalty
+    public void SetCarryWeight(float dynamicMultiplier)
+    {
+        isCarrying = true;
+        carryMultiplier = dynamicMultiplier;
+    }
+    // Turn off weight penalty (call when body is dropped)
+
+    public void ClearCarryPenalty()
+    {
+        isCarrying = false;
+        carryMultiplier = 0.5f; 
     }
 }
