@@ -14,6 +14,7 @@ public class FurnitureSnap : MonoBehaviour
     public Color closeColor = Color.yellow;
 
     private bool snapped = false;
+    public bool IsSnapped => snapped;
 
     void Awake()
     {
@@ -68,11 +69,27 @@ public class FurnitureSnap : MonoBehaviour
                 outline.enabled = false;
 
             Debug.Log(name + " SNAPPED SUCCESSFULLY");
+            CheckAllSnapped();
         }
         else
         {
             Debug.Log(name + " did NOT snap");
         }
+    }
+
+    void CheckAllSnapped()
+    {
+        foreach (var snap in FindObjectsByType<FurnitureSnap>(FindObjectsSortMode.None))
+        {
+            var item = snap.GetComponent<FurnitureItem>();
+            if (item == null) continue;
+            if (!item.IsInOriginalPosition(snap.snapDistance, snap.snapRotation))
+            {
+                Debug.Log($"[FurnitureSnap] '{snap.name}' not in place yet.");
+                return;
+            }
+        }
+        GameEvents.OnTaskCompleted?.Invoke("rearrange_furniture");
     }
 
     public void MarkPickedUpAgain()

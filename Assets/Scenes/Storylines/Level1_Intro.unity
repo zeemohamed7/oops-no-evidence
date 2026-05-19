@@ -789,6 +789,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   nextSceneName: Level1
   lines:
+  - Hey Elgatos!
   - First job. Late-Night Shawarma Shop.
   - " Simple. Clean the mess, don\u2019t panic!"
   - Try not to turn one problem into five!
