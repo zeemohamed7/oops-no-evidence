@@ -2969,6 +2969,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5451970855378236107}
   - component: {fileID: 2250668314378608476}
+  - component: {fileID: 1530512266336327073}
   m_Layer: 0
   m_Name: DeadBody 2
   m_TagString: Grabbable
@@ -3022,6 +3023,18 @@ MonoBehaviour:
   isRagdoll: 1
   mainRigidbody: {fileID: 4609972980301243533}
   grabAnchor: {fileID: 449811323959778775}
+--- !u!114 &1530512266336327073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3822228666653212683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 748bc921981e04896b76db096bd221be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3851489675132092095
 GameObject:
   m_ObjectHideFlags: 0

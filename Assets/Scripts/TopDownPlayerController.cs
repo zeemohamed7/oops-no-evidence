@@ -24,6 +24,7 @@ public class TopDownPlayerController : MonoBehaviour
 
     [Header("Carry")]
     public bool isCarrying = false;
+    private float currentCarryPenalty = 0f; // 0 means no penalty active
 
     [Range(0.1f, 1f)]
     public float carryMultiplier = 0.5f;
@@ -51,12 +52,46 @@ public class TopDownPlayerController : MonoBehaviour
             playerCamera = Camera.main;
     }
 
+    // private void Start()
+    // {
+    //     foreach (var map in playerInput.actions.actionMaps)
+    //     {
+    //         Debug.Log("MAP: " + map.name);
+    //
+    //         foreach (var action in map.actions)
+    //         {
+    //             Debug.Log(" - ACTION: " + action.name);
+    //         }
+    //     }
+    //     Debug.Log("PLAYER CONTROLLER STARTED");
+    //
+    //     if (playerInput != null)
+    //     {
+    //         Debug.Log("CURRENT MAP: " + playerInput.currentActionMap.name);
+    //         Debug.Log("CONTROL SCHEME: " + playerInput.currentControlScheme);
+    //     }
+    //
+    //     DynamicCamera.Instance?.RegisterPlayer(transform);
+    // }
+    
     private void Start()
     {
+        // 🟢 MULTIPLAYER MATCHING FIX: Force this instance to use its assigned control scheme
+        if (playerInput != null && LobbyManager.Instance != null)
+        {
+            // 1. Fetch the scheme that was saved during the lobby phase
+            // (Make sure your LobbyManager script exposes the scheme string it gave this ghost instance!)
+            // If your LobbyManager maps schemes differently, match that retrieval line here:
+            int myDeviceId = playerInput.devices.Count > 0 ? playerInput.devices[0].deviceId : -1;
+        
+            // Let's print out what it currently thinks it is using
+            Debug.Log($"[START] My physical device ID is: {myDeviceId}");
+        }
+
+        // ─── LEAVE YOUR EXISTING START CODE BELOW ALONE ───
         foreach (var map in playerInput.actions.actionMaps)
         {
             Debug.Log("MAP: " + map.name);
-
             foreach (var action in map.actions)
             {
                 Debug.Log(" - ACTION: " + action.name);
@@ -92,6 +127,8 @@ public class TopDownPlayerController : MonoBehaviour
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
+        Debug.Log($"MOVE: {value}");
+
         
     }
     // Matches the "Sprint" action
@@ -209,5 +246,23 @@ private void HandleMovement()
                 footstepSource.Stop();
             }
         }
+    }
+    
+    // ─────────────────────────────────────────────
+    // WEIGHT PENALTY FOR BODY
+    // ─────────────────────────────────────────────
+
+    // Turn on weight penalty
+    public void SetCarryWeight(float dynamicMultiplier)
+    {
+        isCarrying = true;
+        carryMultiplier = dynamicMultiplier;
+    }
+    // Turn off weight penalty (call when body is dropped)
+
+    public void ClearCarryPenalty()
+    {
+        isCarrying = false;
+        carryMultiplier = 0.5f; 
     }
 }

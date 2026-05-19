@@ -38,26 +38,34 @@ public class NPCWalker : MonoBehaviour
         if (waypoints.Length > 0) MoveToNext();
     }
 
-    void Update()
+void Update()
     {
-        // 1. Safety check for Instance
         if (SuspicionMeter.Instance == null) return;
 
-        // 2. Panic Breakout: If global meter hits Panic, sprint to exit instantly
+        // 1. Panic Breakout
         if (SuspicionMeter.Instance.CurrentState == SuspicionMeter.SuspicionState.Panic)
         {
             TriggerPanicEscape();
+            
+            // Move the panic freeze code inside this block so it CANNOT touch the normal loop!
+            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+            {
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+                anim.SetFloat("Vert", 0f); 
+                anim.SetFloat("State", 1f); 
+            }
             return; 
         }
 
-        // 3. Vision Check
+        // 2. Vision Check
         VisionCone vision = GetComponent<VisionCone>();
         if (vision != null && vision.canSeePlayer && !isLingering && !isBusy)
         {
             StartCoroutine(LingerAndStare());
         }
 
-        // 4. Update Movement Animations (only if walking normally)
+        // 3. Update Movement Animations
         if (!isBusy && !isLingering) 
         {
             float currentSpeed = agent.velocity.magnitude; 
@@ -66,24 +74,16 @@ public class NPCWalker : MonoBehaviour
             anim.SetFloat("State", 0f); 
         }
         
-        // 5. Arrival Check
-        if (!isBusy && !isLingering && !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        // 4. Arrival Check (Safely separated)
+        if (!isBusy && !isLingering && waypoints.Length > 0)
         {
-            StartCoroutine(HandleWaypoint());
-        }
-        
-        // RUN OUTTTTT
-        if (SuspicionMeter.Instance.CurrentState == SuspicionMeter.SuspicionState.Panic)
-        {
-            // If he is outside, stop him forever
-            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+            // Physically calculate how far the NPC is from the exact target node
+            float distanceToTarget = Vector3.Distance(transform.position, waypoints[index].position);
+
+            // If he steps within 0.5 meters of it, immediately trigger the next spot
+            if (distanceToTarget <= 0.5f)
             {
-                agent.isStopped = true;
-                agent.velocity = Vector3.zero;
-        
-                // Turn off running animations so he stands there frozen/cowering
-                anim.SetFloat("Vert", 0f); 
-                anim.SetFloat("State", 1f); 
+                StartCoroutine(HandleWaypoint());
             }
         }
     }
@@ -133,31 +133,33 @@ public class NPCWalker : MonoBehaviour
     IEnumerator HandleWaypoint()
     {
         isBusy = true;
-        agent.isStopped = true;
-        agent.velocity = Vector3.zero;
-        
-        Transform currentPoint = waypoints[index];
-
-        if (currentPoint.gameObject.name.Contains("LookPoint"))
+    
+        // 1. Figure out if this spot needs an idle animation pause
+        Transform completedPoint = waypoints[index];
+        if (completedPoint.gameObject.name.Contains("LookPoint"))
         {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
             anim.SetFloat("State", 1f); 
             anim.SetFloat("Vert", 0f);
 
             yield return new WaitForSeconds(Random.Range(minWait, maxWait));
-        
+    
             anim.SetFloat("State", 0f); 
-            yield return new WaitForSeconds(0.5f); 
-        }
-        else
-        {
-            yield return new WaitForSeconds(1f); // Quick normal stop
+            yield return new WaitForSeconds(0.2f); 
         }
 
+        // 2. Immediately increment to the next index BEFORE moving
+        // This breaks the infinite loop instantly!
         index = (index + 1) % waypoints.Length;
+
+        // 3. Command the agent to start walking to the next clean position
         agent.isStopped = false;
         MoveToNext();
+
+        // 4. Give him a split second to walk away from the old point so he doesn't re-trigger it
+        yield return new WaitForSeconds(0.5f); 
     
-        yield return new WaitForSeconds(0.5f); // Let agent clear destination frame
         isBusy = false;
     }
 

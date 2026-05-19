@@ -10,16 +10,17 @@ public class LevelSelectManager : MonoBehaviour
     public GameObject[] buildingModels;
     
     private int currentIndex = 0;
+    private int cachedUnlockedLevel = 1; // 🟢 Cached locally to prevent hard drive stutter
 
     void Start()
     {
         currentIndex = 0; 
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1); 
+        cachedUnlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1); 
     
         // Loop through to handle visuals
         for (int i = 0; i < waypoints.Length; i++)
         {
-            bool isLocked = (i + 1) > unlockedLevel;
+            bool isLocked = (i + 1) > cachedUnlockedLevel;
 
             // UI Gray-out
             var canvasGroup = waypoints[i].GetComponent<CanvasGroup>();
@@ -40,9 +41,7 @@ public class LevelSelectManager : MonoBehaviour
 
     void Update()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
-
-        // --- NAVIGATION (Keyboard & Controller) ---
+        // ─── NAVIGATION (Keyboard & Controller) ───
         bool moveRight = false;
         bool moveLeft = false;
 
@@ -64,11 +63,16 @@ public class LevelSelectManager : MonoBehaviour
                 moveLeft = true;
         }
 
-        // Execute Move
-        if (moveRight && currentIndex < waypoints.Length - 1 && (currentIndex + 2) <= unlockedLevel)
+        // ─── EXECUTE MOVE (FIXED NAVIGATION MATHEMATICS HERE) ───
+        if (moveRight && currentIndex < waypoints.Length - 1)
         {
-            currentIndex++;
-            UpdateSelection();
+            // 🟢 FIX: Check if the destination waypoint index (currentIndex + 1) is unlocked!
+            int targetLevelNumber = currentIndex + 2; // (0-indexed to 1-indexed conversion + next slot)
+            if (targetLevelNumber <= cachedUnlockedLevel)
+            {
+                currentIndex++;
+                UpdateSelection();
+            }
         }
         else if (moveLeft && currentIndex > 0)
         {
@@ -76,16 +80,16 @@ public class LevelSelectManager : MonoBehaviour
             UpdateSelection();
         }
 
-        // --- SUBMIT ---
+        // ─── SUBMIT ───
         bool pressedSubmit = false;
         if (Keyboard.current != null && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame))
             pressedSubmit = true;
-        if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame) // 'A' on Xbox / 'Cross' on PS
+        if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame) 
             pressedSubmit = true;
 
         if (pressedSubmit) TryStartLevel();
 
-        // --- CHEATS FOR TESTING--- DELETE LATER 
+        // ─── CHEATS FOR TESTING ───
         if (Keyboard.current != null)
         {
             if (Keyboard.current.uKey.wasPressedThisFrame) CheatUnlock(4);
@@ -107,14 +111,14 @@ public class LevelSelectManager : MonoBehaviour
 
     void TryStartLevel()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("ReachedLevel", 1);
-        if (currentIndex + 1 > unlockedLevel) return;
+        // 🟢 FIX: Use cached memory index tracking instead of polling storage files
+        if (currentIndex + 1 > cachedUnlockedLevel) return;
 
-        // Tell GameManager which level index is being played
+        // Tell LobbyManager which level index is being played
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.SetCurrentLevel(currentIndex);
 
-        // Load intro → intro scene loads the gameplay scene
+        // Load intro scene dynamically based on current index selection layout rules
         SceneManager.LoadScene("Level" + (currentIndex + 1) + "_Intro");
     }
 }
