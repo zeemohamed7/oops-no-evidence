@@ -30,10 +30,22 @@ public class WeaponDisposalZone : MonoBehaviour
         completed = true;
         GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
         PlaySparkle();
-        if (promptUI != null) promptUI.SetActive(false);
+
+        if (promptUI != null)
+            promptUI.SetActive(false);
+
+        PlayerAnimationDriver[] players = FindObjectsByType<PlayerAnimationDriver>(FindObjectsSortMode.None);
+        foreach (PlayerAnimationDriver playerAnim in players)
+        {
+            playerAnim.SetCarrying(false);
+            playerAnim.PlayDrop();
+        }
+
+        other.transform.SetParent(null);
         Destroy(other.gameObject);
+
         Debug.Log("Weapon disposed");
-    }
+}
 
     void PlaySparkle()
     {
