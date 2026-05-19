@@ -12,8 +12,11 @@ public class MissionConditions : ScriptableObject
     public bool checkExtraction = true;
 
     [Header("Optional Level-Specific Checks")]
-    [Tooltip("Only enable on levels that use the furniture-moving mechanic.")]
+    [Tooltip("Only enable on levels that use the furniture-moving mechanic (Level 2+).")]
     public bool checkFurnitureOrganization = false;
+
+    [Tooltip("Only enable on levels that require cleaning wall fingerprints with the flashlight (Level 3+).")]
+    public bool checkWallFingerprints = false;
 
     [Header("Blood Detection")]
     [Tooltip("Minimum red-channel value in the blood RenderTexture to count as remaining blood (0–1).")]

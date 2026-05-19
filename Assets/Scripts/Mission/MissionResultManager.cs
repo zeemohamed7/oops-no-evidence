@@ -101,6 +101,9 @@ public class MissionResultManager : MonoBehaviour
         if (conditions.checkFurnitureOrganization && !CheckFurniture())
             failures.Add("Furniture was not restored");
 
+        if (conditions.checkWallFingerprints && !CheckWallFingerprints())
+            failures.Add("Fingerprints were not cleaned");
+
         return failures;
     }
 
@@ -149,6 +152,14 @@ public class MissionResultManager : MonoBehaviour
             if (!group.IsOrganized(conditions.furniturePositionTolerance, conditions.furnitureRotationTolerance))
                 return false;
         }
+        return true;
+    }
+
+    bool CheckWallFingerprints()
+    {
+        var fingerprints = FindObjectsByType<FingerprintSurface>(FindObjectsSortMode.None);
+        foreach (var fp in fingerprints)
+            if (!fp.IsCleaned) return false;
         return true;
     }
 
