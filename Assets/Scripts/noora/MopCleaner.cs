@@ -14,7 +14,7 @@ public class MopCleaner : MonoBehaviour
     [Header("Dirty Mop Settings")]
     public float dipDistance = 1.5f;
     public float cleanDistanceBeforeDirty = 5.0f;
-    [Range(0.002f, 0.15f)] public float spreadStrength = 0.03f;
+    [Range(0.002f, 0.15f)] public float spreadStrength = 0.1f;
 
     [Header("Footprint Cleaning")]
     public float footprintCleanRadius = 0.4f;
@@ -42,10 +42,6 @@ public class MopCleaner : MonoBehaviour
         if (!inventory) { Debug.LogError("[MopCleaner] ToolInventory not found!"); enabled = false; return; }
 
         _bloodPools = FindObjectsByType<BloodPool>(FindObjectsSortMode.None);
-
-        // Cache other players' inventories for bucket-carrier proximity checks
-        var allInventories = FindObjectsByType<ToolInventory>(FindObjectsSortMode.None);
-        _otherInventories = System.Array.FindAll(allInventories, t => t != inventory);
         if (_bloodPools.Length == 0)
             Debug.LogWarning("[MopCleaner] No BloodPool found in scene.");
 
@@ -61,10 +57,15 @@ public class MopCleaner : MonoBehaviour
 
     void Update()
     {
-        if (!inventory.IsMopSelected()) { _painting = false; return; }
+        // Lazy-find runs every frame until other players are found
+        if (_otherInventories == null || _otherInventories.Length == 0)
+        {
+            var all = FindObjectsByType<ToolInventory>(FindObjectsSortMode.None);
+            _otherInventories = System.Array.FindAll(all, t => t != inventory);
+        }
 
-        // Auto-dip when another player carrying the bucket is close enough
-        if (_mopIsDirty && _otherInventories != null)
+        // Auto-dip — checked before the early return so it works even if mop is put away
+        if (_mopIsDirty)
         {
             foreach (ToolInventory other in _otherInventories)
             {
@@ -75,6 +76,8 @@ public class MopCleaner : MonoBehaviour
                 if (dist <= dipDistance) { DipMop(); return; }
             }
         }
+
+        if (!inventory.IsMopSelected()) { _painting = false; return; }
 
         bool waspainting = _painting;
         _painting = _interactAction != null && _interactAction.IsPressed();
