@@ -16,7 +16,6 @@ public class ToolInventory : MonoBehaviour
 
     private int selectedSlot = -1; // -1 = nothing equipped
     private float highlightDuration = 0.5f;
-    private bool bucketVisible = false;
     private PlayerAnimationDriver animationDriver;
 
     void Start()
@@ -28,6 +27,16 @@ public class ToolInventory : MonoBehaviour
     void Update()
     {
         HandleInput();
+        EnforceSingleTool();
+    }
+
+    // Runs every frame — overrides any external script that tries to show a tool
+    void EnforceSingleTool()
+    {
+        if (mopTool != null)        mopTool.SetActive(selectedSlot == 1);
+        if (bucketTool != null)     bucketTool.SetActive(selectedSlot == 2);
+        if (blacklightTool != null) blacklightTool.SetActive(selectedSlot == 3);
+        if (sprayTool != null)      sprayTool.SetActive(selectedSlot == 4);
     }
 
     void HandleInput()
@@ -60,9 +69,10 @@ void ToggleHandTool(int slot, GameObject toolObj)
         else
         {
             // switch tool — hide all hand tools first
-            if (mopTool != null) mopTool.SetActive(false);
+            if (mopTool != null)        mopTool.SetActive(false);
+            if (bucketTool != null)     bucketTool.SetActive(false);
             if (blacklightTool != null) blacklightTool.SetActive(false);
-            if (sprayTool != null) sprayTool.SetActive(false);
+            if (sprayTool != null)      sprayTool.SetActive(false);
 
         if (toolObj)
         {
