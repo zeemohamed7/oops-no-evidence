@@ -68,6 +68,5 @@ public class TruckLevelSelection : MonoBehaviour
         // Stop the heavy shaking and switch to idle rumble
         if (vibrationScript != null) vibrationScript.shakeAmount = 0.01f;
         
-        Debug.Log("Truck Parked at Level.");
     }
 }

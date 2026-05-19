@@ -53,7 +53,7 @@ public class LobbyManager : MonoBehaviour
     private float lastJoinTime;
     private const float JoinCooldown = 0.1f;
     private readonly Dictionary<int, LobbyGhost> activeGhosts = new();
-    private const string KeyboardScheme = "KeyboardWASD";
+    private const string KeyboardScheme = "Keyboard&Mouse";
 
     private void Awake()
     {
@@ -426,8 +426,8 @@ public class LobbyManager : MonoBehaviour
                 return scheme;
             }
 
+            // Fallback safety shield if your Input Action asset asset profile is missing a numbered slot
             // Deleted Gamepad cause it was causing issues so nvm
-            // // Fallback safety shield if your Input Action asset asset profile is missing a numbered slot
             // Debug.LogWarning($"[SCHEME FALLBACK] '{scheme}' wasn't found in your Input Action Asset. Defaulting to generic 'Gamepad'.");
             // return "Gamepad";
             return "Gamepad1";
