@@ -18,9 +18,11 @@ public class ToolInventory : MonoBehaviour
     private int selectedSlot = -1; // -1 = nothing equipped
     private float highlightDuration = 0.5f;
     private bool bucketVisible = false;
+    private PlayerAnimationDriver animationDriver;
 
     void Start()
     {
+        animationDriver = GetComponent<PlayerAnimationDriver>();
         ClearSelection();
         if (bucketTool != null) bucketTool.SetActive(false);
     }
@@ -84,36 +86,55 @@ public class ToolInventory : MonoBehaviour
 }
 
 
-    void ToggleHandTool(int slot, GameObject toolObj)
+void ToggleHandTool(int slot, GameObject toolObj)
+{
+    if (selectedSlot == slot)
     {
-        if (selectedSlot == slot)
+        // same slot pressed again — unequip
+        if (toolObj)
+            toolObj.SetActive(false);
+
+        selectedSlot = -1;
+
+        // REMOVE HOLD ANIMATION
+        animationDriver?.ClearSelectedItem();
+
+        Debug.Log($"[Inventory] Slot {slot} unequipped.");
+    }
+    else
+    {
+        // switch tool — hide all hand tools first
+        if (mopTool != null) mopTool.SetActive(false);
+        if (blacklightTool != null) blacklightTool.SetActive(false);
+        if (sprayTool != null) sprayTool.SetActive(false);
+
+        if (toolObj)
         {
-            // same slot pressed again — unequip
-            if (toolObj) toolObj.SetActive(false);
-            selectedSlot = -1;
-            Debug.Log($"[Inventory] Slot {slot} unequipped.");
+            if (holdPoint != null)
+            {
+                toolObj.transform.SetParent(holdPoint, false);
+                toolObj.transform.localPosition = Vector3.zero;
+            }
+
+            toolObj.SetActive(true);
+        }
+
+        selectedSlot = slot;
+
+        if (slot == 1) // mop
+        {
+            animationDriver?.SelectMop();
         }
         else
         {
-            // switch tool — hide all hand tools first
-            if (mopTool != null) mopTool.SetActive(false);
-            if (blacklightTool != null) blacklightTool.SetActive(false);
-            if (sprayTool != null) sprayTool.SetActive(false);
-
-            if (toolObj)
-            {
-                if (holdPoint != null)
-                {
-                    toolObj.transform.SetParent(holdPoint, false);
-                    toolObj.transform.localPosition = Vector3.zero;
-                }
-                toolObj.SetActive(true);
-            }
-            selectedSlot = slot;
-            HighlightSlot(slot);
-            Debug.Log($"[Inventory] Equipped slot {slot}.");
+            animationDriver?.SelectTool();
         }
+
+        HighlightSlot(slot);
+
+        Debug.Log($"[Inventory] Equipped slot {slot}.");
     }
+}
 
     void HighlightSlot(int slotNumber)
     {

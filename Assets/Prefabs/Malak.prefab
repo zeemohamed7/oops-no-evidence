@@ -29,6 +29,8 @@ GameObject:
   - component: {fileID: 3533629093418497381}
   - component: {fileID: 6079579233242343517}
   - component: {fileID: 8930882692575434427}
+  - component: {fileID: 384029538339303704}
+  - component: {fileID: -9063653824505027327}
   m_Layer: 8
   m_Name: Malak
   m_TagString: Player
@@ -157,7 +159,7 @@ Animator:
   m_GameObject: {fileID: 1257570910489850407}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b16859174c1b4445b9475a5c3efd2868, type: 3}
-  m_Controller: {fileID: 9100000, guid: ebcf0c8c48f88452fbc3632a76a3fe9d, type: 2}
+  m_Controller: {fileID: 9100000, guid: 5b2a28e8b5fb544ed84c426f95454573, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -777,6 +779,42 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &384029538339303704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257570910489850407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdPoint: {fileID: 4163904122934820285}
+  grabRange: 3
+  furnitureLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  localCarryPosition: {x: 0, y: 0, z: 0}
+  localCarryRotation: {x: 0, y: 0, z: 0}
+--- !u!114 &-9063653824505027327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257570910489850407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866abf1511bd6409cbd524fee2428b44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  snapDistance: 3
+  snapRotation: 45
+  wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  closeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &1864216212319999778
 GameObject:
   m_ObjectHideFlags: 0
