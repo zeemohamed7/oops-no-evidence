@@ -805,6 +805,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   nextSceneName: Level2
   lines:
+  - Hey Elgatos!
   - Nice villa, quiet pool area!
   - One serious problem. A crime happened here!
   - Clean the scene, remove the evidence.

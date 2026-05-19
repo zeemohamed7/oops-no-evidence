@@ -789,6 +789,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   nextSceneName: Level3
   lines:
+  - Hey Elgatos!
   - Hospital should look clean, quiet, and normal.
   - "A crime happened here, and you need \nto remove every trace."
   - "This is a sensitive place, so stay focused \nand be careful!"
