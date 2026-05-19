@@ -32,6 +32,8 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     public void SelectMop()
     {
+        Debug.Log("ANIM: SelectMop called");
+
         if (isCarrying) return;
 
         hasMop = true;
@@ -75,6 +77,8 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     public void PlayMop()
     {
+        Debug.Log("ANIM: PlayMop called. hasMop = " + hasMop + ", isCarrying = " + isCarrying);
+
         if (hasMop && !isCarrying)
             animator.SetTrigger("Mop");
     }
@@ -83,5 +87,10 @@ public class PlayerAnimationDriver : MonoBehaviour
     {
         if (hasMop && !isCarrying)
             animator.SetTrigger("DipMop");
+    }
+    public void PlayUseTool()
+    {
+        if (!isCarrying)
+            animator.SetTrigger("UseTool");
     }
 }

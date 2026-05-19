@@ -46,9 +46,12 @@ public class WallSprayCleaner : MonoBehaviour
     static readonly int ID_Strength = Shader.PropertyToID("_Strength");
     static readonly int ID_Spread  = Shader.PropertyToID("_Spread");
 
+    private PlayerAnimationDriver animationDriver;
+
     void Start()
     {
         _fingerprints = FindObjectsOfType<FingerprintSurface>();
+        animationDriver = GetComponent<PlayerAnimationDriver>();
     }
 
     void Awake()
@@ -74,6 +77,7 @@ public class WallSprayCleaner : MonoBehaviour
 
     void TrySpray()
     {
+        animationDriver?.PlayUseTool();
         // Always attempt fingerprint cleaning whenever spray is used.
         TryCleanFingerprint();
 
