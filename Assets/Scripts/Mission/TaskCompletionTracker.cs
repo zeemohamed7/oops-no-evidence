@@ -7,15 +7,14 @@ using UnityEngine;
 /// GameEvents.OnTaskCompleted so the HUD checkmarks update in real-time.
 ///
 /// Level 1: trackBlood only
-/// Level 2: trackBlood + trackFurniture
-/// Level 3: trackBlood + trackFurniture + trackFingerprints
-/// Level 4: trackBlood + trackFurniture + trackFingerprints (cameras handled separately)
+/// Level 2: trackBlood (furniture is handled automatically by FurnitureSnap)
+/// Level 3: trackBlood + trackFingerprints
+/// Level 4: trackBlood + trackFingerprints (cameras handled by teammate)
 /// </summary>
 public class TaskCompletionTracker : MonoBehaviour
 {
     [Header("Tasks to track for this level")]
     public bool trackBlood = false;
-    public bool trackFurniture = false;
     public bool trackFingerprints = false;
 
     [Header("Blood Scan (GPU readback — keep interval >= 2s)")]
@@ -25,13 +24,7 @@ public class TaskCompletionTracker : MonoBehaviour
     [Tooltip("Match MissionConditions.bloodScanResolution.")]
     [Range(4, 32)] public int bloodScanResolution = 8;
 
-    [Header("Furniture (must match MissionResultManager furnitureGroups)")]
-    public FurnitureOrganizationChecker[] furnitureGroups;
-    [Range(0.05f, 2f)] public float furniturePosTolerance = 0.3f;
-    [Range(1f, 45f)]  public float furnitureRotTolerance = 5f;
-
     bool _bloodDone;
-    bool _furnitureDone;
     bool _fingerprintsDone;
 
     FingerprintSurface[] _fingerprints;
@@ -49,7 +42,6 @@ public class TaskCompletionTracker : MonoBehaviour
     {
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
-        if (trackFurniture    && !_furnitureDone)    CheckFurnitureDone();
         if (trackFingerprints && !_fingerprintsDone) CheckFingerprintsDone();
     }
 
@@ -77,20 +69,6 @@ public class TaskCompletionTracker : MonoBehaviour
                 GameEvents.OnTaskCompleted?.Invoke("clean_blood");
             }
         }
-    }
-
-    void CheckFurnitureDone()
-    {
-        if (furnitureGroups == null || furnitureGroups.Length == 0) return;
-
-        foreach (var group in furnitureGroups)
-        {
-            if (group == null) continue;
-            if (!group.IsOrganized(furniturePosTolerance, furnitureRotTolerance)) return;
-        }
-
-        _furnitureDone = true;
-        GameEvents.OnTaskCompleted?.Invoke("rearrange_furniture");
     }
 
     void CheckFingerprintsDone()
