@@ -29,9 +29,11 @@ public class InventorySystem : MonoBehaviour
     // -1 = nothing
     private int _handSlot = -1;   // currently held hand-tool
     private bool _bucketActive = false; // bucket selected (on floor)
+    private PlayerAnimationDriver animationDriver;
 
     void Start()
     {
+        animationDriver = GetComponent<PlayerAnimationDriver>();
         HideAllHandTools();
         // Bucket is hidden until player presses 1
         if (bucket) bucket.SetActive(false);
@@ -61,19 +63,27 @@ public class InventorySystem : MonoBehaviour
     {
         if (_handSlot == slot)
         {
-            // Already equipped → unequip
             if (toolObj) toolObj.SetActive(false);
             _handSlot = -1;
+
+            animationDriver?.ClearSelectedItem();
+
             Debug.Log($"[Inventory] Slot {slot} unequipped.");
         }
         else
         {
-            // Switch to this tool
             HideAllHandTools();
+
             if (toolObj)
             {
                 toolObj.SetActive(true);
                 _handSlot = slot;
+
+                if (slot == SLOT_MOP)
+                    animationDriver?.SelectMop();
+                else
+                    animationDriver?.SelectTool();
+
                 Debug.Log($"[Inventory] Equipped slot {slot}.");
             }
             else
