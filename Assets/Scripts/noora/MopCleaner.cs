@@ -12,7 +12,6 @@ public class MopCleaner : MonoBehaviour
     public float mopRange = 1.5f;
 
     [Header("Dirty Mop Settings")]
-    public GameObject bucketObject;
     public float dipDistance = 1.5f;
     public float cleanDistanceBeforeDirty = 5.0f;
     [Range(0.002f, 0.15f)] public float spreadStrength = 0.03f;
@@ -31,6 +30,7 @@ public class MopCleaner : MonoBehaviour
     bool _mopIsDirty = false;
     BloodPool[] _bloodPools;
     InputAction _interactAction;
+    ToolInventory[] _otherInventories;
 
     System.Collections.Generic.Dictionary<GameObject, float> _footprintProgress
         = new System.Collections.Generic.Dictionary<GameObject, float>();
@@ -40,10 +40,11 @@ public class MopCleaner : MonoBehaviour
         if (!inventory) inventory = GetComponent<ToolInventory>();
         if (!inventory) { Debug.LogError("[MopCleaner] ToolInventory not found!"); enabled = false; return; }
 
-        if (!bucketObject)
-            Debug.LogWarning("[MopCleaner] bucketObject not assigned — auto-dip won't work!");
-
         _bloodPools = FindObjectsByType<BloodPool>(FindObjectsSortMode.None);
+
+        // Cache other players' inventories for bucket-carrier proximity checks
+        var allInventories = FindObjectsByType<ToolInventory>(FindObjectsSortMode.None);
+        _otherInventories = System.Array.FindAll(allInventories, t => t != inventory);
         if (_bloodPools.Length == 0)
             Debug.LogWarning("[MopCleaner] No BloodPool found in scene.");
 
@@ -60,15 +61,17 @@ public class MopCleaner : MonoBehaviour
     {
         if (!inventory.IsMopSelected()) { _painting = false; return; }
 
-        // Auto-dip when near bucket
-        if (_mopIsDirty
-            && bucketObject != null
-            && bucketObject.activeInHierarchy
-            && Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
-                               new Vector2(bucketObject.transform.position.x, bucketObject.transform.position.z)) <= dipDistance)
+        // Auto-dip when another player carrying the bucket is close enough
+        if (_mopIsDirty && _otherInventories != null)
         {
-            DipMop();
-            return;
+            foreach (ToolInventory other in _otherInventories)
+            {
+                if (other == null || !other.IsBucketSelected()) continue;
+                float dist = Vector2.Distance(
+                    new Vector2(transform.position.x, transform.position.z),
+                    new Vector2(other.transform.position.x, other.transform.position.z));
+                if (dist <= dipDistance) { DipMop(); return; }
+            }
         }
 
         bool waspainting = _painting;
@@ -118,7 +121,7 @@ public class MopCleaner : MonoBehaviour
             if (_cleanedDistance >= cleanDistanceBeforeDirty)
             {
                 _mopIsDirty = true;
-                Debug.LogWarning("[MopCleaner] Mop is dirty! Walk to the bucket.");
+                Debug.LogWarning("[MopCleaner] Mop is dirty! Find the player holding the bucket.");
                 UpdateStatusUI();
             }
         }
@@ -197,7 +200,7 @@ public class MopCleaner : MonoBehaviour
     {
         if (statusText == null) return;
         if (_mopIsDirty)
-            statusText.text = "Mop dirty! Walk to the bucket.";
+            statusText.text = "Mop dirty! Find the player holding the bucket!";
         else
         {
             float pct = Mathf.RoundToInt(Mathf.Clamp01(_cleanedDistance / cleanDistanceBeforeDirty) * 100f);

@@ -12,29 +12,25 @@ public class ToolInventory : MonoBehaviour
     public GameObject blacklightTool;
     public GameObject sprayTool;
     public MopCleaner mopCleaner;
-    public float dipDistance = 1.5f;
     public Transform holdPoint;
 
     private int selectedSlot = -1; // -1 = nothing equipped
     private float highlightDuration = 0.5f;
-    private bool bucketVisible = false;
 
     void Start()
     {
         ClearSelection();
-        if (bucketTool != null) bucketTool.SetActive(false);
     }
 
     void Update()
     {
         HandleInput();
-        CheckBucketProximity();
     }
 
     void HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1)) ToggleHandTool(1, mopTool);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleBucket();
+        if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleHandTool(2, bucketTool);
         if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleHandTool(3, blacklightTool);
         if (Input.GetKeyDown(KeyCode.Alpha4)) ToggleHandTool(4, sprayTool);
 
@@ -42,47 +38,6 @@ public class ToolInventory : MonoBehaviour
         if (scroll > 0) { selectedSlot--; if (selectedSlot < 1) selectedSlot = 4; HighlightSlot(selectedSlot); }
         else if (scroll < 0) { selectedSlot++; if (selectedSlot > 4) selectedSlot = 1; HighlightSlot(selectedSlot); }
     }
-
- void ToggleBucket()
-{
-    bucketVisible = !bucketVisible;
-    if (bucketTool != null) bucketTool.SetActive(bucketVisible);
-    HighlightSlot(2);
-
-    // Try these directions in order: right, forward, left, back
-    Vector3[] directions = {
-        transform.right,
-        transform.forward,
-        -transform.right,
-        -transform.forward
-    };
-
-    float bucketRadius = 0.3f;
-    float placeDistance = 1f;
-    Vector3 chosenPos = transform.position; // fallback
-
-    foreach (Vector3 dir in directions)
-    {
-        Vector3 candidate = new Vector3(
-            transform.position.x + dir.x * placeDistance,
-            bucketTool.transform.position.y,
-            transform.position.z + dir.z * placeDistance
-        );
-
-        // Raycast from player toward candidate to check for walls
-        Vector3 rayOrigin = new Vector3(transform.position.x, candidate.y, transform.position.z);
-        bool wallInWay = Physics.SphereCast(rayOrigin, bucketRadius, dir, out _, placeDistance);
-
-        if (!wallInWay)
-        {
-            chosenPos = candidate;
-            break; // use first clear direction
-        }
-    }
-
-    bucketTool.transform.position = chosenPos;
-}
-
 
     void ToggleHandTool(int slot, GameObject toolObj)
     {
@@ -97,6 +52,7 @@ public class ToolInventory : MonoBehaviour
         {
             // switch tool — hide all hand tools first
             if (mopTool != null) mopTool.SetActive(false);
+            if (bucketTool != null) bucketTool.SetActive(false);
             if (blacklightTool != null) blacklightTool.SetActive(false);
             if (sprayTool != null) sprayTool.SetActive(false);
 
@@ -128,18 +84,6 @@ public class ToolInventory : MonoBehaviour
         StartCoroutine(HideHighlightAfterDelay());
     }
 
-    void CheckBucketProximity()
-    {
-        if (bucketTool == null || mopCleaner == null) return;
-        if (!IsMopSelected()) return;
-        if (!bucketTool.activeInHierarchy) return; // bucket must be placed in the scene
-
-        float dist = Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
-                                      new Vector2(bucketTool.transform.position.x, bucketTool.transform.position.z));
-        if (dist <= dipDistance)
-            mopCleaner.TryDipMop();
-    }
-
     void ClearSelection()
     {
         if (slot1Highlight != null) slot1Highlight.gameObject.SetActive(false);
@@ -160,7 +104,7 @@ public class ToolInventory : MonoBehaviour
 
     public int GetSelectedSlot() => selectedSlot;
     public bool IsMopSelected() => selectedSlot == 1;
-    public bool IsBucketSelected() => bucketVisible;
+    public bool IsBucketSelected() => selectedSlot == 2;
     public bool IsBlacklightSelected() => selectedSlot == 3;
     public bool IsSpraySelected() => selectedSlot == 4;
 
