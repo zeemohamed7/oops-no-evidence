@@ -28,6 +28,10 @@ public class TopDownPlayerController : MonoBehaviour
     [Range(0.1f, 1f)]
     public float carryMultiplier = 0.5f;
 
+    //malak
+    [Header("Footsteps")]
+    public AudioSource footstepSource;
+
     // INPUT VALUES
     private Vector2 moveInput;
     private bool sprintHeld;
@@ -116,6 +120,10 @@ private void HandleMovement()
             
             // Send a false signal to the animator so it knows we aren't walking
             animationDriver?.SetWalking(false);
+
+            //malak
+            HandleFootsteps(false);
+
             return; 
         }
         
@@ -169,6 +177,9 @@ private void HandleMovement()
         bool isWalking = moveDirection.sqrMagnitude > 0.01f;
         animationDriver?.SetWalking(isWalking);
 
+        //malak
+        HandleFootsteps(isWalking);
+
         controller.Move(moveDirection * speed * Time.deltaTime);
         controller.Move(Vector3.down * 30f * Time.deltaTime);
 
@@ -176,6 +187,27 @@ private void HandleMovement()
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 12f * Time.deltaTime);
+        }
+    }
+
+    private void HandleFootsteps(bool isWalking)
+    {
+        if (footstepSource == null)
+            return;
+
+        if (isWalking)
+        {
+            if (!footstepSource.isPlaying)
+            {
+                footstepSource.Play();
+            }
+        }
+        else
+        {
+            if (footstepSource.isPlaying)
+            {
+                footstepSource.Stop();
+            }
         }
     }
 }
