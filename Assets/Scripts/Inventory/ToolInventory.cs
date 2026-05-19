@@ -45,6 +45,7 @@ public class ToolInventory : MonoBehaviour
 
         ClearSelection();
     }
+    
 
     InputAction FindAction(PlayerInput pi, string name)
     {
@@ -56,6 +57,13 @@ public class ToolInventory : MonoBehaviour
 
     void Update()
     {
+        // Stop all tool swapping and handling inside the lobby
+        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
+        {
+            ClearSelection(); // Keeps all tools hidden on character select
+            return;
+        }
+
         HandleInput();
         EnforceSingleTool();
     }

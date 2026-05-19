@@ -228,6 +228,37 @@ public class GameManager : MonoBehaviour
     //
     //     Debug.Log("The heist has begun! Start cleaning!");
     // }
+    // private void StartLevel()
+    // {
+    //     State = GameState.Playing;
+    //     TimeRemaining = levelDuration;
+    //
+    //     if (SuspicionMeter.Instance != null)
+    //         SuspicionMeter.Instance.globalSuspicion = 0f;
+    //
+    //     // 🟢 FORCE ACTIVATION: Wake up the input system AND the movement controller scripts!
+    //     TopDownPlayerController[] movementControllers = FindObjectsByType<TopDownPlayerController>(FindObjectsSortMode.None);
+    //
+    //     foreach (TopDownPlayerController controller in movementControllers)
+    //     {
+    //         // 1. Force the script component to turn ON
+    //         controller.enabled = true;
+    //
+    //         // 2. Force the PlayerInput component on that same object to turn ON and map correctly
+    //         PlayerInput pInput = controller.GetComponent<PlayerInput>();
+    //         if (pInput != null)
+    //         {
+    //             pInput.enabled = true;
+    //             pInput.SwitchCurrentActionMap("Player");
+    //             pInput.neverAutoSwitchControlSchemes = true;
+    //         }
+    //
+    //         Debug.Log($"[LEVEL START] Fully activated and initialized player controller script components for: {controller.gameObject.name}");
+    //     }
+    //
+    //     Debug.Log("The heist has begun! Start cleaning!");
+    // }
+    
     private void StartLevel()
     {
         State = GameState.Playing;
@@ -236,26 +267,44 @@ public class GameManager : MonoBehaviour
         if (SuspicionMeter.Instance != null)
             SuspicionMeter.Instance.globalSuspicion = 0f;
 
-        // 🟢 FORCE ACTIVATION: Wake up the input system AND the movement controller scripts!
+        // Grab every single player controller in the scene
         TopDownPlayerController[] movementControllers = FindObjectsByType<TopDownPlayerController>(FindObjectsSortMode.None);
     
         foreach (TopDownPlayerController controller in movementControllers)
         {
-            // 1. Force the script component to turn ON
+            // 1. Enable Core Movement Script
             controller.enabled = true;
 
-            // 2. Force the PlayerInput component on that same object to turn ON and map correctly
+            // 2. Hot-Swap Action Map to Gameplay rules
             PlayerInput pInput = controller.GetComponent<PlayerInput>();
             if (pInput != null)
             {
                 pInput.enabled = true;
-                pInput.SwitchCurrentActionMap("Player");
+                pInput.SwitchCurrentActionMap("Player"); 
                 pInput.neverAutoSwitchControlSchemes = true;
             }
 
-            Debug.Log($"[LEVEL START] Fully activated and initialized player controller script components for: {controller.gameObject.name}");
+            // WAKE UP GRAB AND TOOLINVENTORY
+            Grab grabScript = controller.GetComponent<Grab>();
+            if (grabScript != null)
+            {
+                grabScript.enabled = true;
+
+                // Explicitly force clean the state data container so no null errors break the joint pipeline
+                grabScript.SendMessage("Drop", SendMessageOptions.DontRequireReceiver); 
+
+            }
+            
+            ToolInventory inventoryScript = controller.GetComponent<ToolInventory>();
+            if (inventoryScript != null)
+            {
+                inventoryScript.enabled = true;
+            
+                // Force wipe any weird tool data selections carried over from the character selector
+                inventoryScript.SendMessage("ClearSelection", SendMessageOptions.DontRequireReceiver);
+            
+            }
         }
 
-        Debug.Log("The heist has begun! Start cleaning!");
     }
 }

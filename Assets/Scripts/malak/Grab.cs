@@ -3,9 +3,6 @@ using UnityEngine.InputSystem;
 
 public class Grab : MonoBehaviour
 {
-    [Header("Input")]
-    public InputActionReference grabAction;
-
     [Header("Setup")]
     public Transform holdPoint;
     public Transform chestHoldPoint;
@@ -32,13 +29,27 @@ public class Grab : MonoBehaviour
     private Animator playerAnimator; // Reference to track player reach animations
     private Vector3 cachedHoldPoint;
 
+    // 🟢 LOCAL INPUT REFERENCES
+    private PlayerInput playerInput;
+    private InputAction localGrabAction;
+
     void Start()
     {
         playerController = GetComponent<TopDownPlayerController>();
-        playerAnimator = GetComponentInChildren<Animator>(); // Cache the player's animator controller
+        playerAnimator = GetComponentInChildren<Animator>(); 
+    
+        playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
+        if (playerInput != null)
+        {
+            // 🟢 Change this string to match your action asset row name ("Interact" or your specific button row)
+            localGrabAction = playerInput.actions.FindAction("Interact");
+        
+            // 🟢 FORCE WAKE UP: Tell Unity to explicitly listen to this thread right now
+            localGrabAction?.Enable(); 
+        }
+
         CreateAnchor();
     }
-
     void CreateAnchor()
     {
         anchorObject = new GameObject("GrabAnchor");
@@ -49,20 +60,20 @@ public class Grab : MonoBehaviour
         DontDestroyOnLoad(anchorObject);
     }
 
-    void OnEnable()
-    {
-        if (grabAction != null && grabAction.action != null)
-            grabAction.action.Enable();
-    }
-
-    void OnDisable()
-    {
-        if (grabAction != null && grabAction.action != null)
-            grabAction.action.Disable();
-    }
+    // 🟢 Cleaned up to let GameManager manage action map switching states globally
+    void OnEnable() { }
+    void OnDisable() { }
 
     void Update()
     {
+        // 🛡️ STATE SHIELD: Disable grabbing when not playing (or in lobby)
+        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
+        {
+            // Force drop anything if it somehow got stuck across scene loads
+            if (heldObject != null) Drop(); 
+            return;
+        }
+
         // Force both weapons and ragdolls to look for the chest anchor point
         if (heldGrabbable != null && chestHoldPoint != null)
         {
@@ -75,21 +86,15 @@ public class Grab : MonoBehaviour
             cachedHoldPoint = holdPoint != null ? holdPoint.position : transform.position;
         }
 
-        // --- Keep your stretch prevention guard code right here ---
-// Prevent infinite stretching/spazzing
+        // Prevent infinite spazzing
         if (heldObject != null && anchorObject != null)
         {
-            float currentDistance =
-                Vector3.Distance(
-                    heldRigidbody.worldCenterOfMass,
-                    cachedHoldPoint
-                );
+            float currentDistance = Vector3.Distance(heldRigidbody.worldCenterOfMass, cachedHoldPoint);
 
             // Body got stuck behind wall
             if (currentDistance > 2.2f)
             {
                 Debug.Log("Body stuck — dropping");
-
                 Drop();
                 return;
             }
@@ -105,9 +110,12 @@ public class Grab : MonoBehaviour
             }
         }
 
-        if (grabAction == null || grabAction.action == null) return;
-        if (grabAction.action.WasPressedThisFrame())
+        if (localGrabAction == null) return;
+
+        // 🟢 FIXED: Only polls the isolated input track assigned to this specific player device track
+        if (localGrabAction.WasPressedThisFrame())
         {
+            Debug.Log($"[GRAB BUTTON CLICK] {gameObject.name} pressed the grab key/button!");
             if (heldObject == null) TryGrab();
             else Drop();
         }
@@ -117,10 +125,7 @@ public class Grab : MonoBehaviour
     {
         if (heldRigidbody == null) return;
 
-        float dist = Vector3.Distance(
-            heldRigidbody.worldCenterOfMass,
-            cachedHoldPoint
-        );
+        float dist = Vector3.Distance(heldRigidbody.worldCenterOfMass, cachedHoldPoint);
 
         // Body stuck on wall
         if (dist > 1.5f)
@@ -128,199 +133,202 @@ public class Grab : MonoBehaviour
 
         anchorRigidbody.MovePosition(cachedHoldPoint);
 
-        if (!heldRigidbody.isKinematic &&
-            heldRigidbody.linearVelocity.magnitude > 8f)
+        if (!heldRigidbody.isKinematic && heldRigidbody.linearVelocity.magnitude > 8f)
         {
-            heldRigidbody.linearVelocity =
-                heldRigidbody.linearVelocity.normalized * 8f;
+            heldRigidbody.linearVelocity = heldRigidbody.linearVelocity.normalized * 8f;
         }
     }
 
-
-void TryGrab()
-{
-    Debug.Log("Trying to grab...");
-
-    Vector3 searchPosition = (chestHoldPoint != null) ? chestHoldPoint.position : holdPoint.position;
-
-    Collider[] hits = Physics.OverlapSphere(
-        searchPosition, grabRange, ~0, QueryTriggerInteraction.Collide);
-
-    foreach (var hit in hits)
+    void TryGrab()
     {
-        GrabbableObject grabbable = hit.GetComponentInParent<GrabbableObject>();
-        if (grabbable == null) continue;
+        Debug.Log("Trying to grab...");
 
-        // ─────────────────────────────────────────────────────────────
-        // FIX 1: Allow multiple players to grab if it's a ragdoll body!
-        // ─────────────────────────────────────────────────────────────
-        if (!grabbable.isRagdoll)
+        Vector3 searchPosition = (chestHoldPoint != null) ? chestHoldPoint.position : holdPoint.position;
+
+        Collider[] hits = Physics.OverlapSphere(searchPosition, grabRange, ~0, QueryTriggerInteraction.Collide);
+
+        foreach (var hit in hits)
         {
-            // Normal objects (weapons/crates) still only allow 1 person
-            if (!grabbable.TryGrab(gameObject))
+            GrabbableObject grabbable = hit.GetComponentInParent<GrabbableObject>();
+            if (grabbable == null) continue;
+
+            // ─────────────────────────────────────────────────────────────
+            // 🟢 ALLOW MULTIPLE PLAYERS TO GRAB IF IT'S A RAGDOLL BODY
+            // ─────────────────────────────────────────────────────────────
+            if (!grabbable.isRagdoll)
             {
-                Debug.Log("Already grabbed by another player");
+                // Normal objects (weapons/crates) still only allow 1 person
+                if (!grabbable.TryGrab(gameObject))
+                {
+                    Debug.Log("Already grabbed by another player");
+                    continue;
+                }
+            }
+            else
+            {
+                // 🟢 FIXED: Skip grabbable.TryGrab completely for ragdolls so it doesn't break player 1's joints!
+                // We track registration directly through our clean list in DeadbodyCarry instead.
+                DeadbodyCarry carryScript = grabbable.GetComponentInParent<DeadbodyCarry>();
+                if (carryScript != null)
+                {
+                    carryScript.RegisterPlayer(gameObject);
+                }
+            }
+
+            Rigidbody targetRb = null;
+            Transform anchor = grabbable.grabAnchor;
+
+            if (anchor != null)
+                targetRb = anchor.GetComponentInParent<Rigidbody>();
+
+            if (targetRb == null)
+                targetRb = hit.attachedRigidbody;
+
+            if (targetRb == null)
+            {
+                Debug.LogError("No Rigidbody found to grab.");
                 continue;
             }
+
+            // Trigger animations
+            if (playerAnimator != null)
+            {
+                if (grabbable.isRagdoll)
+                    playerAnimator.SetTrigger("PickUpBody");
+                else
+                    playerAnimator.SetTrigger("PickUpObj");
+
+                playerAnimator.SetBool("IsCarrying", true);
+            }
+
+            heldGrabbable = grabbable;
+            heldObject = grabbable.gameObject;
+            heldRigidbody = targetRb;
+
+            // Kill velocity on all non-kinematic bones at grab moment
+            Rigidbody[] allBones = heldGrabbable.GetComponentsInChildren<Rigidbody>();
+            foreach (var bone in allBones)
+            {
+                if (!bone.isKinematic)
+                {
+                    bone.linearVelocity = Vector3.zero;
+                    bone.angularVelocity = Vector3.zero;
+                }
+            }
+
+            Vector3 startHoldPos = grabbable.isRagdoll && chestHoldPoint != null ? (chestHoldPoint.position + (transform.forward * bodyForwardOffset)) : holdPoint.position;
+            anchorObject.transform.position = targetRb.worldCenterOfMass;
+            anchorRigidbody.MovePosition(startHoldPos);
+
+            AttachJoint(targetRb);
+
+            // ─────────────────────────────────────────────────────────────
+            // 🟢 SET CARRY WEIGHT PENALTIES BASED ON DYNAMIC COOP LIFTER COUNT
+            // ─────────────────────────────────────────────────────────────
+            if (playerController != null)
+            {
+                if (heldGrabbable.isRagdoll)
+                {
+                    playerController.isCarrying = true; 
+                    
+                    // Fetch speed parameters based on how many people are lifting right now
+                    DeadbodyCarry carryScript = heldObject.GetComponentInParent<DeadbodyCarry>();
+                    if (carryScript != null)
+                    {
+                        playerController.SetCarryWeight(carryScript.GetPenaltyForPlayerCount());
+                    }
+                }
+                else
+                {
+                    playerController.isCarrying = false;
+                }
+            }
+
+            CharacterController cc = GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                Collider[] heldColliders = heldGrabbable.GetComponentsInChildren<Collider>();
+                foreach (var col in heldColliders)
+                {
+                    if (col != null) Physics.IgnoreCollision(cc, col, true);
+                }
+            }
+
+            Debug.Log($"GRAB SUCCESS — bone: {targetRb.name}");
+            return;
         }
-        else
-        {
-            // If it's a ragdoll, we skip the exclusive single-holder check,
-            // but we still want to let the grabbable know we are participating.
-            grabbable.TryGrab(gameObject); 
-        }
 
-        Rigidbody targetRb = null;
-        Transform anchor = grabbable.grabAnchor;
+        Debug.Log("No grabbable object in range");
+    }
 
-        if (anchor != null)
-            targetRb = anchor.GetComponentInParent<Rigidbody>();
-
-        if (targetRb == null)
-            targetRb = hit.attachedRigidbody;
-
-        if (targetRb == null)
-        {
-            Debug.LogError("No Rigidbody found to grab.");
-            continue;
-        }
-
-        // Trigger animations
-        if (playerAnimator != null)
-        {
-            if (grabbable.isRagdoll)
-                playerAnimator.SetTrigger("PickUpBody");
-            else
-                playerAnimator.SetTrigger("PickUpObj");
-
-            playerAnimator.SetBool("IsCarrying", true);
-        }
-
-        heldGrabbable = grabbable;
-        heldObject = grabbable.gameObject;
-        heldRigidbody = targetRb;
+    void Drop()
+    {
+        if (heldObject == null) return;
 
         // ─────────────────────────────────────────────────────────────
-        // FIX 2: Register this player to the body weight calculation script
+        // 🟢 UNREGISTER FROM WEIGHT CALCULATION SYSTEMS ON DROP
         // ─────────────────────────────────────────────────────────────
-        if (grabbable.isRagdoll)
+        if (heldGrabbable != null && heldGrabbable.isRagdoll)
         {
             DeadbodyCarry carryScript = heldObject.GetComponentInParent<DeadbodyCarry>();
             if (carryScript != null)
             {
-                carryScript.RegisterPlayer(gameObject);
+                carryScript.UnregisterPlayer(gameObject);
+                
+                // 🟢 Recalculate and scale speeds for any remaining player left holding the weight
+                carryScript.UpdateBodyWeight();        
             }
         }
-
-        // Kill velocity on all non-kinematic bones at grab moment
-        Rigidbody[] allBones = heldGrabbable.GetComponentsInChildren<Rigidbody>();
-        foreach (var bone in allBones)
+        else if (heldGrabbable != null && heldGrabbable.currentHolder == gameObject)
         {
-            if (!bone.isKinematic)
+            heldGrabbable.Release();
+        }
+
+        if (joint != null)
+        {
+            Destroy(joint);
+            joint = null;
+        }
+
+        if (heldGrabbable != null)
+        {
+            Rigidbody[] allBones = heldGrabbable.GetComponentsInChildren<Rigidbody>();
+            foreach (var rb in allBones)
             {
-                bone.linearVelocity = Vector3.zero;
-                bone.angularVelocity = Vector3.zero;
+                if (!rb.isKinematic)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
             }
         }
 
-        Vector3 startHoldPos = grabbable.isRagdoll && chestHoldPoint != null ? (chestHoldPoint.position + (transform.forward * bodyForwardOffset)) : holdPoint.position;
-        anchorObject.transform.position = targetRb.worldCenterOfMass;
-        anchorRigidbody.MovePosition(startHoldPos);
+        if (heldGrabbable != null && heldGrabbable.isRagdoll)
+        {
+            CharacterController cc = GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                Collider[] bodyColliders = heldGrabbable.GetComponentsInChildren<Collider>();
+                foreach (var col in bodyColliders)
+                {
+                    if (col != null) Physics.IgnoreCollision(cc, col, false);
+                }
+            }
+        }
 
-        AttachJoint(targetRb);
+        heldObject = null;
+        heldRigidbody = null;
+        heldGrabbable = null;
 
         if (playerController != null)
+            playerController.ClearCarryPenalty(); // 🟢 Safely clear speed penalty entirely back to base attributes
+
+        if (playerAnimator != null)
         {
-            if (heldGrabbable.isRagdoll)
-            {
-                playerController.isCarrying = true; 
-            }
-            else
-            {
-                playerController.isCarrying = false;
-            }
-        }
-
-        CharacterController cc = GetComponent<CharacterController>();
-        if (cc != null)
-        {
-            Collider[] heldColliders = heldGrabbable.GetComponentsInChildren<Collider>();
-            foreach (var col in heldColliders)
-            {
-                Physics.IgnoreCollision(cc, col, true);
-            }
-        }
-
-        Debug.Log($"GRAB SUCCESS — bone: {targetRb.name}");
-        return;
-    }
-
-    Debug.Log("No grabbable object in range");
-}
-
-void Drop()
-{
-    if (heldObject == null) return;
-
-    // ─────────────────────────────────────────────────────────────
-    // FIX 3: Unregister from the body weight calculation script on drop
-    // ─────────────────────────────────────────────────────────────
-    if (heldGrabbable != null && heldGrabbable.isRagdoll)
-    {
-        DeadbodyCarry carryScript = heldObject.GetComponentInParent<DeadbodyCarry>();
-        if (carryScript != null)
-        {
-            carryScript.UnregisterPlayer(gameObject);
+            playerAnimator.SetBool("IsCarrying", false);
         }
     }
 
-    if (heldGrabbable != null && heldGrabbable.currentHolder == gameObject)
-    {
-        heldGrabbable.Release();
-    }
-
-    if (joint != null)
-    {
-        Destroy(joint);
-        joint = null;
-    }
-
-    if (heldGrabbable != null)
-    {
-        Rigidbody[] allBones = heldGrabbable.GetComponentsInChildren<Rigidbody>();
-        foreach (var rb in allBones)
-        {
-            if (!rb.isKinematic)
-            {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
-        }
-    }
-
-    if (heldGrabbable != null && heldGrabbable.isRagdoll)
-    {
-        CharacterController cc = GetComponent<CharacterController>();
-        if (cc != null)
-        {
-            Collider[] bodyColliders = heldGrabbable.GetComponentsInChildren<Collider>();
-            foreach (var col in bodyColliders)
-                Physics.IgnoreCollision(cc, col, false);
-        }
-    }
-
-    heldObject = null;
-    heldRigidbody = null;
-    heldGrabbable = null;
-
-    if (playerController != null)
-        playerController.isCarrying = false;
-
-    if (playerAnimator != null)
-    {
-        playerAnimator.SetBool("IsCarrying", false);
-    }
-}
     void AttachJoint(Rigidbody targetRb)
     {
         if (joint != null)
@@ -336,8 +344,7 @@ void Drop()
 
         if (heldGrabbable.grabAnchor != null)
         {
-            joint.connectedAnchor = targetRb.transform.InverseTransformPoint(
-                heldGrabbable.grabAnchor.position);
+            joint.connectedAnchor = targetRb.transform.InverseTransformPoint(heldGrabbable.grabAnchor.position);
         }
         else
         {
@@ -345,23 +352,20 @@ void Drop()
         }
 
         // ─────────────────────────────────────────────────────────────
-        // DYNAMIC TUNING LOGIC BASED ON OBJECT TYPE CARRIED (Normal objects or a deadbody)
+        // CONFIGURABLE JOINT SPRING TUNING PATHWAY LOOPS
         // ─────────────────────────────────────────────────────────────
         if (heldGrabbable.isRagdoll)
         {
             // Carrying a Dead Body
-            // Lock spatial positions so his chest bone stays pinned to your chest anchor location
             joint.xMotion = ConfigurableJointMotion.Locked;
             joint.yMotion = ConfigurableJointMotion.Locked;
             joint.zMotion = ConfigurableJointMotion.Locked;
 
-            // LOCKED: This forces the torso to stay completely upright 
-            // and rotate exactly when your player turns, stopping all upper-body flailing.
+            // LOCKED: Keeps the torso upright with your player frame rotation, stopping flailing.
             joint.angularXMotion = ConfigurableJointMotion.Locked;
             joint.angularYMotion = ConfigurableJointMotion.Locked;
             joint.angularZMotion = ConfigurableJointMotion.Locked;
             
-            // Maximum spring power on the horizontal axes to keep the body tight to your movement frame
             JointDrive horizontalDragDrive = new JointDrive
             {
                 positionSpring = 20000f,
@@ -369,8 +373,6 @@ void Drop()
                 maximumForce = Mathf.Infinity
             };
 
-            // Keep the vertical drive at a medium strength so it supports the weight of his upper chest 
-            // but still lets the heavy lower legs droop naturally to drag across the tiles.
             JointDrive verticalDragDrive = new JointDrive
             {
                 positionSpring = 4000f, 
@@ -406,15 +408,13 @@ void Drop()
             joint.yDrive = rigidDrive;
             joint.zDrive = rigidDrive;
             
-            joint.enableCollision = true; // Let props bump into walls normally
+            joint.enableCollision = true; 
         }
 
         joint.projectionMode = JointProjectionMode.PositionAndRotation;
         joint.projectionDistance = 0.02f;
         joint.projectionAngle = 1f;
     }
-
-
 
     void OnDestroy()
     {
@@ -431,7 +431,6 @@ void Drop()
         if (chestHoldPoint != null)
         {
             Gizmos.color = Color.magenta;
-            // Draw a second gizmo sphere showing exactly where the body will be held with the offset applied
             Vector3 visualOffsetPos = chestHoldPoint.position + (transform.forward * bodyForwardOffset);
             Gizmos.DrawWireSphere(visualOffsetPos, 0.2f);
         }
