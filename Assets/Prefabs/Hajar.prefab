@@ -371,10 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae22cf7a6d8b4fc7b6b65331a283dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot1Highlight: {fileID: 0}
-  slot2Highlight: {fileID: 0}
-  slot3Highlight: {fileID: 0}
-  slot4Highlight: {fileID: 0}
+  inventoryPanel: {fileID: 0}
   mopTool: {fileID: 9103607851021296463}
   bucketTool: {fileID: 9173918381175356339}
   blacklightTool: {fileID: 4740927658548640352}

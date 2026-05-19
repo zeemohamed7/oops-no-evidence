@@ -1,15 +1,8 @@
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ToolInventory : MonoBehaviour
 {
-    [Header("UI Highlights")]
-    public Image slot1Highlight;
-    public Image slot2Highlight;
-    public Image slot3Highlight;
-    public Image slot4Highlight;
-
     [Header("Tools")]
     public GameObject mopTool;
     public GameObject bucketTool;
@@ -21,7 +14,6 @@ public class ToolInventory : MonoBehaviour
     public Transform holdPoint;
 
     private int selectedSlot = -1;
-    private float highlightDuration = 0.5f;
     private PlayerAnimationDriver animationDriver;
 
     // Per-player input actions — each player's PlayerInput component provides its own
@@ -85,10 +77,9 @@ public class ToolInventory : MonoBehaviour
         if (next < 1) next = 4;
         if (next > 4) next = 1;
         selectedSlot = next;
-        HighlightSlot(next);
     }
 
-    // Runs every frame — guarantees tool visibility always matches selectedSlot
+    // Runs every frame — keeps tool visibility in sync with selectedSlot
     void EnforceSingleTool()
     {
         if (mopTool != null)        mopTool.SetActive(selectedSlot == 1);
@@ -103,7 +94,6 @@ public class ToolInventory : MonoBehaviour
         {
             selectedSlot = -1;
             animationDriver?.ClearSelectedItem();
-            Debug.Log($"[Inventory] Slot {slot} unequipped.");
         }
         else
         {
@@ -115,37 +105,14 @@ public class ToolInventory : MonoBehaviour
 
             selectedSlot = slot;
 
-            if (slot == 1)
-                animationDriver?.SelectMop();
-            else
-                animationDriver?.SelectTool();
-
-            HighlightSlot(slot);
-            Debug.Log($"[Inventory] Equipped slot {slot}.");
+            if (slot == 1) animationDriver?.SelectMop();
+            else           animationDriver?.SelectTool();
         }
-    }
-
-    void HighlightSlot(int slotNumber)
-    {
-        Color glowColor = new Color(0.6f, 0.2f, 1f, 0.6f);
-
-        if (slot1Highlight != null) { slot1Highlight.gameObject.SetActive(slotNumber == 1); slot1Highlight.color = glowColor; }
-        if (slot2Highlight != null) { slot2Highlight.gameObject.SetActive(slotNumber == 2); slot2Highlight.color = glowColor; }
-        if (slot3Highlight != null) { slot3Highlight.gameObject.SetActive(slotNumber == 3); slot3Highlight.color = glowColor; }
-        if (slot4Highlight != null) { slot4Highlight.gameObject.SetActive(slotNumber == 4); slot4Highlight.color = glowColor; }
-
-        StopAllCoroutines();
-        StartCoroutine(HideHighlightAfterDelay());
     }
 
     void ClearSelection()
     {
         selectedSlot = -1;
-
-        if (slot1Highlight != null) slot1Highlight.gameObject.SetActive(false);
-        if (slot2Highlight != null) slot2Highlight.gameObject.SetActive(false);
-        if (slot3Highlight != null) slot3Highlight.gameObject.SetActive(false);
-        if (slot4Highlight != null) slot4Highlight.gameObject.SetActive(false);
 
         if (mopTool != null)        mopTool.SetActive(false);
         if (bucketTool != null)     bucketTool.SetActive(false);
@@ -159,12 +126,4 @@ public class ToolInventory : MonoBehaviour
     public bool IsBlacklightSelected() => selectedSlot == 3;
     public bool IsSpraySelected()   => selectedSlot == 4;
 
-    System.Collections.IEnumerator HideHighlightAfterDelay()
-    {
-        yield return new WaitForSeconds(highlightDuration);
-        if (slot1Highlight != null) slot1Highlight.gameObject.SetActive(false);
-        if (slot2Highlight != null) slot2Highlight.gameObject.SetActive(false);
-        if (slot3Highlight != null) slot3Highlight.gameObject.SetActive(false);
-        if (slot4Highlight != null) slot4Highlight.gameObject.SetActive(false);
-    }
 }

@@ -412,10 +412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae22cf7a6d8b4fc7b6b65331a283dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot1Highlight: {fileID: 0}
-  slot2Highlight: {fileID: 0}
-  slot3Highlight: {fileID: 0}
-  slot4Highlight: {fileID: 0}
+  inventoryPanel: {fileID: 0}
   mopTool: {fileID: 6895083988046883441}
   bucketTool: {fileID: 4670863797400366856}
   blacklightTool: {fileID: 2182789519327241977}
@@ -914,7 +911,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5089974453802126982, guid: 215aede7f1b4b7c448c3d7a20354e146, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1533,14 +1530,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 7c4cfd35d7e78fb44a0f5522e37c35b1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2644046759116501139}
+      addedObject: {fileID: 7165245089706695670}
   m_SourcePrefab: {fileID: 100100000, guid: 7c4cfd35d7e78fb44a0f5522e37c35b1, type: 3}
 --- !u!1 &7652600669078806359 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 7c4cfd35d7e78fb44a0f5522e37c35b1, type: 3}
   m_PrefabInstance: {fileID: 7652600669078706679}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2644046759116501139
+--- !u!114 &7165245089706695670
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

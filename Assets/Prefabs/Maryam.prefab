@@ -337,10 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae22cf7a6d8b4fc7b6b65331a283dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot1Highlight: {fileID: 0}
-  slot2Highlight: {fileID: 0}
-  slot3Highlight: {fileID: 0}
-  slot4Highlight: {fileID: 0}
+  inventoryPanel: {fileID: 0}
   mopTool: {fileID: 5466144255369700317}
   bucketTool: {fileID: 6761897065366341186}
   blacklightTool: {fileID: 7120733938074380700}
@@ -1320,7 +1317,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.6
+      value: -0.518
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.z
