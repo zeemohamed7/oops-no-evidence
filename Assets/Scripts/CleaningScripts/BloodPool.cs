@@ -50,6 +50,7 @@ public class BloodPool : MonoBehaviour
     Material _eraseMat;      // MopClean shader instance
     Material _stampMat;      // MopClean shader — used in reverse for footprint stamps
     RenderTexture _tempRT;
+    bool _ownedRT;           // true when we created our own RT (not the shared project asset)
 
     Shader _blitShader;
 
@@ -86,6 +87,13 @@ public class BloodPool : MonoBehaviour
         _eraseMat = new Material(_blitShader);
         _stampMat = new Material(_blitShader);
 
+        // Create a unique RenderTexture per instance so duplicates don't share the same texture
+        RenderTexture sourceRT = bloodRT;
+        bloodRT = new RenderTexture(sourceRT.descriptor);
+        bloodRT.name = $"{name}_BloodRT";
+        bloodRT.Create();
+        _ownedRT = true;
+
         // Ping-pong buffer
         _tempRT = new RenderTexture(bloodRT.descriptor);
         _tempRT.name = "BloodPool_Temp";
@@ -103,7 +111,8 @@ public class BloodPool : MonoBehaviour
     {
         if (_eraseMat) Destroy(_eraseMat);
         if (_stampMat) Destroy(_stampMat);
-        if (_tempRT) { _tempRT.Release(); Destroy(_tempRT); }
+        if (_tempRT)  { _tempRT.Release();  Destroy(_tempRT);  }
+        if (_ownedRT && bloodRT) { bloodRT.Release(); Destroy(bloodRT); }
     }
 
     // ── Public API ─────────────────────────────────────────────────────────
