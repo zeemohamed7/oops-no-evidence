@@ -318,10 +318,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 6416379632754404324}
-  mopRange: 1.5
+  mopRange: 2
   dipDistance: 1.5
   cleanDistanceBeforeDirty: 5
-  spreadStrength: 1.5
+  spreadStrength: 0.5
+  mopWorldRadius: 0.6
   footprintCleanRadius: 0.4
   footprintCleanTime: 0.6
   statusText: {fileID: 0}
