@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
 /// <summary>
@@ -54,14 +56,36 @@ public class FootprintTracker : MonoBehaviour
     BloodPool[] _allPools;
     float _poolRefreshTimer;
     const float POOL_REFRESH = 0.3f;
+    InputAction _interactAction;
 
     // ── Static list — MopCleaner reads this to find footprints ────────────
     public static List<GameObject> ActiveFootprints = new List<GameObject>();
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
+    void OnEnable()
+    {
+        SceneManager.activeSceneChanged += OnSceneChanged;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.activeSceneChanged -= OnSceneChanged;
+    }
+
+    // Purge stale footprint references left over from the previous scene
+    void OnSceneChanged(Scene prev, Scene next)
+    {
+        ActiveFootprints.RemoveAll(fp => fp == null);
+    }
+
     void Start()
     {
+        if (!inventory) inventory = GetComponent<ToolInventory>() ?? GetComponentInParent<ToolInventory>();
+
+        var pi = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
+        if (pi != null) _interactAction = pi.actions.FindAction("Interact");
+
         _lastPos = transform.position;
         RefreshPools();
     }
@@ -84,7 +108,8 @@ public class FootprintTracker : MonoBehaviour
         if (moved < 0.001f) return;
         _distAccum += moved;
 
-        bool mopping = inventory != null && inventory.IsMopSelected();
+        bool mopping = inventory != null && inventory.IsMopSelected()
+                       && _interactAction != null && _interactAction.IsPressed();
         if (_distAccum >= stepDistance && _stepsRemaining > 0 && !mopping)
         {
             _distAccum = 0f;

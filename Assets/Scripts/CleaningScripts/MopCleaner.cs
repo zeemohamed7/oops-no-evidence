@@ -14,7 +14,7 @@ public class MopCleaner : MonoBehaviour
     [Header("Dirty Mop Settings")]
     public float dipDistance = 1.5f;
     public float cleanDistanceBeforeDirty = 5.0f;
-    [Range(0.002f, 0.15f)] public float spreadStrength = 0.1f;
+    public float spreadStrength = 1.5f;
 
     [Header("Footprint Cleaning")]
     public float footprintCleanRadius = 0.4f;
