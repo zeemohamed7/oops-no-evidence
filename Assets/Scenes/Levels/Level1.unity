@@ -255594,7 +255594,7 @@ GameObject:
   m_Component:
   - component: {fileID: 972221807}
   m_Layer: 0
-  m_Name: noora
+  m_Name: blood
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -264,7 +264,7 @@ void FixedUpdate()
 
     Debug.Log($"[{gameObject.name}] No grabbable object inside overlap radius.");
 }
-    void Drop()
+    public void Drop()
     {
         if (heldObject == null) return;
 
