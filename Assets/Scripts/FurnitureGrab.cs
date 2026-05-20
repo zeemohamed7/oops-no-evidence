@@ -67,6 +67,9 @@ public class FurnitureGrab : MonoBehaviour
         foreach (Collider hit in hits)
         {
             FurnitureItem item = hit.GetComponentInParent<FurnitureItem>();
+            FurnitureSnap snapState = item.GetComponent<FurnitureSnap>();
+            if (snapState != null && snapState.IsSolved)
+                continue;
             if (item == null) continue;
 
             float distance = Vector3.Distance(transform.position, item.transform.position);
@@ -86,10 +89,10 @@ public class FurnitureGrab : MonoBehaviour
 
         heldFurniture = nearest;
         FurnitureSnap snap = heldFurniture.GetComponent<FurnitureSnap>();
-            if (snap != null)
-            {
-                snap.MarkPickedUpAgain();
-            }
+        if (snap != null)
+        {
+            snap.EnterRearrangeMode();
+        }
         heldRb = heldFurniture.GetComponent<Rigidbody>();
 
         if (heldRb == null)
