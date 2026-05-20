@@ -15,6 +15,7 @@ public class InventoryHUD : MonoBehaviour
 
     private static readonly Color Lavender = new Color(0.72f, 0.52f, 1f, 1f);
     private static readonly Color Normal   = Color.white;
+    private static readonly Color Locked   = new Color(0.35f, 0.35f, 0.35f, 0.5f);
     private const float FlashDuration = 0.5f;
 
     void Start()
@@ -55,6 +56,19 @@ public class InventoryHUD : MonoBehaviour
                 if (current >= 1 && current <= 4)
                     Flash(current);
                 _prevSlots[i] = current + 1; // store as slot+1
+            }
+        }
+
+        // Grey out locked slots every frame so it always overrides highlights
+        bool blacklightLocked = players.Length > 0 && !players[0].IsBlacklightUnlocked();
+        Image slot3Img = SlotImage(3);
+        if (slot3Img != null)
+        {
+            if (blacklightLocked)
+            {
+                // Cancel any running flash and force grey
+                if (_coroutines[2] != null) { StopCoroutine(_coroutines[2]); _coroutines[2] = null; }
+                slot3Img.color = Locked;
             }
         }
     }

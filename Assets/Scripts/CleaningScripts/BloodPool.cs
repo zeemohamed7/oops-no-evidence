@@ -50,6 +50,7 @@ public class BloodPool : MonoBehaviour
     Material _eraseMat;      // MopClean shader instance
     Material _stampMat;      // MopClean shader — used in reverse for footprint stamps
     RenderTexture _tempRT;
+    bool _ownedRT;           // true when we created our own RT (not the shared project asset)
 
     Shader _blitShader;
 
@@ -86,6 +87,13 @@ public class BloodPool : MonoBehaviour
         _eraseMat = new Material(_blitShader);
         _stampMat = new Material(_blitShader);
 
+        // Create a unique RenderTexture per instance so duplicates don't share the same texture
+        RenderTexture sourceRT = bloodRT;
+        bloodRT = new RenderTexture(sourceRT.descriptor);
+        bloodRT.name = $"{name}_BloodRT";
+        bloodRT.Create();
+        _ownedRT = true;
+
         // Ping-pong buffer
         _tempRT = new RenderTexture(bloodRT.descriptor);
         _tempRT.name = "BloodPool_Temp";
@@ -103,7 +111,8 @@ public class BloodPool : MonoBehaviour
     {
         if (_eraseMat) Destroy(_eraseMat);
         if (_stampMat) Destroy(_stampMat);
-        if (_tempRT) { _tempRT.Release(); Destroy(_tempRT); }
+        if (_tempRT)  { _tempRT.Release();  Destroy(_tempRT);  }
+        if (_ownedRT && bloodRT) { bloodRT.Release(); Destroy(bloodRT); }
     }
 
     // ── Public API ─────────────────────────────────────────────────────────
@@ -128,10 +137,11 @@ public class BloodPool : MonoBehaviour
     /// Erase blood at an exact mesh UV (from a raycast textureCoord).
     /// Avoids any world-to-UV conversion mismatch.
     /// </summary>
-    public void EraseAtUV(Vector2 uv)
+    public void EraseAtUV(Vector2 uv, float worldRadius = -1f)
     {
+        float r = worldRadius > 0f ? WorldRadiusToUV(worldRadius) : brushRadius;
         _eraseMat.SetVector(ID_HitUV, new Vector4(uv.x, uv.y, 0, 0));
-        _eraseMat.SetFloat(ID_Radius, brushRadius);
+        _eraseMat.SetFloat(ID_Radius, r);
         _eraseMat.SetFloat(ID_Strength, brushStrength);
         _eraseMat.SetFloat(ID_Spread, 0f);
         Blit(_eraseMat);
@@ -140,10 +150,11 @@ public class BloodPool : MonoBehaviour
     /// <summary>
     /// Spread blood at an exact mesh UV — used when mop is dirty.
     /// </summary>
-    public void SpreadAtUV(Vector2 uv, float strength)
+    public void SpreadAtUV(Vector2 uv, float strength, float worldRadius = -1f)
     {
+        float r = worldRadius > 0f ? WorldRadiusToUV(worldRadius) : brushRadius;
         _eraseMat.SetVector(ID_HitUV, new Vector4(uv.x, uv.y, 0, 0));
-        _eraseMat.SetFloat(ID_Radius, brushRadius);
+        _eraseMat.SetFloat(ID_Radius, r);
         _eraseMat.SetFloat(ID_Strength, strength);
         _eraseMat.SetFloat(ID_Spread, 1f);
         Blit(_eraseMat);
@@ -274,6 +285,14 @@ public class BloodPool : MonoBehaviour
     {
         Graphics.Blit(bloodRT, _tempRT);
         Graphics.Blit(_tempRT, bloodRT, mat);
+    }
+
+    // Converts a world-space radius to UV space so brush size is the same
+    // physical size regardless of how large or small this pool is.
+    public float WorldRadiusToUV(float worldRadius)
+    {
+        float poolSize = Mathf.Max(_worldBounds.size.x, _worldBounds.size.z);
+        return poolSize > 0f ? worldRadius / poolSize : brushRadius;
     }
 
     public Vector2 WorldToUV(Vector3 worldPos)

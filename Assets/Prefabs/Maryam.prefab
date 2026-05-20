@@ -318,10 +318,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 6416379632754404324}
-  mopRange: 50
+  mopRange: 2
   dipDistance: 1.5
-  cleanDistanceBeforeDirty: 8
-  spreadStrength: 0.15
+  cleanDistanceBeforeDirty: 5
+  spreadStrength: 0.5
+  mopWorldRadius: 0.6
   footprintCleanRadius: 0.4
   footprintCleanTime: 0.6
   statusText: {fileID: 0}
@@ -337,7 +338,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae22cf7a6d8b4fc7b6b65331a283dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryPanel: {fileID: 0}
   mopTool: {fileID: 5466144255369700317}
   bucketTool: {fileID: 6761897065366341186}
   blacklightTool: {fileID: 7120733938074380700}

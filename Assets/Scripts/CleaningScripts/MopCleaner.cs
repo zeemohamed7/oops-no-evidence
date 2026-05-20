@@ -9,12 +9,16 @@ public class MopCleaner : MonoBehaviour
 
     [Header("Mop Range")]
     [Tooltip("How close the player must be to a blood pool to mop it (world units).")]
-    public float mopRange = 1.5f;
+    public float mopRange = 2f;
 
     [Header("Dirty Mop Settings")]
     public float dipDistance = 1.5f;
     public float cleanDistanceBeforeDirty = 5.0f;
-    [Range(0.002f, 0.15f)] public float spreadStrength = 0.1f;
+    public float spreadStrength = 0.5f;
+
+    [Header("Brush")]
+    [Tooltip("Fixed world-space radius for both cleaning and dirty spreading — same size on any pool.")]
+    public float mopWorldRadius = 0.6f;
 
     [Header("Footprint Cleaning")]
     public float footprintCleanRadius = 0.4f;
@@ -32,6 +36,8 @@ public class MopCleaner : MonoBehaviour
     InputAction _interactAction;
     ToolInventory[] _otherInventories;
     private PlayerAnimationDriver animationDriver;
+    float _dirtyStampTimer = 0f;
+    const float DirtyStampInterval = 0.06f; // seconds between dirty stamps
 
     System.Collections.Generic.Dictionary<GameObject, float> _footprintProgress
         = new System.Collections.Generic.Dictionary<GameObject, float>();
@@ -115,9 +121,16 @@ public class MopCleaner : MonoBehaviour
             cleanUV = uv;
 
             if (_mopIsDirty)
-                pool.SpreadAtUV(uv, spreadStrength);
+            {
+                _dirtyStampTimer -= Time.deltaTime;
+                if (_dirtyStampTimer <= 0f)
+                {
+                    pool.SpreadAtUV(uv, spreadStrength, mopWorldRadius);
+                    _dirtyStampTimer = DirtyStampInterval;
+                }
+            }
             else
-                pool.EraseAtUV(uv);
+                pool.EraseAtUV(uv, mopWorldRadius);
         }
 
         // Track UV distance for dirty mop (same scale as cleanDistanceBeforeDirty)
