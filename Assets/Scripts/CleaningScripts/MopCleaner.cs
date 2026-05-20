@@ -18,7 +18,7 @@ public class MopCleaner : MonoBehaviour
 
     [Header("Brush")]
     [Tooltip("Fixed world-space radius for both cleaning and dirty spreading — same size on any pool.")]
-    public float mopWorldRadius = 0.3f;
+    public float mopWorldRadius = 0.6f;
 
     [Header("Footprint Cleaning")]
     public float footprintCleanRadius = 0.4f;
