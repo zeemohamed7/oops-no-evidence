@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerPush : MonoBehaviour
 {
-    public float pushForce = 5f;
+    public float pushForce = 1.5f;
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {

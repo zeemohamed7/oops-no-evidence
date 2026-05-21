@@ -20,11 +20,15 @@ public class FurnitureGrab : MonoBehaviour
     private Collider[] playerColliders;
     private Collider[] furnitureColliders;
     private PlayerAnimationDriver animationDriver;
+    private Grab bodyGrab;
+    private TopDownPlayerController playerController;
 
     void Awake()
     {
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
+        bodyGrab = GetComponent<Grab>();
+        playerController = GetComponent<TopDownPlayerController>();
     }
 
     void OnEnable()
@@ -45,10 +49,19 @@ public class FurnitureGrab : MonoBehaviour
 
         if (grabAction.action.WasPressedThisFrame())
         {
-            if (heldFurniture == null)
-                TryGrabFurniture();
-            else
+            if (heldFurniture != null)
+            {
                 DropFurniture();
+                return;
+            }
+
+            if (playerController != null && playerController.isCarrying)
+            {
+                Debug.Log("Already carrying something.");
+                return;
+            }
+
+            TryGrabFurniture();
         }
     }
 
@@ -67,10 +80,11 @@ public class FurnitureGrab : MonoBehaviour
         foreach (Collider hit in hits)
         {
             FurnitureItem item = hit.GetComponentInParent<FurnitureItem>();
+            if (item == null) continue;
+
             FurnitureSnap snapState = item.GetComponent<FurnitureSnap>();
             if (snapState != null && snapState.IsSolved)
                 continue;
-            if (item == null) continue;
 
             float distance = Vector3.Distance(transform.position, item.transform.position);
 
@@ -123,6 +137,9 @@ public class FurnitureGrab : MonoBehaviour
 
         animationDriver.SetCarrying(true);
 
+        if (playerController != null)
+        playerController.isCarrying = true;
+
         Debug.Log("Furniture grabbed: " + heldFurniture.name);
     }
 
@@ -167,6 +184,9 @@ public class FurnitureGrab : MonoBehaviour
         heldFurniture = null;
         heldRb = null;
         furnitureColliders = null;
+
+        if (playerController != null)
+        playerController.isCarrying = false;
     } 
 
     void OnDrawGizmosSelected()

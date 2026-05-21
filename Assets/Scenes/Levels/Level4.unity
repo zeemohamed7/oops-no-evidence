@@ -9466,8 +9466,8 @@ Rigidbody:
   m_GameObject: {fileID: 417027207}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -9482,7 +9482,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &417027213
 MonoBehaviour:
@@ -23421,8 +23421,8 @@ Rigidbody:
   m_GameObject: {fileID: 962447566}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -23437,7 +23437,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &962447572
 MonoBehaviour:
@@ -28206,8 +28206,8 @@ Rigidbody:
   m_GameObject: {fileID: 1132447545}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -28222,7 +28222,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &1132447551
 MonoBehaviour:
@@ -28498,8 +28498,8 @@ Rigidbody:
   m_GameObject: {fileID: 1143454332}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -28514,7 +28514,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &1143454338
 MonoBehaviour:
@@ -37146,8 +37146,8 @@ Rigidbody:
   m_GameObject: {fileID: 1402610301}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -37162,7 +37162,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &1402610307
 MonoBehaviour:
@@ -38073,8 +38073,8 @@ Rigidbody:
   m_GameObject: {fileID: 1426676753}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -38089,7 +38089,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &1426676759
 MonoBehaviour:
@@ -41166,6 +41166,75 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.6191973, y: 1, z: 1.4960754}
   m_Center: {x: 0.06960842, y: 0, z: -0.0046977983}
+--- !u!1001 &1554169922
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3822228666653212683, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_Name
+      value: DeadBody
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 124.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 7.37
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6827949
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7306101
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -93.875
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451970855378236107, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9e67acf2e218a477a9bf93c0ab90e39e, type: 3}
 --- !u!1 &1555244279
 GameObject:
   m_ObjectHideFlags: 0
@@ -46760,9 +46829,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1763609206}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Mass: 5
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -46777,7 +46846,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &1763609209
 MonoBehaviour:
@@ -55898,8 +55967,8 @@ Rigidbody:
   m_GameObject: {fileID: 2104997216}
   serializedVersion: 5
   m_Mass: 5
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 5
+  m_AngularDamping: 8
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -55914,7 +55983,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &2104997222
 MonoBehaviour:
@@ -65444,3 +65513,4 @@ SceneRoots:
   - {fileID: 2147002643}
   - {fileID: 44908206}
   - {fileID: 2091305277}
+  - {fileID: 1554169922}
