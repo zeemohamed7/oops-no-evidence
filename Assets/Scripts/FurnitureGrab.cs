@@ -14,17 +14,22 @@ public class FurnitureGrab : MonoBehaviour
     [Header("Carry Offset")]
     public Vector3 localCarryPosition = Vector3.zero;
     public Vector3 localCarryRotation = Vector3.zero;
+    public float grabCooldown = 0.25f;
+
 
     private FurnitureItem heldFurniture;
     private Rigidbody heldRb;
     private Collider[] playerColliders;
     private Collider[] furnitureColliders;
     private PlayerAnimationDriver animationDriver;
+    private TopDownPlayerController playerController;
+    private float nextGrabTime = 0f;
 
     void Awake()
     {
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
+        playerController = GetComponent<TopDownPlayerController>();
     }
 
     void OnEnable()
@@ -42,13 +47,18 @@ public class FurnitureGrab : MonoBehaviour
     void Update()
     {
         if (grabAction == null) return;
+        if (Time.time < nextGrabTime) return;
 
         if (grabAction.action.WasPressedThisFrame())
         {
-            if (heldFurniture == null)
-                TryGrabFurniture();
-            else
+            if (heldFurniture != null)
+            {
                 DropFurniture();
+                nextGrabTime = Time.time + grabCooldown;
+                return;
+            }
+
+            TryGrabFurniture();
         }
     }
 
@@ -69,6 +79,10 @@ public class FurnitureGrab : MonoBehaviour
             FurnitureItem item = hit.GetComponentInParent<FurnitureItem>();
             if (item == null) continue;
 
+            FurnitureSnap snapState = item.GetComponent<FurnitureSnap>();
+            if (snapState != null && snapState.IsSolved)
+                continue;
+
             float distance = Vector3.Distance(transform.position, item.transform.position);
 
             if (distance < nearestDistance)
@@ -86,10 +100,10 @@ public class FurnitureGrab : MonoBehaviour
 
         heldFurniture = nearest;
         FurnitureSnap snap = heldFurniture.GetComponent<FurnitureSnap>();
-            if (snap != null)
-            {
-                snap.MarkPickedUpAgain();
-            }
+        if (snap != null)
+        {
+            snap.EnterRearrangeMode();
+        }
         heldRb = heldFurniture.GetComponent<Rigidbody>();
 
         if (heldRb == null)
@@ -119,6 +133,9 @@ public class FurnitureGrab : MonoBehaviour
         heldFurniture.transform.localRotation = Quaternion.Euler(localCarryRotation);
 
         animationDriver.SetCarrying(true);
+
+        if (playerController != null)
+        playerController.isCarrying = true;
 
         Debug.Log("Furniture grabbed: " + heldFurniture.name);
     }
@@ -164,6 +181,9 @@ public class FurnitureGrab : MonoBehaviour
         heldFurniture = null;
         heldRb = null;
         furnitureColliders = null;
+
+        if (playerController != null)
+        playerController.isCarrying = false;
     } 
 
     void OnDrawGizmosSelected()
