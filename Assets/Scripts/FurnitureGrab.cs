@@ -23,6 +23,7 @@ public class FurnitureGrab : MonoBehaviour
     private Collider[] furnitureColliders;
     private PlayerAnimationDriver animationDriver;
     private TopDownPlayerController playerController;
+    private ToolInventory toolInventory;
     private float nextGrabTime = 0f;
 
     void Awake()
@@ -30,6 +31,7 @@ public class FurnitureGrab : MonoBehaviour
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
         playerController = GetComponent<TopDownPlayerController>();
+        toolInventory = GetComponent<ToolInventory>();
     }
 
     void OnEnable()
@@ -55,6 +57,12 @@ public class FurnitureGrab : MonoBehaviour
             {
                 DropFurniture();
                 nextGrabTime = Time.time + grabCooldown;
+                return;
+            }
+
+            if (toolInventory != null && toolInventory.GetSelectedSlot() != -1)
+            {
+                Debug.Log("Cannot grab furniture while holding a tool.");
                 return;
             }
 

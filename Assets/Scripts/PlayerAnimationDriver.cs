@@ -6,6 +6,7 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     private bool isCarrying;
     private bool hasMop;
+    private bool isMopping;
 
     private void Reset()
     {
@@ -18,12 +19,19 @@ public class PlayerAnimationDriver : MonoBehaviour
             animator = GetComponent<Animator>();
     }
 
+    void Update()
+    {
+        if (isMopping && animator.GetBool("IsMopping") && !Input.anyKey)
+        {
+            SetMopping(false);
+        }
+    }
+
     public void SetWalking(bool value)
     {
         animator.SetBool("IsWalking", value);
     }
 
-    // CHANGED: one shared carry bool for body + furniture
     public void SetCarrying(bool value)
     {
         isCarrying = value;
@@ -46,6 +54,8 @@ public class PlayerAnimationDriver : MonoBehaviour
     {
         if (isCarrying) return;
 
+        SetMopping(false);
+
         hasMop = false;
         animator.SetBool("HasTool", true);
         animator.SetBool("HasMop", false);
@@ -58,13 +68,14 @@ public class PlayerAnimationDriver : MonoBehaviour
 
     public void ClearSelectedItem()
     {
+        SetMopping(false);
+
         hasMop = false;
         animator.SetBool("HasMop", false);
         animator.SetBool("HasTool", false);
         animator.SetBool("HasFlashlight", false);
     }
 
-    // CHANGED: removed object pickup animation completely
     public void PlayPickUpBody()
     {
         animator.SetTrigger("PickUpBody");
@@ -75,12 +86,33 @@ public class PlayerAnimationDriver : MonoBehaviour
         animator.SetTrigger("Drop");
     }
 
+    // public void PlayMop()
+    // {
+    //     Debug.Log("ANIM: PlayMop called. hasMop = " + hasMop + ", isCarrying = " + isCarrying);
+
+    //     if (hasMop && !isCarrying)
+    //         animator.SetTrigger("Mop");
+    // }
+
     public void PlayMop()
     {
-        Debug.Log("ANIM: PlayMop called. hasMop = " + hasMop + ", isCarrying = " + isCarrying);
+        SetMopping(true);
+    }
 
-        if (hasMop && !isCarrying)
-            animator.SetTrigger("Mop");
+    public void StopMop()
+    {
+        SetMopping(false);
+    }
+    
+    public void SetMopping(bool value)
+    {
+        if (!hasMop || isCarrying)
+            value = false;
+
+        if (isMopping == value) return;
+
+        isMopping = value;
+        animator.SetBool("IsMopping", value);
     }
 
     public void PlayDipMop()
