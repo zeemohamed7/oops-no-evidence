@@ -61,7 +61,7 @@ Shader "Custom/MopClean"
                 float dist = length(i.uv - _HitUV.xy);
 
                 // 3. Soft circular falloff (1 = centre, 0 = outside brush)
-                float falloff = 1.0 - smoothstep(_Radius * 0.5, _Radius, dist);
+                float falloff = 1.0 - smoothstep(_Radius * 0.75, _Radius, dist);
 
                 // 4. Delta: positive when spreading, negative when cleaning
                 //    _Spread = 0 → subtract (clean)

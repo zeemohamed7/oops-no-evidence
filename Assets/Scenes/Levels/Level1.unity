@@ -505441,7 +505441,7 @@ MonoBehaviour:
   bloodRT: {fileID: 8400000, guid: f49f9d10718c2724eaa88cd6f8302f26, type: 2}
   maskTexProperty: _MaskTex
   brushRadius: 0.05
-  brushStrength: 0.985
+  brushStrength: 1
   footprintRadius: 0.012
   footprintStrength: 0.6
 --- !u!1 &1909919599
