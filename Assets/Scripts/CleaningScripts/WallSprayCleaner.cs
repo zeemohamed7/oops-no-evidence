@@ -15,6 +15,10 @@ public class WallSprayCleaner : MonoBehaviour
     [Header("References")]
     public ToolInventory inventory;
 
+    //malak
+    [Header("Spray Sound")]
+    public AudioSource spraySoundSource;
+
     [Header("Spray Settings")]
     public float sprayRange = 4f;
     public LayerMask wallMask = ~0;
@@ -52,6 +56,13 @@ public class WallSprayCleaner : MonoBehaviour
     {
         _fingerprints = FindObjectsOfType<FingerprintSurface>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
+
+        //malak
+        if (spraySoundSource != null)
+        {
+            spraySoundSource.playOnAwake = false;
+            spraySoundSource.loop = false;
+        }
     }
 
     void Awake()
@@ -78,6 +89,9 @@ public class WallSprayCleaner : MonoBehaviour
     void TrySpray()
     {
         animationDriver?.PlayUseTool();
+
+        PlaySpraySound(); //malak
+
         // Always attempt fingerprint cleaning whenever spray is used.
         TryCleanFingerprint();
 
@@ -233,6 +247,15 @@ public class WallSprayCleaner : MonoBehaviour
         {
             Color c = mat.color; c.a = alpha;
             mat.color = c;
+        }
+    }
+
+    //malak
+    void PlaySpraySound()
+    {
+        if (spraySoundSource != null && spraySoundSource.clip != null)
+        {
+            spraySoundSource.PlayOneShot(spraySoundSource.clip);
         }
     }
 }

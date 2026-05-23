@@ -27,6 +27,10 @@ public class MopCleaner : MonoBehaviour
     [Header("UI Feedback")]
     public Text statusText;
 
+    //malak
+    [Header("Mop Sound")]
+    public AudioSource moppingSoundSource;
+
     // ── Private ────────────────────────────────────────────────────────────
     bool _painting;
     float _cleanedDistance = 0f;
@@ -58,6 +62,14 @@ public class MopCleaner : MonoBehaviour
             Debug.LogWarning("[MopCleaner] No PlayerInput found — hold-to-mop won't work.");
 
         animationDriver = GetComponent<PlayerAnimationDriver>();
+
+        //malak
+        if (moppingSoundSource != null)
+        {
+            moppingSoundSource.loop = true;
+            moppingSoundSource.playOnAwake = false;
+        }
+
         UpdateStatusUI();
     }
 
@@ -83,7 +95,11 @@ public class MopCleaner : MonoBehaviour
             }
         }
 
-        if (!inventory.IsMopSelected()) { _painting = false; return; }
+        if (!inventory.IsMopSelected()) { 
+            _painting = false;
+            StopMopSound(); //malak
+            return; 
+        }
 
         bool waspainting = _painting;
         _painting = _interactAction != null && _interactAction.IsPressed();
@@ -91,10 +107,12 @@ public class MopCleaner : MonoBehaviour
         if (_painting && !waspainting)
         {
             animationDriver?.PlayMop();
+            PlayMopSound();//malak
         }
         if (!_painting)
         {
             if (waspainting) { _lastUV = -Vector2.one; _footprintProgress.Clear(); }
+            StopMopSound();//malak
             return;
         }
 
@@ -243,5 +261,22 @@ public class MopCleaner : MonoBehaviour
         _lastUV = -Vector2.one;
         _footprintProgress.Clear();
         UpdateStatusUI();
+    }
+
+    //malak
+    void PlayMopSound()
+    {
+        if (moppingSoundSource != null && !moppingSoundSource.isPlaying)
+        {
+            moppingSoundSource.Play();
+        }
+    }
+
+    void StopMopSound()
+    {
+        if (moppingSoundSource != null && moppingSoundSource.isPlaying)
+        {
+            moppingSoundSource.Stop();
+        }
     }
 }
