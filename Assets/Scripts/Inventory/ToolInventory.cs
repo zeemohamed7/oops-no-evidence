@@ -16,6 +16,9 @@ public class ToolInventory : MonoBehaviour
 
     private int selectedSlot = -1;
     private PlayerAnimationDriver animationDriver;
+    
+   //  Track if a heavy item is overriding the hand tools
+    public bool isCarryingHeavyObject = false;
 
     // Per-player input actions — each player's PlayerInput component provides its own
     private InputAction _slot1;
@@ -103,6 +106,17 @@ public class ToolInventory : MonoBehaviour
     // Runs every frame — keeps tool visibility in sync with selectedSlot
     void EnforceSingleTool()
     {
+        
+        // Turn all tools off if carrying a body or weapon
+        if (isCarryingHeavyObject)
+        {
+            if (mopTool != null)        mopTool.SetActive(false);
+            if (bucketTool != null)     bucketTool.SetActive(false);
+            if (blacklightTool != null) blacklightTool.SetActive(false);
+            if (sprayTool != null)      sprayTool.SetActive(false);
+            return; 
+        }
+        
         // If blacklight somehow got selected while locked, deselect it
         if (selectedSlot == 3 && !BlacklightUnlocked())
             selectedSlot = -1;
