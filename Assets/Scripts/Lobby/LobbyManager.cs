@@ -16,6 +16,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject creditsPanel;
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject howtoplayPanel;
     [SerializeField] private GameObject warningPopupPanel;
     [SerializeField] private TextMeshProUGUI warningText;
 
@@ -83,6 +84,7 @@ public class LobbyManager : MonoBehaviour
         if (creditsPanel)       creditsPanel.SetActive(false);
         if (settingsPanel)      settingsPanel.SetActive(false);
         if (warningPopupPanel)  warningPopupPanel.SetActive(false);
+        if (howtoplayPanel) howtoplayPanel.SetActive(false);
     }
 
     private void OnEnable()
@@ -175,6 +177,8 @@ public class LobbyManager : MonoBehaviour
 
         pi.GetComponent<LobbyGhost>()?.ReleaseSlot();
     }
+    
+    
 
     // ─── SLOT MANAGEMENT (called by LobbyGhost on Start) ─────────────────────
 
@@ -361,13 +365,17 @@ public class LobbyManager : MonoBehaviour
 
     public void OpenCredits()  => SwitchPanel(creditsPanel);
     public void OpenSettings() => SwitchPanel(settingsPanel);
+
+    public void OpenInstructions() => SwitchPanel(howtoplayPanel);
     public void BackToMain()   => SwitchPanel(mainMenuPanel);
+    
 
     private void SwitchPanel(GameObject target)
     {
         if (mainMenuPanel) mainMenuPanel.SetActive(false);
         if (creditsPanel)  creditsPanel.SetActive(false);
         if (settingsPanel) settingsPanel.SetActive(false);
+        if (howtoplayPanel) howtoplayPanel.SetActive(false);
         if (target)        target.SetActive(true);
     }
 

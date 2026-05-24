@@ -138,7 +138,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0983a16530e26c240acc0881f8278e4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdPoint: {fileID: 2739016838828355998}
   chestHoldPoint: {fileID: 8324796673065376614}
   grabRange: 2
@@ -400,7 +399,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bada995d8c51048aabc3cb5621fc70fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactAction: {fileID: 0}
   toolInventory: {fileID: -5087026573228946102}
   reach: 3
 --- !u!114 &-5087026573228946102
@@ -421,6 +419,7 @@ MonoBehaviour:
   sprayTool: {fileID: 4097920665163860401}
   mopCleaner: {fileID: 5924320982050359162}
   holdPoint: {fileID: 0}
+  isCarryingHeavyObject: 0
 --- !u!114 &5924320982050359162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -838,7 +837,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdPoint: {fileID: 2739016838828355998}
   grabRange: 3
   furnitureLayer:
@@ -1085,7 +1083,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4830391324561360077, guid: 215aede7f1b4b7c448c3d7a20354e146, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.094
+      value: -0.937
       objectReference: {fileID: 0}
     - target: {fileID: 4830391324561360077, guid: 215aede7f1b4b7c448c3d7a20354e146, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1172,7 +1170,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.46983
+      value: -0.364
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1180,7 +1178,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.13624
+      value: 0.121
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1809,15 +1807,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.54944
+      value: -0.069
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.521
+      value: -0.821
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.35304
+      value: 0.302
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalRotation.w

@@ -119,6 +119,22 @@ public class LobbyGhost : MonoBehaviour
             _claimedSlot?.SetReady(false);
         }
     }
+    
+    public void OnLeave(InputValue value)
+    {
+        if (!value.isPressed) return;
+
+        // If ready, escape just un-readies them first (matches OnBack behavior)
+        if (_isReady)
+        {
+            _isReady = false;
+            _claimedSlot?.SetReady(false);
+            return;
+        }
+
+        // Otherwise, destroy this ghost — OnPlayerLeft on LobbyManager handles cleanup
+        Destroy(gameObject);
+    }
 
     // OnSelect is wired in the action asset but intentionally left as a no-op here
     // to prevent accidental UI confirmation bleed through the EventSystem.
