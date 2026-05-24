@@ -194,9 +194,9 @@ public class LobbyManager : MonoBehaviour
 
     public void OnStartButtonClicked()
     {
-        if (activeGhosts.Count == 0)
+        if (activeGhosts.Count < 2)
         {   
-            ShowWarningPopup("No players have joined!");
+            ShowWarningPopup("This game needs at least 2 players!");
             return;
         }
 
