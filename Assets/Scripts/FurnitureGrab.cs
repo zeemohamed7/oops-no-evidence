@@ -3,8 +3,13 @@ using UnityEngine.InputSystem;
 
 public class FurnitureGrab : MonoBehaviour
 {
-    [Header("Input")]
-    public InputActionReference grabAction;
+    // [Header("Input")]
+    // public InputActionReference grabAction;
+
+    // listen to local components instead of global
+    private PlayerInput playerInput;
+    private InputAction localGrabAction;
+    private TopDownPlayerController playerController;
 
     [Header("Setup")]
     public Transform holdPoint;
@@ -28,30 +33,69 @@ public class FurnitureGrab : MonoBehaviour
 
     void Awake()
     {
+        playerController = GetComponent<TopDownPlayerController>(); // cache at intilisation
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
         playerController = GetComponent<TopDownPlayerController>();
         toolInventory = GetComponent<ToolInventory>();
     }
 
-    void OnEnable()
+    void Start()
     {
-        if (grabAction != null)
-            grabAction.action.Enable();
+        // Bind dynamically to this specific player instance's tracking map
+        playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
+        if (playerInput != null)
+        {
+            localGrabAction = playerInput.actions.FindAction("Grab");
+        }
+        else
+        {
+            Debug.LogWarning($"[FurnitureGrab] No PlayerInput found on {gameObject.name}");
+        }
     }
 
-    void OnDisable()
-    {
-        if (grabAction != null)
-            grabAction.action.Disable();
-    }
+    // void OnEnable()
+    // {
+    //     if (grabAction != null)
+    //         grabAction.action.Enable();
+    // }
+    //
+    // void OnDisable()
+    // {
+    //     if (grabAction != null)
+    //         grabAction.action.Disable();
+    // }
+
+    // void Update()
+    // {
+    //     if (grabAction == null) return;
+    //
+    //     if (grabAction.action.WasPressedThisFrame())
+    //     {
+    //         if (heldFurniture == null)
+    //             TryGrabFurniture();
+    //         else
+    //             DropFurniture();
+    //     }
+    // }
 
     void Update()
     {
+<<<<<<< HEAD
+        // DONT grab if game hasn't started
+        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
+
+        if (localGrabAction == null) return;
+=======
         if (grabAction == null) return;
         if (Time.time < nextGrabTime) return;
+>>>>>>> main
 
-        if (grabAction.action.WasPressedThisFrame())
+        // If already carrying a dead body/ragdoll via Grab.cs, ignore furniture interaction requests so inputs don't squat on the same frame.
+        if (playerController != null && playerController.isCarrying && heldFurniture == null) return;
+
+        // Evaluate only the local device attached to this script instance clone
+        if (localGrabAction.WasPressedThisFrame())
         {
             if (heldFurniture != null)
             {
@@ -142,8 +186,7 @@ public class FurnitureGrab : MonoBehaviour
 
         animationDriver.SetCarrying(true);
 
-        if (playerController != null)
-        playerController.isCarrying = true;
+        if (playerController != null) playerController.isCarrying = true;
 
         Debug.Log("Furniture grabbed: " + heldFurniture.name);
     }
@@ -184,6 +227,7 @@ public class FurnitureGrab : MonoBehaviour
         animationDriver.SetCarrying(false);
         animationDriver?.PlayDrop();
 
+        if (playerController != null) playerController.isCarrying = false;
         Debug.Log("Furniture dropped: " + furnitureToDrop.name);
 
         heldFurniture = null;
@@ -191,8 +235,8 @@ public class FurnitureGrab : MonoBehaviour
         furnitureColliders = null;
 
         if (playerController != null)
-        playerController.isCarrying = false;
-    } 
+            playerController.isCarrying = false;
+    }
 
     void OnDrawGizmosSelected()
     {

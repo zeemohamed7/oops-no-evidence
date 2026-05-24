@@ -35,14 +35,43 @@ public class BodyDisposalZone : MonoBehaviour
         if (promptUI != null)
             promptUI.SetActive(false);
 
-        PlayerAnimationDriver[] players = FindObjectsByType<PlayerAnimationDriver>(FindObjectsSortMode.None);
+        // PlayerAnimationDriver[] players = FindObjectsByType<PlayerAnimationDriver>(FindObjectsSortMode.None);
+        //
+        // foreach (PlayerAnimationDriver playerAnim in players)
+        // {
+        //     playerAnim.SetCarrying(false);
+        //     playerAnim.PlayDrop();
+        // }
+    
+        // Logic to DROP body before destroying it
+        DeadbodyCarry carryScript = grabbable.GetComponentInParent<DeadbodyCarry>();
 
-        foreach (PlayerAnimationDriver playerAnim in players)
+        if (carryScript != null)
         {
-            playerAnim.SetCarrying(false);
-            playerAnim.PlayDrop();
+            // Find every single player script currently tracking carrying mechanics
+            Grab[] allActiveGrabbers = FindObjectsByType<Grab>(FindObjectsSortMode.None);
+    
+            foreach (Grab grabber in allActiveGrabbers)
+            {
+                // If this specific player is holding the object currently being vaporized
+                if (grabber.GetHeldObject() == grabbable.gameObject)
+                {
+                    // Force them to drop to bring back normal speed 
+                    grabber.Drop(); 
+                }
+            }
         }
-
+        else
+        {
+            // Fallback fail-safe: Clean out all animations globally if no weight script was attached
+            PlayerAnimationDriver[] players = FindObjectsByType<PlayerAnimationDriver>(FindObjectsSortMode.None);
+            foreach (PlayerAnimationDriver playerAnim in players)
+            {
+                playerAnim.SetCarrying(false);
+                playerAnim.PlayDrop();
+            }
+        }
+        
         grabbable.transform.SetParent(null);
         Destroy(grabbable.gameObject);
 

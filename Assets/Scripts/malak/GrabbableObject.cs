@@ -17,34 +17,47 @@ public class GrabbableObject : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
 
-
         if (animator != null)
             animator.enabled = false;
 
         Rigidbody[] bones = GetComponentsInChildren<Rigidbody>();
         foreach (var rb in bones)
         {
-
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-
-
             rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
-
 
         CharacterJoint[] joints = GetComponentsInChildren<CharacterJoint>();
         foreach (var j in joints)
             j.enablePreprocessing = false;
     }
 
+    // 🟢 UPDATED FOR CO-OP MULTIPLAYER LIFTING
     public bool TryGrab(GameObject player)
     {
-        if (isGrabbed && currentHolder != player) return false;
+        // If it's a dead body ragdoll, completely bypass the single-holder lock!
+        if (isRagdoll)
+        {
+            Debug.Log($"[GRABBABLE] Co-op registration allowed for {player.name} on ragdoll.");
+            return true; 
+        }
+
+        // 🛑 STANDARD PROP LOGIC: Weapons, crates, items only allow one holder
+        if (isGrabbed && currentHolder != player) 
+            return false;
+
         SetHolder(player);
         return true;
     }
 
-    public void Release() => ClearHolder();
+    public void Release()
+    {
+        // Only clear standard item tracking if it's not a multi-user ragdoll
+        if (!isRagdoll)
+        {
+            ClearHolder();
+        }
+    }
 
     private void SetHolder(GameObject player)
     {
