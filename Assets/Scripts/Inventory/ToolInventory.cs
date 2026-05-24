@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class ToolInventory : MonoBehaviour
 {
@@ -55,6 +56,13 @@ public class ToolInventory : MonoBehaviour
         return action;
     }
 
+    // Blacklight is only available in Level 3 and Level 4
+    bool BlacklightUnlocked()
+    {
+        string scene = SceneManager.GetActiveScene().name;
+        return scene.Contains("Level3") || scene.Contains("Level4");
+    }
+
     void Update()
     {
         // Stop all tool swapping and handling inside the lobby
@@ -72,7 +80,7 @@ public class ToolInventory : MonoBehaviour
     {
         if (_slot1 != null && _slot1.WasPressedThisFrame()) ToggleHandTool(1, mopTool);
         if (_slot2 != null && _slot2.WasPressedThisFrame()) ToggleHandTool(2, bucketTool);
-        if (_slot3 != null && _slot3.WasPressedThisFrame()) ToggleHandTool(3, blacklightTool);
+        if (_slot3 != null && _slot3.WasPressedThisFrame() && BlacklightUnlocked()) ToggleHandTool(3, blacklightTool);
         if (_slot4 != null && _slot4.WasPressedThisFrame()) ToggleHandTool(4, sprayTool);
 
         if (_previous != null && _previous.WasPressedThisFrame()) CycleSlot(-1);
@@ -84,12 +92,21 @@ public class ToolInventory : MonoBehaviour
         int next = selectedSlot == -1 ? (dir > 0 ? 1 : 4) : selectedSlot + dir;
         if (next < 1) next = 4;
         if (next > 4) next = 1;
+
+        // Skip slot 3 if blacklight is locked
+        if (next == 3 && !BlacklightUnlocked())
+            next = next + dir > 4 ? 1 : next + dir < 1 ? 4 : next + dir;
+
         selectedSlot = next;
     }
 
     // Runs every frame — keeps tool visibility in sync with selectedSlot
     void EnforceSingleTool()
     {
+        // If blacklight somehow got selected while locked, deselect it
+        if (selectedSlot == 3 && !BlacklightUnlocked())
+            selectedSlot = -1;
+
         if (mopTool != null)        mopTool.SetActive(selectedSlot == 1);
         if (bucketTool != null)     bucketTool.SetActive(selectedSlot == 2);
         if (blacklightTool != null) blacklightTool.SetActive(selectedSlot == 3);
@@ -128,10 +145,10 @@ public class ToolInventory : MonoBehaviour
         if (sprayTool != null)      sprayTool.SetActive(false);
     }
 
-    public int GetSelectedSlot()    => selectedSlot;
-    public bool IsMopSelected()     => selectedSlot == 1;
-    public bool IsBucketSelected()  => selectedSlot == 2;
+    public int GetSelectedSlot()       => selectedSlot;
+    public bool IsMopSelected()        => selectedSlot == 1;
+    public bool IsBucketSelected()     => selectedSlot == 2;
     public bool IsBlacklightSelected() => selectedSlot == 3;
-    public bool IsSpraySelected()   => selectedSlot == 4;
-
+    public bool IsSpraySelected()      => selectedSlot == 4;
+    public bool IsBlacklightUnlocked() => BlacklightUnlocked();
 }

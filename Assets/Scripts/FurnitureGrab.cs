@@ -5,7 +5,7 @@ public class FurnitureGrab : MonoBehaviour
 {
     // [Header("Input")]
     // public InputActionReference grabAction;
-    
+
     // listen to local components instead of global
     private PlayerInput playerInput;
     private InputAction localGrabAction;
@@ -19,20 +19,27 @@ public class FurnitureGrab : MonoBehaviour
     [Header("Carry Offset")]
     public Vector3 localCarryPosition = Vector3.zero;
     public Vector3 localCarryRotation = Vector3.zero;
+    public float grabCooldown = 0.25f;
+
 
     private FurnitureItem heldFurniture;
     private Rigidbody heldRb;
     private Collider[] playerColliders;
     private Collider[] furnitureColliders;
     private PlayerAnimationDriver animationDriver;
+    private TopDownPlayerController playerController;
+    private ToolInventory toolInventory;
+    private float nextGrabTime = 0f;
 
     void Awake()
     {
         playerController = GetComponent<TopDownPlayerController>(); // cache at intilisation
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
+        playerController = GetComponent<TopDownPlayerController>();
+        toolInventory = GetComponent<ToolInventory>();
     }
-    
+
     void Start()
     {
         // Bind dynamically to this specific player instance's tracking map
@@ -71,13 +78,18 @@ public class FurnitureGrab : MonoBehaviour
     //             DropFurniture();
     //     }
     // }
-    
+
     void Update()
     {
+<<<<<<< HEAD
         // DONT grab if game hasn't started
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
-    
+
         if (localGrabAction == null) return;
+=======
+        if (grabAction == null) return;
+        if (Time.time < nextGrabTime) return;
+>>>>>>> main
 
         // If already carrying a dead body/ragdoll via Grab.cs, ignore furniture interaction requests so inputs don't squat on the same frame.
         if (playerController != null && playerController.isCarrying && heldFurniture == null) return;
@@ -85,10 +97,20 @@ public class FurnitureGrab : MonoBehaviour
         // Evaluate only the local device attached to this script instance clone
         if (localGrabAction.WasPressedThisFrame())
         {
-            if (heldFurniture == null)
-                TryGrabFurniture();
-            else
+            if (heldFurniture != null)
+            {
                 DropFurniture();
+                nextGrabTime = Time.time + grabCooldown;
+                return;
+            }
+
+            if (toolInventory != null && toolInventory.GetSelectedSlot() != -1)
+            {
+                Debug.Log("Cannot grab furniture while holding a tool.");
+                return;
+            }
+
+            TryGrabFurniture();
         }
     }
 
@@ -109,6 +131,10 @@ public class FurnitureGrab : MonoBehaviour
             FurnitureItem item = hit.GetComponentInParent<FurnitureItem>();
             if (item == null) continue;
 
+            FurnitureSnap snapState = item.GetComponent<FurnitureSnap>();
+            if (snapState != null && snapState.IsSolved)
+                continue;
+
             float distance = Vector3.Distance(transform.position, item.transform.position);
 
             if (distance < nearestDistance)
@@ -126,10 +152,10 @@ public class FurnitureGrab : MonoBehaviour
 
         heldFurniture = nearest;
         FurnitureSnap snap = heldFurniture.GetComponent<FurnitureSnap>();
-            if (snap != null)
-            {
-                snap.MarkPickedUpAgain();
-            }
+        if (snap != null)
+        {
+            snap.EnterRearrangeMode();
+        }
         heldRb = heldFurniture.GetComponent<Rigidbody>();
 
         if (heldRb == null)
@@ -161,7 +187,7 @@ public class FurnitureGrab : MonoBehaviour
         animationDriver.SetCarrying(true);
 
         if (playerController != null) playerController.isCarrying = true;
-        
+
         Debug.Log("Furniture grabbed: " + heldFurniture.name);
     }
 
@@ -207,7 +233,10 @@ public class FurnitureGrab : MonoBehaviour
         heldFurniture = null;
         heldRb = null;
         furnitureColliders = null;
-    } 
+
+        if (playerController != null)
+            playerController.isCarrying = false;
+    }
 
     void OnDrawGizmosSelected()
     {
