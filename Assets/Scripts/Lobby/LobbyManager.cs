@@ -4,7 +4,6 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Users;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -18,7 +17,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject creditsPanel;
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject warningPopupPanel;
-    [SerializeField] private TextMeshProUGUI readyForEveryone;
+    [SerializeField] private TextMeshProUGUI warningText;
 
     [Header("Input")]
     [SerializeField] private InputActionAsset lobbyInputAsset;
@@ -44,16 +43,19 @@ public class LobbyManager : MonoBehaviour
     [Header("Characters")]
     public List<CharacterMap> characterPrefabs = new();
 
+    // Exposed to the spawner in the next scene
     [HideInInspector] public List<PlayerSelectionData> playersToSpawn = new();
     public int currentLevelIndex = -1;
 
-    private PlayerInputManager pim;
-    private InputAction joinAction;
-    private bool isTransitioning = false;
-    private float lastJoinTime;
-    private const float JoinCooldown = 0.1f;
-    private readonly Dictionary<int, LobbyGhost> activeGhosts = new();
+    private PlayerInputManager _pim;
+    private InputAction _joinAction;
+    private bool _isTransitioning = false;
+    private float _lastJoinTime;
+    private const float JoinCooldown = 0.15f;
     private const string KeyboardScheme = "Keyboard&Mouse";
+
+    // Keyed by hardware deviceId — the single source of truth for who's in the lobby
+    private readonly Dictionary<int, LobbyGhost> _activeGhosts = new();
 
     private void Awake()
     {
@@ -68,8 +70,8 @@ public class LobbyManager : MonoBehaviour
             return;
         }
 
-        pim = GetComponent<PlayerInputManager>();
-        pim.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
+        _pim = GetComponent<PlayerInputManager>();
+        _pim.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
     }
 
     private void Start()
@@ -77,101 +79,104 @@ public class LobbyManager : MonoBehaviour
         AudioListener.volume = 1f;
         if (volumeSlider != null) volumeSlider.value = 1f;
 
-        if (mainMenuPanel) mainMenuPanel.SetActive(true);
-        if (creditsPanel) creditsPanel.SetActive(false);
-        if (settingsPanel) settingsPanel.SetActive(false);
-        if (warningPopupPanel) warningPopupPanel.SetActive(false);
+        if (mainMenuPanel)      mainMenuPanel.SetActive(true);
+        if (creditsPanel)       creditsPanel.SetActive(false);
+        if (settingsPanel)      settingsPanel.SetActive(false);
+        if (warningPopupPanel)  warningPopupPanel.SetActive(false);
     }
-    
+
     private void OnEnable()
     {
         InputActionMap lobbyMap = lobbyInputAsset.FindActionMap("Lobby", true);
-        joinAction = lobbyMap.FindAction("Join", true);
-        joinAction.Enable();
-        joinAction.performed += OnJoinPerformed;
+        _joinAction = lobbyMap.FindAction("Join", true);
+        _joinAction.Enable();
+        _joinAction.performed += OnJoinPerformed;
 
-        pim.onPlayerJoined += OnPlayerJoined;
-        pim.onPlayerLeft += OnPlayerLeft;
+        _pim.onPlayerJoined += OnPlayerJoined;
+        _pim.onPlayerLeft   += OnPlayerLeft;
     }
 
     private void OnDisable()
     {
-        if (joinAction != null)
+        if (_joinAction != null)
         {
-            joinAction.performed -= OnJoinPerformed;
-            joinAction.Disable();
+            _joinAction.performed -= OnJoinPerformed;
+            _joinAction.Disable();
         }
 
-        pim.onPlayerJoined -= OnPlayerJoined;
-        pim.onPlayerLeft -= OnPlayerLeft;
+        _pim.onPlayerJoined -= OnPlayerJoined;
+        _pim.onPlayerLeft   -= OnPlayerLeft;
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // JOINING (FIXED DEVICE BLEEDING HERE)
-    // ─────────────────────────────────────────────────────────────
+    // ─── JOIN GATE ────────────────────────────────────────────────────────────
+    // All joining is triggered by the shared Lobby/Join action. We resolve the
+    // exact device that fired it and build an isolated PlayerInput from there.
+    // Nothing downstream ever looks at Keyboard.current or Gamepad.current.
+
     private void OnJoinPerformed(InputAction.CallbackContext ctx)
     {
-        if (!ctx.performed || isTransitioning) return;
-        if (Time.unscaledTime < lastJoinTime + JoinCooldown) return;
+        if (_isTransitioning) return;
+        if (Time.unscaledTime < _lastJoinTime + JoinCooldown) return;
 
         InputDevice device = ctx.control.device;
         if (device == null || device.description.interfaceName == "Virtual") return;
         if (device is Keyboard && !allowKeyboard) return;
-        if (activeGhosts.ContainsKey(device.deviceId)) return;
 
-        if (activeGhosts.Count >= pim.maxPlayerCount)
-        {
-            Debug.Log("Lobby Full");
+        // Already in the lobby — ignore repeat presses
+        if (_activeGhosts.ContainsKey(device.deviceId)) return;
+
+        if (_activeGhosts.Count >= _pim.maxPlayerCount)
             return;
-        }
 
         string scheme = ResolveControlScheme(device);
         if (string.IsNullOrEmpty(scheme))
-        {
-            Debug.LogWarning($"No scheme found for {device.displayName}");
             return;
-        }
 
-        activeGhosts.Add(device.deviceId, null);
+        // Reserve the slot before instantiation so a second rapid press can't race in
+        _activeGhosts[device.deviceId] = null;
 
-        // FIXED: Explicitly pair device on birth to stop Player 3 input bleed
+        // playerIndex is computed explicitly — Unity must not auto-assign index 0 to everyone
+        int playerIndex = _activeGhosts.Count - 1;
+
         PlayerInput pi = PlayerInput.Instantiate(
             ghostPrefab,
-            pairWithDevice: device,
-            controlScheme: scheme
+            playerIndex: playerIndex,
+            controlScheme: scheme,
+            pairWithDevice: device
         );
 
         if (pi == null)
         {
-            activeGhosts.Remove(device.deviceId);
+            _activeGhosts.Remove(device.deviceId);
             return;
         }
 
+        // Lock this player to exactly one device for its entire lifecycle
         pi.neverAutoSwitchControlSchemes = true;
-        pi.SwitchCurrentActionMap("Lobby");
+        pi.SwitchCurrentActionMap("LobbyUI");
 
-        lastJoinTime = Time.unscaledTime;
+        _lastJoinTime = Time.unscaledTime;
     }
+
+    // ─── PLAYER JOIN / LEAVE CALLBACKS ───────────────────────────────────────
 
     private void OnPlayerJoined(PlayerInput pi)
     {
-        if (isTransitioning) return;
-        InputDevice device = pi.devices.Count > 0 ? pi.devices[0] : null;
-        Debug.Log($"Player {pi.playerIndex} joined using {device?.displayName ?? "Unknown Device"}");
+        if (_isTransitioning) return;
+        // LobbyGhost.Start() calls ClaimFreeSlot, so nothing extra needed here
     }
 
     private void OnPlayerLeft(PlayerInput pi)
     {
-        if (isTransitioning) return;
+        if (_isTransitioning) return;
 
         InputDevice device = pi.devices.Count > 0 ? pi.devices[0] : null;
-        if (device != null) activeGhosts.Remove(device.deviceId);
+        if (device != null) _activeGhosts.Remove(device.deviceId);
 
-        LobbyGhost ghost = pi.GetComponent<LobbyGhost>();
-        if (ghost != null) ghost.ReleaseSlot();
-
-        Debug.Log($"Player {pi.playerIndex} left");
+        pi.GetComponent<LobbyGhost>()?.ReleaseSlot();
     }
+
+    // ─── SLOT MANAGEMENT (called by LobbyGhost on Start) ─────────────────────
 
     public LobbySlotUI ClaimFreeSlot(LobbyGhost ghost, int deviceId)
     {
@@ -179,28 +184,29 @@ public class LobbyManager : MonoBehaviour
         if (slot == null) return null;
 
         slot.Claim(ghost);
-        activeGhosts[deviceId] = ghost;
+        _activeGhosts[deviceId] = ghost;
         return slot;
     }
 
+    // ─── READY CHECK ──────────────────────────────────────────────────────────
+
     public void OnGhostReady(LobbyGhost ghost)
     {
-        bool allReady = activeGhosts.Values.Where(g => g != null).All(g => g.IsReady);
-        if (allReady && activeGhosts.Count > 0)
-        {
-            Debug.Log("All players ready");
-        }
+        // Called by each ghost when it flips ready — no action needed here yet,
+        // but this hook is useful for future "countdown" or "auto-start" logic
     }
+
+    // ─── START BUTTON ─────────────────────────────────────────────────────────
 
     public void OnStartButtonClicked()
     {
-        if (activeGhosts.Count < 2)
-        {   
+        if (_activeGhosts.Count < 2)
+        {
             ShowWarningPopup("This game needs at least 2 players!");
             return;
         }
 
-        bool allReady = activeGhosts.Values.Where(g => g != null).All(g => g.IsReady);
+        bool allReady = _activeGhosts.Values.Where(g => g != null).All(g => g.IsReady);
         if (!allReady)
         {
             ShowWarningPopup("Not everyone is ready!");
@@ -210,249 +216,168 @@ public class LobbyManager : MonoBehaviour
         CommitAndLoad();
     }
 
+    // ─── WARNING POPUP ────────────────────────────────────────────────────────
+
     private void ShowWarningPopup(string message)
     {
-        if (readyForEveryone != null && warningPopupPanel != null)
-        {
-            readyForEveryone.text = message;
-            StopAllCoroutines(); 
-            StartCoroutine(FadeWarningWindow());
-        }
+        if (warningText == null || warningPopupPanel == null) return;
+        warningText.text = message;
+        StopAllCoroutines();
+        StartCoroutine(FadeWarningWindow());
     }
 
     private IEnumerator FadeWarningWindow()
     {
-        CanvasGroup canvasGroup = warningPopupPanel.GetComponent<CanvasGroup>();
-        if (canvasGroup == null) yield break;
+        CanvasGroup cg = warningPopupPanel.GetComponent<CanvasGroup>();
+        if (cg == null) yield break;
 
         warningPopupPanel.SetActive(true);
         float duration = 0.4f;
-        float elapsed = 0f;
 
-        while (elapsed < duration)
+        for (float t = 0; t < duration; t += Time.unscaledDeltaTime)
         {
-            elapsed += Time.unscaledDeltaTime;
-            canvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
+            cg.alpha = Mathf.Lerp(0f, 1f, t / duration);
             yield return null;
         }
-        canvasGroup.alpha = 1f;
+        cg.alpha = 1f;
 
-        yield return new WaitForSecondsRealtime(2.0f); 
+        yield return new WaitForSecondsRealtime(2f);
 
-        elapsed = 0f;
-        while (elapsed < duration)
+        for (float t = 0; t < duration; t += Time.unscaledDeltaTime)
         {
-            elapsed += Time.unscaledDeltaTime;
-            canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            cg.alpha = Mathf.Lerp(1f, 0f, t / duration);
             yield return null;
         }
-        canvasGroup.alpha = 0f;
+        cg.alpha = 0f;
         warningPopupPanel.SetActive(false);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // SCENE TRANSITION (FIXED MOVEMENT LOCK-UP HERE)
-    // ─────────────────────────────────────────────────────────────
+    // ─── SCENE TRANSITION ─────────────────────────────────────────────────────
+
     private void CommitAndLoad()
     {
-        isTransitioning = true;
+        _isTransitioning = true;
         playersToSpawn.Clear();
 
-        foreach (LobbyGhost ghost in activeGhosts.Values)
+        foreach (LobbyGhost ghost in _activeGhosts.Values.Where(g => g != null))
         {
-            if (ghost == null) continue;
-
             playersToSpawn.Add(new PlayerSelectionData
             {
-                playerIndex = ghost.PlayerIndex,
-                characterId = ghost.SelectedCharacterId,
+                playerIndex   = ghost.PlayerIndex,
+                characterId   = ghost.SelectedCharacterId,
                 controlScheme = ghost.ControlScheme,
-                deviceId = ghost.DeviceId
+                deviceId      = ghost.DeviceId
             });
         }
 
-        // FIXED: Do not toggle .enabled = false on the component itself!
-        if (pim != null)
-        {
-            pim.DisableJoining();
-        }
-
-        pim.onPlayerJoined -= OnPlayerJoined;
-        pim.onPlayerLeft -= OnPlayerLeft;
+        // Shut down joining cleanly — never disable the component itself
+        _pim.DisableJoining();
+        _pim.onPlayerJoined -= OnPlayerJoined;
+        _pim.onPlayerLeft   -= OnPlayerLeft;
 
         SceneManager.LoadScene(selectedLevelName);
     }
 
-    public string GetSelectedLevelName() => selectedLevelName;
-    public void SetCurrentLevel(int levelIndex) => currentLevelIndex = levelIndex;
-
-    // ─────────────────────────────────────────────────────────────
-    // SPAWN PLAYERS (FIXED SYNCHRONOUS INITIALIZATION HERE)
-    // ─────────────────────────────────────────────────────────────
-    // public void SpawnAllPlayers(Transform spawnPoint)
-    // {
-    //     if (playersToSpawn.Count == 0) return;
-    //
-    //     int index = 0;
-    //     Vector3 camForward = Camera.main.transform.forward;
-    //     camForward.y = 0;
-    //     camForward.Normalize();
-    //
-    //     foreach (PlayerSelectionData data in playersToSpawn)
-    //     {
-    //         GameObject prefabToSpawn = ghostPrefab;
-    //         
-    //         foreach (CharacterMap map in characterPrefabs)
-    //         {
-    //             if (map.id == data.characterId) { prefabToSpawn = map.prefab; break; }
-    //         }
-    //
-    //         InputDevice device = InputSystem.GetDeviceById(data.deviceId);
-    //         
-    //         PlayerInput pi = PlayerInput.Instantiate(
-    //             prefabToSpawn, 
-    //             pairWithDevice: device, 
-    //             controlScheme: data.controlScheme
-    //         );
-    //
-    //         if (pi != null)
-    //         {
-    //             // Force messaging notification channel setup
-    //             pi.notificationBehavior = PlayerNotifications.SendMessages;
-    //
-    //             // Strip the lobby tracking logic completely
-    //             LobbyGhost lg = pi.GetComponent<LobbyGhost>();
-    //             if (lg != null) Destroy(lg);
-    //
-    //             // Set maps synchronously right here before the movement scripts wake up
-    //             pi.neverAutoSwitchControlSchemes = true;
-    //             pi.SwitchCurrentActionMap("Player");
-    //             pi.camera = Camera.main;
-    //
-    //             CharacterController cc = pi.GetComponent<CharacterController>();
-    //             TopDownPlayerController moveScript = pi.GetComponent<TopDownPlayerController>();
-    //
-    //             if (cc != null) cc.enabled = false;
-    //             if (moveScript != null) moveScript.enabled = false;
-    //
-    //             float xOffset = (index - (playersToSpawn.Count - 1) / 2f) * 1.5f;
-    //             pi.transform.position = spawnPoint.position + (Camera.main.transform.right * xOffset);
-    //             pi.transform.rotation = Quaternion.LookRotation(camForward);
-    //
-    //             if (cc != null) cc.enabled = true;
-    //             if (moveScript != null) moveScript.enabled = true; 
-    //
-    //             index++;
-    //         }
-    //     }
-    // }
+    // ─── GAMEPLAY SPAWN (called by level spawner after scene load) ────────────
 
     public void SpawnAllPlayers(Transform spawnPoint)
-{
-    if (playersToSpawn.Count == 0) return;
-
-    int index = 0;
-    Vector3 camForward = Camera.main.transform.forward;
-    camForward.y = 0;
-    camForward.Normalize();
-
-    foreach (PlayerSelectionData data in playersToSpawn)
     {
-        GameObject prefabToSpawn = ghostPrefab;
-        
-        foreach (CharacterMap map in characterPrefabs)
-        {
-            if (map.id == data.characterId) { prefabToSpawn = map.prefab; break; }
-        }
+        if (playersToSpawn.Count == 0) return;
 
-        InputDevice device = InputSystem.GetDeviceById(data.deviceId);
-        
-        // 1. Instantiate using Unity's factory method
-        PlayerInput pi = PlayerInput.Instantiate(
-            prefabToSpawn, 
-            pairWithDevice: device, 
-            controlScheme: data.controlScheme
-        );
+        Vector3 camForward = Camera.main.transform.forward;
+        camForward.y = 0;
+        camForward.Normalize();
 
-        if (pi != null)
+        for (int i = 0; i < playersToSpawn.Count; i++)
         {
-            // 2. Clear out any lingering lobby tracking scripts
+            PlayerSelectionData data = playersToSpawn[i];
+
+            GameObject prefab = characterPrefabs.FirstOrDefault(m => m.id == data.characterId).prefab
+                                ?? ghostPrefab;
+
+            InputDevice device = InputSystem.GetDeviceById(data.deviceId);
+
+            PlayerInput pi = PlayerInput.Instantiate(
+                prefab,
+                playerIndex: data.playerIndex,
+                controlScheme: data.controlScheme,
+                pairWithDevice: device
+            );
+
+            if (pi == null) continue;
+
+            // Strip any lingering lobby logic from the spawned prefab
             LobbyGhost lg = pi.GetComponentInChildren<LobbyGhost>();
             if (lg != null) Destroy(lg);
 
-            // 3. Force the notification behavior and action map configurations
-            pi.notificationBehavior = PlayerNotifications.SendMessages;
+            // Lock the device and switch to gameplay actions before any script wakes up
             pi.neverAutoSwitchControlSchemes = true;
+            pi.notificationBehavior = PlayerNotifications.SendMessages;
             pi.SwitchCurrentActionMap("Player");
             pi.camera = Camera.main;
 
-            // 4. Look for the movement scripts on the root OR in the children objects
-            CharacterController cc = pi.GetComponentInChildren<CharacterController>();
-            TopDownPlayerController moveScript = pi.GetComponentInChildren<TopDownPlayerController>();
+            // Disable physics while we place the character, then re-enable
+            CharacterController cc     = pi.GetComponentInChildren<CharacterController>();
+            TopDownPlayerController mv = pi.GetComponentInChildren<TopDownPlayerController>();
 
-            // 5. Temporarily disable physics engines while updating placement coordinates
-            if (cc != null) cc.enabled = false;
-            if (moveScript != null) moveScript.enabled = false;
+            if (cc) cc.enabled = false;
+            if (mv) mv.enabled = false;
 
-            // Apply offsets so multiple players don't spawn inside each other
-            float xOffset = (index - (playersToSpawn.Count - 1) / 2f) * 1.5f;
-            pi.transform.position = spawnPoint.position + (Camera.main.transform.right * xOffset);
+            float xOffset = (i - (playersToSpawn.Count - 1) / 2f) * 1.5f;
+            pi.transform.position = spawnPoint.position + Camera.main.transform.right * xOffset;
             pi.transform.rotation = Quaternion.LookRotation(camForward);
 
-            // 6. Reactivate the character movement systems
-            if (cc != null) cc.enabled = true;
-            if (moveScript != null) moveScript.enabled = true; 
-
-            index++;
+            if (cc) cc.enabled = true;
+            if (mv) mv.enabled = true;
         }
     }
-}
+
+    // ─── CONTROL SCHEME RESOLUTION ────────────────────────────────────────────
+    // Maps hardware to the named scheme in the Input Action Asset.
+    // Gamepad slots are numbered (Gamepad1, Gamepad2…) to keep bindings isolated.
+
     private string ResolveControlScheme(InputDevice device)
     {
-        if (device is Keyboard) return KeyboardScheme;
+        if (device is Keyboard)
+            return KeyboardScheme;
 
         if (device is Gamepad)
         {
-            // Count how many controllers there are already
-            int currentGamepadCount = activeGhosts.Values.Count(g => g != null && g.ControlScheme.StartsWith("Gamepad"));
-            int dynamicGamepadIndex = currentGamepadCount + 1;
+            // Count only confirmed (non-null) gamepad ghosts already registered
+            int gamepadCount = _activeGhosts.Values
+                .Count(g => g != null && g.ControlScheme.StartsWith("Gamepad"));
 
-            string scheme = $"Gamepad{dynamicGamepadIndex}";
-        
-            // Match the scheme from inputactionsystem 
-            var found = lobbyInputAsset.FindControlScheme(scheme);
-            if (found.HasValue) 
-            {
-                return scheme;
-            }
-
-            // Fallback safety shield if your Input Action asset asset profile is missing a numbered slot
-            // Deleted Gamepad cause it was causing issues so nvm
-            // Debug.LogWarning($"[SCHEME FALLBACK] '{scheme}' wasn't found in your Input Action Asset. Defaulting to generic 'Gamepad'.");
-            // return "Gamepad";
-            return "Gamepad1";
+            string scheme = $"Gamepad{gamepadCount + 1}";
+            return lobbyInputAsset.FindControlScheme(scheme).HasValue ? scheme : "Gamepad1";
         }
+
         return null;
     }
-    public void OpenCredits() => SwitchPanel(creditsPanel);
+
+    // ─── UTILITY ──────────────────────────────────────────────────────────────
+
+    public string GetSelectedLevelName() => selectedLevelName;
+    public void SetCurrentLevel(int index) => currentLevelIndex = index;
+
+    public void OpenCredits()  => SwitchPanel(creditsPanel);
     public void OpenSettings() => SwitchPanel(settingsPanel);
-    public void BackToMain() => SwitchPanel(mainMenuPanel);
+    public void BackToMain()   => SwitchPanel(mainMenuPanel);
 
     private void SwitchPanel(GameObject target)
     {
         if (mainMenuPanel) mainMenuPanel.SetActive(false);
-        if (creditsPanel) creditsPanel.SetActive(false);
+        if (creditsPanel)  creditsPanel.SetActive(false);
         if (settingsPanel) settingsPanel.SetActive(false);
-        if (target) target.SetActive(true);
+        if (target)        target.SetActive(true);
     }
 
-    public void SetVolume(float value) => AudioListener.volume = value;
-    public void SetFullscreen(bool fullscreen) => Screen.fullScreen = fullscreen;
+    public void SetVolume(float value)             => AudioListener.volume = value;
+    public void SetFullscreen(bool fullscreen)     => Screen.fullScreen = fullscreen;
 
     public void SetResolution(int index)
     {
-        if (index == 0) Screen.SetResolution(1920, 1080, true);
-        if (index == 1) Screen.SetResolution(1280, 720, true);
-        if (index == 2) Screen.SetResolution(854, 480, true);
+        var resolutions = new[] { (1920, 1080), (1280, 720), (854, 480) };
+        if (index >= 0 && index < resolutions.Length)
+            Screen.SetResolution(resolutions[index].Item1, resolutions[index].Item2, true);
     }
 }

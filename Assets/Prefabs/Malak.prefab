@@ -70,7 +70,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0983a16530e26c240acc0881f8278e4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdPoint: {fileID: 4163904122934820285}
   chestHoldPoint: {fileID: 7072254034566308387}
   grabRange: 2
@@ -123,8 +122,8 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
+  m_Height: 1.6
+  m_Radius: 0.3
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -320,7 +319,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bada995d8c51048aabc3cb5621fc70fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactAction: {fileID: 0}
   toolInventory: {fileID: 7010382364482902430}
   reach: 3
 --- !u!114 &7010382364482902430
@@ -341,6 +339,7 @@ MonoBehaviour:
   sprayTool: {fileID: 1778181209994343525}
   mopCleaner: {fileID: 8243110530401047824}
   holdPoint: {fileID: 0}
+  isCarryingHeavyObject: 0
 --- !u!114 &8243110530401047824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -770,7 +769,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdPoint: {fileID: 4163904122934820285}
   grabRange: 3
   furnitureLayer:
@@ -888,7 +886,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 119e4599499ae4591a1e3e9ecaa5610b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grabAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdPoint: {fileID: 4163904122934820285}
   grabRange: 3
   furnitureLayer:
