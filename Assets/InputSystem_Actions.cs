@@ -706,7 +706,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""4089667a-bf12-4c54-b34d-2a1cdd888fa8"",
-                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""path"": ""<Gamepad>/buttonEast"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad1;Gamepad2;Gamepad3;Gamepad4;Touch"",
@@ -1301,6 +1301,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Leave"",
+                    ""type"": ""Button"",
+                    ""id"": ""8d88809a-4749-4fb7-afcf-8aca5129a161"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1422,6 +1431,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Back"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0991477b-4b71-4a82-85dd-70afb107373c"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Leave"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1571,6 +1591,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_LobbyUI_Navigate = m_LobbyUI.FindAction("Navigate", throwIfNotFound: true);
         m_LobbyUI_Ready = m_LobbyUI.FindAction("Ready", throwIfNotFound: true);
         m_LobbyUI_Back = m_LobbyUI.FindAction("Back", throwIfNotFound: true);
+        m_LobbyUI_Leave = m_LobbyUI.FindAction("Leave", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -2187,6 +2208,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_LobbyUI_Navigate;
     private readonly InputAction m_LobbyUI_Ready;
     private readonly InputAction m_LobbyUI_Back;
+    private readonly InputAction m_LobbyUI_Leave;
     /// <summary>
     /// Provides access to input actions defined in input action map "LobbyUI".
     /// </summary>
@@ -2210,6 +2232,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "LobbyUI/Back".
         /// </summary>
         public InputAction @Back => m_Wrapper.m_LobbyUI_Back;
+        /// <summary>
+        /// Provides access to the underlying input action "LobbyUI/Leave".
+        /// </summary>
+        public InputAction @Leave => m_Wrapper.m_LobbyUI_Leave;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2245,6 +2271,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Back.started += instance.OnBack;
             @Back.performed += instance.OnBack;
             @Back.canceled += instance.OnBack;
+            @Leave.started += instance.OnLeave;
+            @Leave.performed += instance.OnLeave;
+            @Leave.canceled += instance.OnLeave;
         }
 
         /// <summary>
@@ -2265,6 +2294,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Back.started -= instance.OnBack;
             @Back.performed -= instance.OnBack;
             @Back.canceled -= instance.OnBack;
+            @Leave.started -= instance.OnLeave;
+            @Leave.performed -= instance.OnLeave;
+            @Leave.canceled -= instance.OnLeave;
         }
 
         /// <summary>
@@ -2642,5 +2674,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnBack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Leave" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLeave(InputAction.CallbackContext context);
     }
 }

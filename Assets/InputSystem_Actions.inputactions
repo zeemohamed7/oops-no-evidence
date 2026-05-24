@@ -620,7 +620,7 @@
                 {
                     "name": "",
                     "id": "4089667a-bf12-4c54-b34d-2a1cdd888fa8",
-                    "path": "<Gamepad>/buttonNorth",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad1;Gamepad2;Gamepad3;Gamepad4;Touch",
@@ -1215,6 +1215,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Leave",
+                    "type": "Button",
+                    "id": "8d88809a-4749-4fb7-afcf-8aca5129a161",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1336,6 +1345,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0991477b-4b71-4a82-85dd-70afb107373c",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Leave",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
