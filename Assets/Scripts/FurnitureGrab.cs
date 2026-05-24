@@ -27,13 +27,11 @@ public class FurnitureGrab : MonoBehaviour
     private Collider[] playerColliders;
     private Collider[] furnitureColliders;
     private PlayerAnimationDriver animationDriver;
-    private TopDownPlayerController playerController;
     private ToolInventory toolInventory;
     private float nextGrabTime = 0f;
 
     void Awake()
     {
-        playerController = GetComponent<TopDownPlayerController>(); // cache at intilisation
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
         playerController = GetComponent<TopDownPlayerController>();
@@ -81,15 +79,13 @@ public class FurnitureGrab : MonoBehaviour
 
     void Update()
     {
-<<<<<<< HEAD
         // DONT grab if game hasn't started
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
         if (localGrabAction == null) return;
-=======
-        if (grabAction == null) return;
+        
+        // Prevent grab spamming/exploits
         if (Time.time < nextGrabTime) return;
->>>>>>> main
 
         // If already carrying a dead body/ragdoll via Grab.cs, ignore furniture interaction requests so inputs don't squat on the same frame.
         if (playerController != null && playerController.isCarrying && heldFurniture == null) return;
