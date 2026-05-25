@@ -24,6 +24,16 @@ public class MopCleaner : MonoBehaviour
     public float footprintCleanRadius = 0.4f;
     public float footprintCleanTime = 0.6f;
 
+    [Header("Dirty Mop Trail")]
+    [Tooltip("Blood splatter texture for dirty mop marks (assign whiteSplatter or any splat texture).")]
+    public Texture2D dirtyMopMarkTexture;
+    [Tooltip("Color of the dirty mop smear.")]
+    public Color dirtyMopMarkColor = new Color(0.45f, 0f, 0f, 0.85f);
+    [Tooltip("Size of each smear decal in world units.")]
+    public float dirtyMarkSize = 1.5f;
+    [Tooltip("Hard cap to prevent infinite decals. Raise if marks disappear too early.")]
+    public int maxDirtyMarks = 300;
+
     [Header("UI Feedback")]
     public Text statusText;
 
@@ -40,11 +50,13 @@ public class MopCleaner : MonoBehaviour
     InputAction _interactAction;
     ToolInventory[] _otherInventories;
     private PlayerAnimationDriver animationDriver;
-    float _dirtyStampTimer = 0f;
-    const float DirtyStampInterval = 0.06f; // seconds between dirty stamps
-
     System.Collections.Generic.Dictionary<GameObject, float> _footprintProgress
         = new System.Collections.Generic.Dictionary<GameObject, float>();
+
+    System.Collections.Generic.List<GameObject> _dirtyMarks
+        = new System.Collections.Generic.List<GameObject>();
+    float _decalStampTimer = 0f;
+    const float DecalStampInterval = 0.25f;
 
     void Start()
     {
@@ -138,17 +150,19 @@ public class MopCleaner : MonoBehaviour
             didClean = true;
             cleanUV = uv;
 
-            if (_mopIsDirty)
-            {
-                _dirtyStampTimer -= Time.deltaTime;
-                if (_dirtyStampTimer <= 0f)
-                {
-                    pool.SpreadAtUV(uv, spreadStrength, mopWorldRadius);
-                    _dirtyStampTimer = DirtyStampInterval;
-                }
-            }
-            else
+            if (!_mopIsDirty)
                 pool.EraseAtUV(uv, mopWorldRadius);
+        }
+
+        // Dirty mop always spawns decals — same look everywhere on the map
+        if (_mopIsDirty)
+        {
+            _decalStampTimer -= Time.deltaTime;
+            if (_decalStampTimer <= 0f)
+            {
+                SpawnDirtyMark(transform.position);
+                _decalStampTimer = DecalStampInterval * Random.Range(0.7f, 1.4f);
+            }
         }
 
         // Track UV distance for dirty mop (same scale as cleanDistanceBeforeDirty)
@@ -219,6 +233,56 @@ public class MopCleaner : MonoBehaviour
         if (!anyInRange) _footprintProgress.Clear();
     }
 
+    // ── Dirty mark decals ──────────────────────────────────────────────────
+
+    void SpawnDirtyMark(Vector3 worldPos)
+    {
+        // Find the exact floor Y under the player
+        float floorY = worldPos.y;
+        if (Physics.Raycast(worldPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
+            floorY = hit.point.y;
+
+        GameObject mark = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.02f, worldPos.z);
+        mark.transform.rotation   = Quaternion.Euler(90f, Random.Range(0f, 360f), 0f);
+        float randomSize = dirtyMarkSize * Random.Range(0.6f, 1.4f);
+        mark.transform.localScale = new Vector3(randomSize, randomSize * Random.Range(0.6f, 1f), 1f);
+        mark.name = "DirtyMopMark";
+
+        Destroy(mark.GetComponent<Collider>());
+
+        // Build a simple transparent material — no foot shape, just a blood blob
+        mark.GetComponent<Renderer>().material = new Material(Shader.Find("Sprites/Default"))
+        {
+            mainTexture = dirtyMopMarkTexture,
+            color = dirtyMopMarkColor
+        };
+
+        // Tag as Footprint so the clean mop can wipe it away
+        mark.tag = "Footprint";
+        FootprintTracker.ActiveFootprints.Add(mark);
+        _dirtyMarks.Add(mark);
+
+        // Remove and destroy oldest mark when limit reached
+        while (_dirtyMarks.Count > maxDirtyMarks)
+        {
+            GameObject old = _dirtyMarks[0];
+            _dirtyMarks.RemoveAt(0);
+            FootprintTracker.RemoveFootprint(old);
+            if (old != null) Destroy(old);
+        }
+    }
+
+    void ClearDirtyMarks()
+    {
+        foreach (var mark in _dirtyMarks)
+        {
+            FootprintTracker.RemoveFootprint(mark);
+            if (mark != null) Destroy(mark);
+        }
+        _dirtyMarks.Clear();
+    }
+
     // ── Public API ─────────────────────────────────────────────────────────
 
     public void TryDipMop()
@@ -260,6 +324,7 @@ public class MopCleaner : MonoBehaviour
         _mopIsDirty = false;
         _lastUV = -Vector2.one;
         _footprintProgress.Clear();
+        ClearDirtyMarks();
         UpdateStatusUI();
     }
 
