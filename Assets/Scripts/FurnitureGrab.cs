@@ -9,7 +9,7 @@ public class FurnitureGrab : MonoBehaviour
     // listen to local components instead of global
     private PlayerInput playerInput;
     private InputAction localGrabAction;
-    private TopDownPlayerController playerController;
+    // private TopDownPlayerController playerController;
 
     [Header("Setup")]
     public Transform holdPoint;
@@ -81,15 +81,12 @@ public class FurnitureGrab : MonoBehaviour
 
     void Update()
     {
-<<<<<<< HEAD
         // DONT grab if game hasn't started
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
         if (localGrabAction == null) return;
-=======
-        if (grabAction == null) return;
+        // if (grabAction == null) return;
         if (Time.time < nextGrabTime) return;
->>>>>>> main
 
         // If already carrying a dead body/ragdoll via Grab.cs, ignore furniture interaction requests so inputs don't squat on the same frame.
         if (playerController != null && playerController.isCarrying && heldFurniture == null) return;
