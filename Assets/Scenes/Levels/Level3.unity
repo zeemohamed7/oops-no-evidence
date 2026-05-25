@@ -64826,7 +64826,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b8538d23348c14c19bd042d84d3cad1b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 117.83
+      value: 116.46
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b8538d23348c14c19bd042d84d3cad1b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -214757,7 +214757,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Rearrange Furniture
+  m_text: 'AI Agent
 
 '
   m_isRightToLeft: 0
