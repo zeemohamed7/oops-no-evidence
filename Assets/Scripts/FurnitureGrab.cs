@@ -36,7 +36,7 @@ public class FurnitureGrab : MonoBehaviour
         playerController = GetComponent<TopDownPlayerController>(); // cache at intilisation
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
-        playerController = GetComponent<TopDownPlayerController>();
+        // playerController = GetComponent<TopDownPlayerController>();
         toolInventory = GetComponent<ToolInventory>();
     }
 
