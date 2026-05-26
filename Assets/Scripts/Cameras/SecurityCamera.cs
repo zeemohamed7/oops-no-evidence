@@ -13,6 +13,8 @@ public class SecurityCamera : MonoBehaviour
     [Range(0, 360)] public float angle = 90f;
     public LayerMask targetMask;
     public LayerMask obstructionMask;
+    private Transform[] _players;
+
 
     [Header("Suspicion")]
     [Tooltip("How much suspicion per second while player is in cone.")]
@@ -24,11 +26,13 @@ public class SecurityCamera : MonoBehaviour
 
     private void Start()
     {
-        var player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null) playerTransform = player.transform;
+        var playerObjects = GameObject.FindGameObjectsWithTag("Player");
+        _players = new Transform[playerObjects.Length];
+        for (int i = 0; i < playerObjects.Length; i++)
+            _players[i] = playerObjects[i].transform;
+
         StartCoroutine(DetectionRoutine());
     }
-
     private IEnumerator DetectionRoutine()
     {
         var wait = new WaitForSeconds(0.1f);
@@ -42,23 +46,26 @@ public class SecurityCamera : MonoBehaviour
     private void CheckForPlayer()
     {
         canSeePlayer = false;
-        if (playerTransform == null) return;
+        if (_players == null) return;
 
-        float distToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-        if (distToPlayer > radius) return;
+        foreach (var player in _players)
+        {
+            if (player == null) continue;
 
-        Vector3 dirToPlayer = (playerTransform.position - transform.position).normalized;
+            float dist = Vector3.Distance(transform.position, player.position);
+            if (dist > radius) continue;
 
-        // Flatten both vectors to XZ so the camera tilt doesn't affect horizontal detection
-        Vector3 flatForward = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
-        Vector3 flatDir     = new Vector3(dirToPlayer.x, 0f, dirToPlayer.z).normalized;
+            Vector3 flatForward = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+            Vector3 dirToPlayer = (player.position - transform.position).normalized;
+            Vector3 flatDir     = new Vector3(dirToPlayer.x, 0f, dirToPlayer.z).normalized;
 
-        if (Vector3.Angle(flatForward, flatDir) > angle / 2f) return;
+            if (Vector3.Angle(flatForward, flatDir) > angle / 2f) continue;
+            if (Physics.Raycast(transform.position, dirToPlayer, dist, obstructionMask)) continue;
 
-        // Obstruction check
-        if (Physics.Raycast(transform.position, dirToPlayer, distToPlayer, obstructionMask)) return;
-
-        canSeePlayer = true;
+            canSeePlayer = true;
+            playerTransform = player; // track whichever player was spotted
+            return;
+        }
     }
 
     private void Update()
