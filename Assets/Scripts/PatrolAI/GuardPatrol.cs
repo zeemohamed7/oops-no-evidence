@@ -29,9 +29,10 @@ public class GuardPatrol : MonoBehaviour
     private void Update()
     {
         if (agent == null) return;
+        // If the state machine is busy chasing or alerted, stop waypoint logic
         if (stateMachine.currentState != GuardStateMachine.State.Patrolling) return;
-    
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.5f)
+        // If reached, update
+        if (Vector3.Distance(transform.position, target) < 1)
         {
             IterateWaypointIndex();
             UpdateDestination();

@@ -11,8 +11,6 @@ public class PlayerInteraction : MonoBehaviour
     // Track the components locally instead of using a global reference asset
     private PlayerInput playerInput;
     private InputAction localInteractAction;
-    
-    private SecurityTerminal activeTerminal;
 
     private void Start()
     {
@@ -47,60 +45,16 @@ public class PlayerInteraction : MonoBehaviour
 
         if (toolInventory != null && toolInventory.GetSelectedSlot() != -1) return;
 
-        // Handle HOLD input for Terminals
-        if (localInteractAction.IsPressed())
-        {
-            HandleTerminalHoldCheck();
-        }
-        else
-        {
-            // Reset terminal progress if the player lets go of the button
-            if (activeTerminal != null)
-            {
-                activeTerminal.ResetProgress();
-                activeTerminal = null;
-            }
-        }
-
-        // Handle CLICK input for Hiding Spots
+        //  See if the physical button press is registering at all
         if (localInteractAction.WasPressedThisFrame()) 
         {
             Debug.Log($"[INTERACT CLICK] {gameObject.name} physically pressed the Interact button! Running proximity check next...");
-            PerformHidingCheck(); // Fixed to match the method name below
+            PerformProximityCheck();
         }
     }
     
-    private void HandleTerminalHoldCheck()
-    {
-        var mask = LayerMask.GetMask("Interactable");
-        var hitColliders = Physics.OverlapSphere(transform.position, reach, mask);
 
-        SecurityTerminal foundTerminal = null;
-
-        foreach (var hitCollider in hitColliders)
-        {
-            if (hitCollider.TryGetComponent(out SecurityTerminal terminal))
-            {
-                foundTerminal = terminal;
-                break;
-            }
-        }
-
-        // If we are near a terminal and holding the button, progress it
-        if (foundTerminal != null)
-        {
-            activeTerminal = foundTerminal;
-            activeTerminal.AddProgress(Time.deltaTime);
-        }
-        else if (activeTerminal != null)
-        {
-            // Player walked away while holding button
-            activeTerminal.ResetProgress();
-            activeTerminal = null;
-        }
-    }
-
-    private void PerformHidingCheck()
+    private void PerformProximityCheck()
     {
         var mask = LayerMask.GetMask("Interactable");
         var hitColliders = Physics.OverlapSphere(transform.position, reach, mask);

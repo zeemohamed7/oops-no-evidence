@@ -136,8 +136,7 @@ public class GuardStateMachine : MonoBehaviour
     private void EnterPatrol()
     {
         CancelInvoke(); // Stop the guard from jumping into Chasing if he was just Alerted
-        if(anim != null) anim.SetBool("IsRunning", false);
-        if(anim != null) anim.SetBool("IsWalking", true); 
+        if(anim != null) anim.SetBool("isChasing", false);
         currentState = State.Patrolling;
         UpdateVisuals("", Color.white);
         agent.isStopped = false;
@@ -147,7 +146,6 @@ public class GuardStateMachine : MonoBehaviour
 
     private void UpdatePatrol()
     {
-        Debug.Log("agent.isStopped: " + agent.isStopped + " | remainingDist: " + agent.remainingDistance);
         if (visionCone.canSeePlayer && graceTimer <= 0)
         {
             EnterAlerted();
@@ -175,13 +173,10 @@ public class GuardStateMachine : MonoBehaviour
     // --- STATE 2: ALERTED ---
     private void EnterAlerted()
     {
-        if (visionCone.lastSpottedTarget != null)
-            visionCone.playerRef = visionCone.lastSpottedTarget;
         currentState = State.Alerted;
         UpdateVisuals("?", alertedColor);
         if (patrol != null) patrol.StopPatrol();
         agent.isStopped = true;
-        if(anim != null) anim.SetBool("IsWalking", false); 
 
         if (spotSound != null) 
         {
@@ -209,9 +204,7 @@ public class GuardStateMachine : MonoBehaviour
     // --- STATE 3: CHASING ---
     private void EnterChasing()
     {
-        if(anim != null) anim.SetBool("IsRunning", true);
-        if(anim != null) anim.SetBool("IsWalking", false);
-        if(anim != null) anim.SetBool("LookAround", false); 
+        if(anim != null) anim.SetBool("isChasing", true);
         currentState = State.Chasing;
         UpdateVisuals("!", chasingColor);
         PlayRandomBark(chaseBarks);
@@ -274,8 +267,6 @@ public class GuardStateMachine : MonoBehaviour
         currentState = State.Searching;
         UpdateVisuals("?", searchingColor);
         agent.isStopped = true; // Stop walking
-        if(anim != null) anim.SetBool("IsWalking", false);
-        if(anim != null) anim.SetBool("LookAround", true); 
         searchTimer = 0f;
         searchStartRotation = transform.rotation; // Remember which way we were facing
     }
@@ -411,7 +402,6 @@ public class GuardStateMachine : MonoBehaviour
     
     private void GiveUpChase()
     {
-        if(anim != null) anim.SetBool("LookAround", false); 
         searchTimer = 0f;
         if (giveUpSound != null) 
         {
