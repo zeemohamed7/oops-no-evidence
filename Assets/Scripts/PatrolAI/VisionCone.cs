@@ -58,35 +58,10 @@ public class VisionCone : MonoBehaviour
                 }
             }
             canSeePlayer = spottedSomething; // True if they see player OR blood
-            
-            if (canSeePlayer)
-            {
-                float suspicionAmount = 20f * 0.2f; // 20 per second * 0.2s interval
-                GameEvents.OnSuspicionAdded?.Invoke(suspicionAmount);
-            }
         }
         else 
         {
             canSeePlayer = false;
         }
-    }
-    
-// Draw the vision cone area directly in the Scene view for easy debugging
-    private void OnDrawGizmos()
-    {
-        // 1. Draw the maximum range circle/sphere boundary
-        Gizmos.color = canSeePlayer ? Color.red : Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, radius);
-
-        // 2. Draw the left and right borders of the field of view angle
-        Vector3 forward = transform.forward;
-        
-        // Calculate the boundary vectors based on the angle
-        Vector3 leftRayDirection = Quaternion.Euler(0, -angle / 2, 0) * forward;
-        Vector3 rightRayDirection = Quaternion.Euler(0, angle / 2, 0) * forward;
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, leftRayDirection * radius);
-        Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, rightRayDirection * radius);
     }
 }
