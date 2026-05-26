@@ -37,6 +37,11 @@ public class MopCleaner : MonoBehaviour
     [Header("UI Feedback")]
     public Text statusText;
 
+    [Header("Dirty Indicator")]
+    [Tooltip("A world-space GameObject (e.g. Canvas with image) positioned above the player's head. " +
+             "Shown when mop is dirty, hidden when clean.")]
+    public GameObject dirtyMopIndicator;
+
     //malak
     [Header("Mop Sound")]
     public AudioSource moppingSoundSource;
@@ -334,6 +339,9 @@ public class MopCleaner : MonoBehaviour
 
     void UpdateStatusUI()
     {
+        if (dirtyMopIndicator != null)
+            dirtyMopIndicator.SetActive(_mopIsDirty);
+
         if (statusText == null) return;
         if (_mopIsDirty)
             statusText.text = "Mop dirty! Find the player holding the bucket!";
