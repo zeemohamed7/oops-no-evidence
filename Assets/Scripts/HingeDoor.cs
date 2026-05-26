@@ -5,9 +5,6 @@ public class HingeDoor : MonoBehaviour
     public float openAngle = 90f;
     public float speed = 4f;
 
-    [Header("Direction Fix")]
-    public bool flipOpenDirection = false;
-
     private Quaternion closedRotation;
     private Quaternion targetRotation;
 
@@ -26,18 +23,17 @@ public class HingeDoor : MonoBehaviour
         );
     }
 
-    public void OpenFromSide(bool playerInFront)
+    public void OpenByPlayerMovement(Vector3 playerMoveDirection)
     {
-        float direction = playerInFront ? -1f : 1f;
+        Vector3 localMoveDir = transform.InverseTransformDirection(playerMoveDirection);
+        float angle = localMoveDir.z > 0 ? -openAngle : openAngle;
+        targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
+    }
 
-        if (flipOpenDirection)
-            direction *= -1f;
-
-        targetRotation = closedRotation * Quaternion.Euler(
-            0,
-            openAngle * direction,
-            0
-        );
+    public void OpenFromSide(bool inFront)
+    {
+        float angle = inFront ? -openAngle : openAngle;
+        targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
     }
 
     public void CloseDoor()
