@@ -9,7 +9,7 @@ public class FurnitureGrab : MonoBehaviour
     // listen to local components instead of global
     private PlayerInput playerInput;
     private InputAction localGrabAction;
-    // private TopDownPlayerController playerController;
+    private TopDownPlayerController playerController;
 
     [Header("Setup")]
     public Transform holdPoint;
@@ -27,13 +27,11 @@ public class FurnitureGrab : MonoBehaviour
     private Collider[] playerColliders;
     private Collider[] furnitureColliders;
     private PlayerAnimationDriver animationDriver;
-    private TopDownPlayerController playerController;
     private ToolInventory toolInventory;
     private float nextGrabTime = 0f;
 
     void Awake()
     {
-        playerController = GetComponent<TopDownPlayerController>(); // cache at intilisation
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
         playerController = GetComponent<TopDownPlayerController>();
@@ -85,6 +83,8 @@ public class FurnitureGrab : MonoBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
         if (localGrabAction == null) return;
+
+        // Prevent grab spamming/exploits
         // if (grabAction == null) return;
         if (Time.time < nextGrabTime) return;
 
