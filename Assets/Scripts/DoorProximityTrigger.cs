@@ -13,7 +13,7 @@ public class DoorProximityTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player"))
+        if (!other.CompareTag("Player") && !other.CompareTag("Guard"))
             return;
 
         playersInside++;
@@ -35,7 +35,7 @@ public class DoorProximityTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("Player"))
+        if (!other.CompareTag("Player") && !other.CompareTag("Guard"))
             return;
 
         playersInside--;
