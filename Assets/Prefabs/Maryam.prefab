@@ -350,6 +350,7 @@ MonoBehaviour:
   sprayTool: {fileID: 4396423183375643381}
   mopCleaner: {fileID: 7367311134600257332}
   holdPoint: {fileID: 7379420364766568476}
+  isCarryingHeavyObject: 0
 --- !u!114 &3430488637302844065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1162,15 +1163,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.12409
+      value: -0.245
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.73823
+      value: 0.3688888
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.036
+      value: 0.161
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: f8a54722681e70b46af49354b0c5d2dd, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1519,11 +1520,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.518
+      value: -0.676
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.25543812
+      value: 0.167
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 9a2b7f3b7cd4545319ca46edfecad192, type: 3}
       propertyPath: m_LocalRotation.w

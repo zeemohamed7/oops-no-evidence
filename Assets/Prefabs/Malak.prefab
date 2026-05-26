@@ -122,8 +122,8 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
+  m_Height: 1.6
+  m_Radius: 0.3
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -339,6 +339,7 @@ MonoBehaviour:
   sprayTool: {fileID: 1778181209994343525}
   mopCleaner: {fileID: 8243110530401047824}
   holdPoint: {fileID: 0}
+  isCarryingHeavyObject: 0
 --- !u!114 &8243110530401047824
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -16,6 +16,9 @@ public class ToolInventory : MonoBehaviour
 
     private int selectedSlot = -1;
     private PlayerAnimationDriver animationDriver;
+    
+   //  Track if a heavy item is overriding the hand tools
+    public bool isCarryingHeavyObject = false;
 
     // Per-player input actions — each player's PlayerInput component provides its own
     private InputAction _slot1;
@@ -89,20 +92,60 @@ public class ToolInventory : MonoBehaviour
 
     void CycleSlot(int dir)
     {
+        // 1. Calculate next slot
         int next = selectedSlot == -1 ? (dir > 0 ? 1 : 4) : selectedSlot + dir;
+
+        // 2. Wrap around
         if (next < 1) next = 4;
         if (next > 4) next = 1;
 
-        // Skip slot 3 if blacklight is locked
+        // 3. Skip slot 3 if blacklight is locked
         if (next == 3 && !BlacklightUnlocked())
-            next = next + dir > 4 ? 1 : next + dir < 1 ? 4 : next + dir;
+        {
+            // If dir is positive, go to 4. If negative, go to 2.
+            next = (dir > 0) ? 4 : 2;
+        }
 
         selectedSlot = next;
+        
+        // Ensure the tool animation and parenting updates when cycling
+        UpdateToolState();
+    }
+
+    // Call this after cycling to update animations/parents immediately
+    void UpdateToolState()
+    {
+        GameObject activeTool = null;
+        if (selectedSlot == 1) activeTool = mopTool;
+        else if (selectedSlot == 2) activeTool = bucketTool;
+        else if (selectedSlot == 3) activeTool = blacklightTool;
+        else if (selectedSlot == 4) activeTool = sprayTool;
+
+        if (activeTool != null && holdPoint != null)
+        {
+            activeTool.transform.SetParent(holdPoint, false);
+            activeTool.transform.localPosition = Vector3.zero;
+        }
+
+        if (selectedSlot == 1) animationDriver?.SelectMop();
+        else if (selectedSlot != -1) animationDriver?.SelectTool();
+        else animationDriver?.ClearSelectedItem();
     }
 
     // Runs every frame — keeps tool visibility in sync with selectedSlot
     void EnforceSingleTool()
     {
+        
+        // Turn all tools off if carrying a body or weapon
+        if (isCarryingHeavyObject)
+        {
+            if (mopTool != null)        mopTool.SetActive(false);
+            if (bucketTool != null)     bucketTool.SetActive(false);
+            if (blacklightTool != null) blacklightTool.SetActive(false);
+            if (sprayTool != null)      sprayTool.SetActive(false);
+            return; 
+        }
+        
         // If blacklight somehow got selected while locked, deselect it
         if (selectedSlot == 3 && !BlacklightUnlocked())
             selectedSlot = -1;
