@@ -12,6 +12,7 @@ public class VisionCone : MonoBehaviour
     public LayerMask targetMask;
     public LayerMask obstructionMask;
     public bool canSeePlayer;
+    public GameObject lastSpottedTarget;
 
     private void Start()
     {
@@ -53,6 +54,7 @@ public class VisionCone : MonoBehaviour
                     if (!Physics.Raycast(transform.position + Vector3.up * 0.5f, directionToTarget, distanceToTarget, obstructionMask)) 
                     {
                         spottedSomething = true;
+                        lastSpottedTarget = check.gameObject;
                         break; // We found a threat! Stop looking at the rest
                     }
                 }

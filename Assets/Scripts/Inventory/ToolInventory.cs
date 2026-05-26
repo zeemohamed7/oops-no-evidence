@@ -28,6 +28,14 @@ public class ToolInventory : MonoBehaviour
     private InputAction _previous;
     private InputAction _next;
 
+    void Awake()
+    {
+        MakeToolKinematic(mopTool);
+        MakeToolKinematic(bucketTool);
+        MakeToolKinematic(blacklightTool);
+        MakeToolKinematic(sprayTool);
+    }
+
     void Start()
     {
         animationDriver = GetComponent<PlayerAnimationDriver>();
@@ -49,7 +57,16 @@ public class ToolInventory : MonoBehaviour
 
         ClearSelection();
     }
-    
+
+    void MakeToolKinematic(GameObject tool)
+    {
+        if (tool == null) return;
+        foreach (var rb in tool.GetComponentsInChildren<Rigidbody>(true))
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+    }
 
     InputAction FindAction(PlayerInput pi, string name)
     {
