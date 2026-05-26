@@ -223,12 +223,12 @@ public class MopCleaner : MonoBehaviour
 
     void SpawnDirtyMark(Vector3 worldPos)
     {
-// Find the floor Y just below the player (short range avoids hitting floors above in multi-story levels)
-        float floorY = worldPos.y;
-        if (Physics.Raycast(worldPos + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 3f))
-            floorY = hit.point.y;
+        Collider playerCol = GetComponent<Collider>()
+            ?? GetComponentInParent<Collider>()
+            ?? GetComponentInChildren<Collider>();
+        float floorY = playerCol != null ? playerCol.bounds.min.y : worldPos.y;
         GameObject mark = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.02f, worldPos.z);
+        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.106f, worldPos.z);
         mark.transform.rotation   = Quaternion.Euler(90f, Random.Range(0f, 360f), 0f);
         float randomSize = dirtyMarkSize * Random.Range(0.6f, 1.4f);
         mark.transform.localScale = new Vector3(randomSize, randomSize * Random.Range(0.6f, 1f), 1f);
@@ -238,12 +238,11 @@ public class MopCleaner : MonoBehaviour
         var col = mark.GetComponent<Collider>();
         if (col != null) col.isTrigger = true;
 
-        // Build a simple transparent material — no foot shape, just a blood blob
-        mark.GetComponent<Renderer>().material = new Material(Shader.Find("Sprites/Default"))
-        {
-            mainTexture = dirtyMopMarkTexture,
-            color = dirtyMopMarkColor
-        };
+        var mat = new Material(Shader.Find("Custom/Footprint"));
+        mat.SetTexture("_MainTex", dirtyMopMarkTexture);
+        mat.SetColor("_Color", dirtyMopMarkColor);
+        mat.SetFloat("_Alpha", dirtyMopMarkColor.a);
+        mark.GetComponent<Renderer>().material = mat;
 
         _dirtyMarks.Add(mark);
 
