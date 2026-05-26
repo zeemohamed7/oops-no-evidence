@@ -9,7 +9,7 @@ public class FurnitureGrab : MonoBehaviour
     // listen to local components instead of global
     private PlayerInput playerInput;
     private InputAction localGrabAction;
-    // private TopDownPlayerController playerController;
+    private TopDownPlayerController playerController;
 
     [Header("Setup")]
     public Transform holdPoint;
