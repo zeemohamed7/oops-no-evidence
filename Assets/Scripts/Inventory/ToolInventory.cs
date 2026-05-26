@@ -83,8 +83,8 @@ public class ToolInventory : MonoBehaviour
     {
         if (_slot1 != null && _slot1.WasPressedThisFrame()) ToggleHandTool(1, mopTool);
         if (_slot2 != null && _slot2.WasPressedThisFrame()) ToggleHandTool(2, bucketTool);
-        if (_slot3 != null && _slot3.WasPressedThisFrame() && BlacklightUnlocked()) ToggleHandTool(3, blacklightTool);
-        if (_slot4 != null && _slot4.WasPressedThisFrame()) ToggleHandTool(4, sprayTool);
+        if (_slot3 != null && _slot3.WasPressedThisFrame()) ToggleHandTool(3, sprayTool);
+        if (_slot4 != null && _slot4.WasPressedThisFrame() && BlacklightUnlocked()) ToggleHandTool(4, blacklightTool);
 
         if (_previous != null && _previous.WasPressedThisFrame()) CycleSlot(-1);
         if (_next     != null && _next.WasPressedThisFrame())     CycleSlot(+1);
@@ -99,11 +99,11 @@ public class ToolInventory : MonoBehaviour
         if (next < 1) next = 4;
         if (next > 4) next = 1;
 
-        // 3. Skip slot 3 if blacklight is locked
-        if (next == 3 && !BlacklightUnlocked())
+        // 3. Skip slot 4 if blacklight is locked
+        if (next == 4 && !BlacklightUnlocked())
         {
-            // If dir is positive, go to 4. If negative, go to 2.
-            next = (dir > 0) ? 4 : 2;
+            // If dir is positive, go to 1. If negative, go to 3.
+            next = (dir > 0) ? 1 : 3;
         }
 
         selectedSlot = next;
@@ -118,8 +118,8 @@ public class ToolInventory : MonoBehaviour
         GameObject activeTool = null;
         if (selectedSlot == 1) activeTool = mopTool;
         else if (selectedSlot == 2) activeTool = bucketTool;
-        else if (selectedSlot == 3) activeTool = blacklightTool;
-        else if (selectedSlot == 4) activeTool = sprayTool;
+        else if (selectedSlot == 3) activeTool = sprayTool;
+        else if (selectedSlot == 4) activeTool = blacklightTool;
 
         if (activeTool != null && holdPoint != null)
         {
@@ -147,13 +147,13 @@ public class ToolInventory : MonoBehaviour
         }
         
         // If blacklight somehow got selected while locked, deselect it
-        if (selectedSlot == 3 && !BlacklightUnlocked())
+        if (selectedSlot == 4 && !BlacklightUnlocked())
             selectedSlot = -1;
 
         if (mopTool != null)        mopTool.SetActive(selectedSlot == 1);
         if (bucketTool != null)     bucketTool.SetActive(selectedSlot == 2);
-        if (blacklightTool != null) blacklightTool.SetActive(selectedSlot == 3);
-        if (sprayTool != null)      sprayTool.SetActive(selectedSlot == 4);
+        if (sprayTool != null)      sprayTool.SetActive(selectedSlot == 3);
+        if (blacklightTool != null) blacklightTool.SetActive(selectedSlot == 4);
     }
 
     void ToggleHandTool(int slot, GameObject toolObj)
@@ -191,7 +191,7 @@ public class ToolInventory : MonoBehaviour
     public int GetSelectedSlot()       => selectedSlot;
     public bool IsMopSelected()        => selectedSlot == 1;
     public bool IsBucketSelected()     => selectedSlot == 2;
-    public bool IsBlacklightSelected() => selectedSlot == 3;
-    public bool IsSpraySelected()      => selectedSlot == 4;
+    public bool IsSpraySelected()      => selectedSlot == 3;
+    public bool IsBlacklightSelected() => selectedSlot == 4;
     public bool IsBlacklightUnlocked() => BlacklightUnlocked();
 }
