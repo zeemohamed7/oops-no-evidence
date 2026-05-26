@@ -440,6 +440,10 @@ MonoBehaviour:
   mopWorldRadius: 0.6
   footprintCleanRadius: 0.4
   footprintCleanTime: 0.6
+  dirtyMopMarkTexture: {fileID: 2800000, guid: 792a50c7c33b77b42afc22a3fcfcbc68, type: 3}
+  dirtyMopMarkColor: {r: 0.627451, g: 0, b: 0, a: 1}
+  dirtyMarkSize: 4
+  maxDirtyMarks: 300
   statusText: {fileID: 0}
   moppingSoundSource: {fileID: 3155821961899147839}
 --- !u!114 &-5471880552778398939
