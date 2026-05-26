@@ -28,7 +28,7 @@ public class MopCleaner : MonoBehaviour
     [Tooltip("Blood splatter texture for dirty mop marks (assign whiteSplatter or any splat texture).")]
     public Texture2D dirtyMopMarkTexture;
     [Tooltip("Color of the dirty mop smear.")]
-    public Color dirtyMopMarkColor = new Color(0.45f, 0f, 0f, 0.85f);
+    public Color dirtyMopMarkColor = new Color(0.667f, 0f, 0f, 0.85f);
     [Tooltip("Size of each smear decal in world units.")]
     public float dirtyMarkSize = 1.5f;
     [Tooltip("Hard cap to prevent infinite decals. Raise if marks disappear too early.")]
