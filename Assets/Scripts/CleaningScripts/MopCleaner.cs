@@ -22,7 +22,6 @@ public class MopCleaner : MonoBehaviour
 
     [Header("Footprint Cleaning")]
     public float footprintCleanRadius = 0.4f;
-    public float footprintCleanTime = 0.6f;
 
     [Header("Dirty Mop Trail")]
     [Tooltip("Blood splatter texture for dirty mop marks (assign whiteSplatter or any splat texture).")]
@@ -34,7 +33,7 @@ public class MopCleaner : MonoBehaviour
     [Tooltip("Hard cap to prevent infinite decals. Raise if marks disappear too early.")]
     public int maxDirtyMarks = 300;
 
-    [Header("UI Feedback")]
+    [Header("UI Feedback")]     
     public Text statusText;
 
     [Header("Dirty Indicator")]
@@ -55,9 +54,6 @@ public class MopCleaner : MonoBehaviour
     InputAction _interactAction;
     ToolInventory[] _otherInventories;
     private PlayerAnimationDriver animationDriver;
-    System.Collections.Generic.Dictionary<GameObject, float> _footprintProgress
-        = new System.Collections.Generic.Dictionary<GameObject, float>();
-
     System.Collections.Generic.List<GameObject> _dirtyMarks
         = new System.Collections.Generic.List<GameObject>();
     float _decalStampTimer = 0f;
@@ -128,7 +124,7 @@ public class MopCleaner : MonoBehaviour
         }
         if (!_painting)
         {
-            if (waspainting) { _lastUV = -Vector2.one; _footprintProgress.Clear(); }
+            if (waspainting) { _lastUV = -Vector2.one; }
             StopMopSound();//malak
             return;
         }
@@ -206,12 +202,6 @@ public class MopCleaner : MonoBehaviour
 
     void CleanFootprintsNear(Vector3 worldPoint)
     {
-        var nullKeys = new System.Collections.Generic.List<GameObject>();
-        foreach (var key in _footprintProgress.Keys)
-            if (key == null) nullKeys.Add(key);
-        foreach (var key in nullKeys) _footprintProgress.Remove(key);
-
-        bool anyInRange = false;
         var snapshot = new System.Collections.Generic.List<GameObject>(FootprintTracker.ActiveFootprints);
 
         foreach (GameObject fp in snapshot)
@@ -222,32 +212,11 @@ public class MopCleaner : MonoBehaviour
                 new Vector3(worldPoint.x, 0f, worldPoint.z),
                 new Vector3(fp.transform.position.x, 0f, fp.transform.position.z));
 
-            if (dist > footprintCleanRadius) { _footprintProgress.Remove(fp); continue; }
+            if (dist > footprintCleanRadius) continue;
 
-            anyInRange = true;
-
-            if (footprintCleanTime <= 0f) { FootprintTracker.RemoveFootprint(fp); continue; }
-
-            if (!_footprintProgress.ContainsKey(fp)) _footprintProgress[fp] = 0f;
-            _footprintProgress[fp] += Time.deltaTime;
-
-            Renderer r = fp.GetComponentInChildren<Renderer>();
-            if (r != null)
-            {
-                float progress = Mathf.Clamp01(_footprintProgress[fp] / footprintCleanTime);
-                Color col = r.material.color;
-                col.a = Mathf.Lerp(col.a, 0f, progress);
-                r.material.color = col;
-            }
-
-            if (_footprintProgress[fp] >= footprintCleanTime)
-            {
-                _footprintProgress.Remove(fp);
-                FootprintTracker.RemoveFootprint(fp);
-            }
+            FootprintTracker.RemoveFootprint(fp);
+            StartCoroutine(FadeAndDestroy(fp));
         }
-
-        if (!anyInRange) _footprintProgress.Clear();
     }
 
     // ── Dirty mark decals ──────────────────────────────────────────────────
@@ -331,7 +300,6 @@ public class MopCleaner : MonoBehaviour
         _mopIsDirty = false;
         _cleanedDistance = 0f;
         _lastUV = -Vector2.one;
-        _footprintProgress.Clear();
         Debug.Log("[MopCleaner] Mop dipped — ready to clean again!");
         animationDriver?.PlayDipMop();
         UpdateStatusUI();
@@ -360,7 +328,6 @@ public class MopCleaner : MonoBehaviour
         _cleanedDistance = 0f;
         _mopIsDirty = false;
         _lastUV = -Vector2.one;
-        _footprintProgress.Clear();
         ClearDirtyMarks();
         UpdateStatusUI();
     }
