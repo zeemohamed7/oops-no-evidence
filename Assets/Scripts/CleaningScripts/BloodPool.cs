@@ -184,6 +184,7 @@ public class BloodPool : MonoBehaviour
     /// </summary>
     public float SampleBloodAt(Vector3 worldPos)
     {
+        if (bloodRT == null) return 0f;
         Vector2 uv = WorldToUV(worldPos);
         if (!InRange(uv)) return 0f;
 
@@ -210,6 +211,7 @@ public class BloodPool : MonoBehaviour
     /// </summary>
     public void StampFootprintAt(Vector3 worldPos)
     {
+        if (_stampMat == null) return;
         Vector2 uv = WorldToUV(worldPos);
         if (!InRange(uv)) return;
 
