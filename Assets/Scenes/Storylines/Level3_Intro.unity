@@ -794,7 +794,7 @@ MonoBehaviour:
   - "A crime happened here, and you need \nto remove every trace."
   - "This is a sensitive place, so stay focused \nand be careful!"
   - "Finish the job before someone \ncomes to check the area."
-  typingSpeed: 0.04
+  typingSpeed: 0.026
   pauseBetweenLines: 1.2
 --- !u!82 &1496766762
 AudioSource:
@@ -807,7 +807,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 99b5f2e0374d20c4e9142cfc02103c3c, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
