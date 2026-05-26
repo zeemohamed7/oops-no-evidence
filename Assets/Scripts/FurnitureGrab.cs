@@ -34,7 +34,7 @@ public class FurnitureGrab : MonoBehaviour
     {
         playerColliders = GetComponentsInChildren<Collider>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
-        playerController = GetComponent<TopDownPlayerController>();
+        // playerController = GetComponent<TopDownPlayerController>();
         toolInventory = GetComponent<ToolInventory>();
     }
 

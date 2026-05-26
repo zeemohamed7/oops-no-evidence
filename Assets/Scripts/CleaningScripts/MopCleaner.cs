@@ -237,11 +237,10 @@ public class MopCleaner : MonoBehaviour
 
     void SpawnDirtyMark(Vector3 worldPos)
     {
-        // Find the exact floor Y under the player
+// Find the floor Y just below the player (short range avoids hitting floors above in multi-story levels)
         float floorY = worldPos.y;
-        if (Physics.Raycast(worldPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
+        if (Physics.Raycast(worldPos + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 3f))
             floorY = hit.point.y;
-
         GameObject mark = GameObject.CreatePrimitive(PrimitiveType.Quad);
         mark.transform.position   = new Vector3(worldPos.x, floorY + 0.02f, worldPos.z);
         mark.transform.rotation   = Quaternion.Euler(90f, Random.Range(0f, 360f), 0f);
