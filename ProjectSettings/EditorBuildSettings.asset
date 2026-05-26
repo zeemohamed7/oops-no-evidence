@@ -38,5 +38,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/win-lose.unity
     guid: 50ab49800eef59342b74f8ad76cc4826
+  - enabled: 1
+    path: Assets/Scenes/Levels/tutorial-fixed.unity
+    guid: f554947656de47242a133caeb9e33865
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

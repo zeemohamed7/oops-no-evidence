@@ -9,6 +9,7 @@ TagManager:
   - Bloodwall
   - Footprint
   - BloodWall
+  - Visitor
   layers:
   - Default
   - TransparentFX

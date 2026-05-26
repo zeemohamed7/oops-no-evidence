@@ -26,9 +26,13 @@ public class HingeDoor : MonoBehaviour
     public void OpenByPlayerMovement(Vector3 playerMoveDirection)
     {
         Vector3 localMoveDir = transform.InverseTransformDirection(playerMoveDirection);
-
         float angle = localMoveDir.z > 0 ? -openAngle : openAngle;
+        targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
+    }
 
+    public void OpenFromSide(bool inFront)
+    {
+        float angle = inFront ? -openAngle : openAngle;
         targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
     }
 

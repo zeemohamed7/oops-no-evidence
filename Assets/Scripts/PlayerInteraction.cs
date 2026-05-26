@@ -16,6 +16,9 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Start()
     {
+        if (toolInventory == null)
+            toolInventory = GetComponent<ToolInventory>() ?? GetComponentInChildren<ToolInventory>();
+
         playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
 
         if (playerInput != null)

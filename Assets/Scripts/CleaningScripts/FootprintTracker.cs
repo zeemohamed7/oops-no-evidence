@@ -182,6 +182,13 @@ public class FootprintTracker : MonoBehaviour
 
         // ── No Destroy call — footprint stays until player mops it ──
         ActiveFootprints.Add(fp);
+
+        // Stamp the footprint shape onto the blood pool RT (after decal is safe)
+        foreach (BloodPool pool in _allPools)
+        {
+            if (pool != null)
+                pool.StampFootprintAt(spawnPos);
+        }
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────

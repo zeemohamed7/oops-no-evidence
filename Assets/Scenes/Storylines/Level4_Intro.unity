@@ -810,7 +810,7 @@ MonoBehaviour:
   - "Something happened here, and \nno one should find out."
   - "Clean the evidence, fix what is out of place, \nand watch your steps."
   - "When morning comes, this should look like\n just another boring workday."
-  typingSpeed: 0.04
+  typingSpeed: 0.033
   pauseBetweenLines: 1.2
 --- !u!82 &1496766762
 AudioSource:
@@ -823,7 +823,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: b23614445f0eeec45a242986219b68b6, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

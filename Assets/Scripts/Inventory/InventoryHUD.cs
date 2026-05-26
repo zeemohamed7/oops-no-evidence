@@ -61,14 +61,14 @@ public class InventoryHUD : MonoBehaviour
 
         // Grey out locked slots every frame so it always overrides highlights
         bool blacklightLocked = players.Length > 0 && !players[0].IsBlacklightUnlocked();
-        Image slot3Img = SlotImage(3);
-        if (slot3Img != null)
+        Image slot4Img = SlotImage(4);
+        if (slot4Img != null)
         {
             if (blacklightLocked)
             {
                 // Cancel any running flash and force grey
-                if (_coroutines[2] != null) { StopCoroutine(_coroutines[2]); _coroutines[2] = null; }
-                slot3Img.color = Locked;
+                if (_coroutines[3] != null) { StopCoroutine(_coroutines[3]); _coroutines[3] = null; }
+                slot4Img.color = Locked;
             }
         }
     }
