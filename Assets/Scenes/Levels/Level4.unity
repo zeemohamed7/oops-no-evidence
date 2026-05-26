@@ -4459,7 +4459,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.28467903, y: 0.2993294, z: 0.3859009}
   m_Center: {x: 0, y: 0.000000014901168, z: -0.07626522}
-<<<<<<< HEAD
 --- !u!1 &170098448
 GameObject:
   m_ObjectHideFlags: 0
@@ -4596,8 +4595,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-=======
->>>>>>> main
 --- !u!1 &172929385
 GameObject:
   m_ObjectHideFlags: 0
@@ -27901,7 +27898,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!1 &934706007
 GameObject:
   m_ObjectHideFlags: 0
@@ -28038,8 +28034,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-=======
->>>>>>> main
 --- !u!1 &943500869 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6573043531509044289, guid: 348e3f6040ed695409477a02ecc7aa1c, type: 3}
@@ -32635,7 +32629,6 @@ Transform:
   - {fileID: 1626702059}
   m_Father: {fileID: 135279584}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!1 &1066238093
 GameObject:
   m_ObjectHideFlags: 0
@@ -32772,8 +32765,6 @@ RectTransform:
   m_AnchoredPosition: {x: 41, y: 162}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
-=======
->>>>>>> main
 --- !u!1 &1066896213
 GameObject:
   m_ObjectHideFlags: 0
@@ -48439,7 +48430,6 @@ Transform:
   - {fileID: 151679685}
   m_Father: {fileID: 126561964}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!1 &1515449254
 GameObject:
   m_ObjectHideFlags: 0
@@ -48576,8 +48566,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -18}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
-=======
->>>>>>> main
 --- !u!1 &1515873930
 GameObject:
   m_ObjectHideFlags: 0
@@ -51769,7 +51757,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1626702058}
   m_Mesh: {fileID: -4812258811233209787, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
-<<<<<<< HEAD
 --- !u!1 &1626989695
 GameObject:
   m_ObjectHideFlags: 0
@@ -51906,8 +51893,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-=======
->>>>>>> main
 --- !u!1 &1627481897 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -2312004991564711519, guid: 348e3f6040ed695409477a02ecc7aa1c, type: 3}
