@@ -3,37 +3,53 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [Header("Input Setup")] public InputActionReference interactAction;
-
     [Tooltip("When any tool is equipped the Interact key is used by the tool, not for hiding.")]
     public ToolInventory toolInventory;
 
     public float reach = 3f;
 
+    // Track the components locally instead of using a global reference asset
+    private PlayerInput playerInput;
+    private InputAction localInteractAction;
+
+    private void Start()
+    {
+        playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
+
+        if (playerInput != null)
+        {
+            localInteractAction = playerInput.actions.FindAction("Interact");
+        
+            if (localInteractAction == null)
+            {
+                Debug.LogError($"[INTERACT ERROR] Could not find an action named 'Interact' inside the current Input Asset map! Double check your spelling.");
+            }
+            else
+            {
+                Debug.Log($"[INTERACT CONFIG] Successfully mapped local 'Interact' action for {gameObject.name}. Device count attached: {playerInput.devices.Count}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"[INTERACT ERROR] No PlayerInput component found on {gameObject.name} or its parents!");
+        }
+    }
+
     private void Update()
     {
-        if (interactAction == null) return;
+        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
+        if (localInteractAction == null) return;
 
-        // Don't try to hide when the player has a tool equipped — the tool uses E/Y instead.
         if (toolInventory != null && toolInventory.GetSelectedSlot() != -1) return;
 
-        if (interactAction.action.WasPressedThisFrame()) PerformProximityCheck();
+        //  See if the physical button press is registering at all
+        if (localInteractAction.WasPressedThisFrame()) 
+        {
+            Debug.Log($"[INTERACT CLICK] {gameObject.name} physically pressed the Interact button! Running proximity check next...");
+            PerformProximityCheck();
+        }
     }
-
-    private void OnEnable()
-    {
-        // 1. Enable the specific action
-        interactAction?.action.Enable();
-
-        // 2. Optimal: Enable the entire Action Map (e.g., the "Player" map)
-        // This prevents the key from being ignored if the map is asleep
-        interactAction?.action.actionMap.Enable();
-    }
-
-    private void OnDisable()
-    {
-        interactAction?.action.Disable();
-    }
+    
 
     private void PerformProximityCheck()
     {
@@ -41,10 +57,12 @@ public class PlayerInteraction : MonoBehaviour
         var hitColliders = Physics.OverlapSphere(transform.position, reach, mask);
 
         foreach (var hitCollider in hitColliders)
+        {
             if (hitCollider.TryGetComponent(out HidingSpot spot))
             {
                 spot.ToggleHide(gameObject);
                 return;
             }
+        }
     }
 }

@@ -14,33 +14,59 @@ public class DeadbodyCarry : MonoBehaviour
             UpdateBodyWeight();
         }
     }
+    public int GetCarrierCount() => holdingPlayers.Count;
+
+    public GameObject GetOtherPlayer(GameObject localPlayer)
+    {
+        foreach (GameObject player in holdingPlayers)
+        {
+            if (player != localPlayer) return player;
+        }
+        return null;
+    }
 
     public void UnregisterPlayer(GameObject player)
     {
         if (holdingPlayers.Contains(player))
         {
             holdingPlayers.Remove(player);
+            
+            // 🟢 FIX PART 1: Reset the dropping player's movement parameters immediately
+            TopDownPlayerController controller = player.GetComponent<TopDownPlayerController>();
+            if (controller != null)
+            {
+                controller.ClearCarryPenalty(); // Explicitly clear penalty back to 1.0f base walk speed!
+            }
+
             UpdateBodyWeight();
         }
     }
 
-    private void UpdateBodyWeight()
+    // 🟢 FIX PART 2: Separated this method out so Grab.cs can query the list size safely at runtime
+    public float GetPenaltyForPlayerCount()
     {
         int carrierCount = holdingPlayers.Count;
-        if (carrierCount == 0) return;
+        return (carrierCount > 1) ? 0.85f : 0.5f;
+    }
 
-        // Determine the speed multiplier based on player count
-        // 1 Player holding = 0.5f (Moves at 50% speed)
-        // 2+ Players holding = 0.85f (Moves at 85% speed - much lighter!)
-        float dynamicMultiplier = (carrierCount > 1) ? 0.85f : 0.5f;
+    public void UpdateBodyWeight()
+    {
+        // 🟢 FIX PART 3: If no one is holding it anymore, we just stop safely because UnregisterPlayer handled the clean up!
+        if (holdingPlayers.Count == 0) return;
 
-        // Push this updated speed scaling down to every active carrier
+        // Determine the speed multiplier based on active player list count dynamically
+        float dynamicMultiplier = GetPenaltyForPlayerCount();
+
+        // Push this updated speed scaling down to every active carrier remaining on the body
         foreach (GameObject player in holdingPlayers)
         {
-            TopDownPlayerController controller = player.GetComponent<TopDownPlayerController>();
-            if (controller != null)
+            if (player != null)
             {
-                controller.SetCarryWeight(dynamicMultiplier);
+                TopDownPlayerController controller = player.GetComponent<TopDownPlayerController>();
+                if (controller != null)
+                {
+                    controller.SetCarryWeight(dynamicMultiplier);
+                }
             }
         }
     }
