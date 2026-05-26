@@ -199,27 +199,26 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         if (taskRows == null || taskRows.Length == 0) return;
 
-        int taskCount = tasks != null ? tasks.Length : 0;
+        int taskCount = tasks != null ? tasks.Length : taskRows.Length;
         int doneCount = 0;
 
         for (int i = 0; i < taskRows.Length; i++)
         {
             if (taskRows[i] == null) continue;
 
-            if (tasks != null && i < tasks.Length)
-            {
-                taskRows[i].gameObject.SetActive(true);
-                taskRows[i].color = tasks[i].done ? taskDoneColor : taskPendingColor;
-                taskRows[i].text  = tasks[i].done
-                    ? $"<s>{tasks[i].label}</s>"
-                    : tasks[i].label;
-                if (tasks[i].done) doneCount++;
-            }
-            else
-            {
-                // This level has fewer tasks than rows wired — hide the extra row
-                taskRows[i].gameObject.SetActive(false);
-            }
+            bool done = tasks != null && i < tasks.Length && tasks[i].done;
+
+            // Use the fetched label if available and non-empty;
+            // otherwise keep whatever text is already typed in the Inspector.
+            string rawLabel = (tasks != null && i < tasks.Length && !string.IsNullOrWhiteSpace(tasks[i].label))
+                ? tasks[i].label
+                : taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
+
+            taskRows[i].gameObject.SetActive(true);
+            taskRows[i].color = done ? taskDoneColor : taskPendingColor;
+            taskRows[i].text  = done ? $"<s>{rawLabel}</s>" : rawLabel;
+
+            if (done) doneCount++;
         }
 
         if (taskCountText != null)
