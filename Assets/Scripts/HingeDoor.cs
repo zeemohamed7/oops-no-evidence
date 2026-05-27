@@ -4,36 +4,34 @@ public class HingeDoor : MonoBehaviour
 {
     public float openAngle = 90f;
     public float speed = 4f;
+    public bool flipOpenDirection = false;
 
     private Quaternion closedRotation;
     private Quaternion targetRotation;
 
     void Start()
     {
-        closedRotation = transform.rotation;
+        closedRotation = transform.localRotation;
         targetRotation = closedRotation;
     }
 
     void Update()
     {
-        transform.rotation = Quaternion.Lerp(
-            transform.rotation,
+        transform.localRotation = Quaternion.Lerp(
+            transform.localRotation,
             targetRotation,
             Time.deltaTime * speed
         );
     }
 
-    public void OpenByPlayerMovement(Vector3 playerMoveDirection)
+    public void OpenFromSide(bool playerInFront)
     {
-        Vector3 localMoveDir = transform.InverseTransformDirection(playerMoveDirection);
-        float angle = localMoveDir.z > 0 ? -openAngle : openAngle;
-        targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
-    }
+        float direction = playerInFront ? -1f : 1f;
 
-    public void OpenFromSide(bool inFront)
-    {
-        float angle = inFront ? -openAngle : openAngle;
-        targetRotation = closedRotation * Quaternion.Euler(0, angle, 0);
+        if (flipOpenDirection)
+            direction *= -1f;
+
+        targetRotation = closedRotation * Quaternion.Euler(0, openAngle * direction, 0);
     }
 
     public void CloseDoor()

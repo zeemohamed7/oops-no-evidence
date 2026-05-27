@@ -1,55 +1,64 @@
 using UnityEngine;
+using System.Collections;
 
 public class DoorProximityTrigger : MonoBehaviour
 {
-    [Header("Single Door")]
     public HingeDoor door;
-
-    [Header("Double Doors")]
     public HingeDoor leftDoor;
     public HingeDoor rightDoor;
 
-    private int playersInside = 0;
+    public float closeDelay = 1f;
+
+    private int charactersInside = 0;
+    private Coroutine closeRoutine;
+
+    private bool IsAllowed(Collider other)
+    {
+        return other.CompareTag("Player") || other.CompareTag("Guard");
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player"))
-            return;
+        if (!IsAllowed(other)) return;
 
-        playersInside++;
+        charactersInside++;
 
-        Vector3 directionToPlayer = other.transform.position - transform.position;
-        float side = Vector3.Dot(transform.forward, directionToPlayer);
+        if (closeRoutine != null)
+        {
+            StopCoroutine(closeRoutine);
+            closeRoutine = null;
+        }
 
-        bool playerInFront = side > 0f;
+        Vector3 directionToCharacter = other.transform.position - transform.position;
+        bool characterInFront = Vector3.Dot(transform.forward, directionToCharacter) > 0;
 
-        if (door != null)
-            door.OpenFromSide(playerInFront);
-
-        if (leftDoor != null)
-            leftDoor.OpenFromSide(playerInFront);
-
-        if (rightDoor != null)
-            rightDoor.OpenFromSide(playerInFront);
+        if (door != null) door.OpenFromSide(characterInFront);
+        if (leftDoor != null) leftDoor.OpenFromSide(characterInFront);
+        if (rightDoor != null) rightDoor.OpenFromSide(characterInFront);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("Player"))
-            return;
+        if (!IsAllowed(other)) return;
 
-        playersInside--;
+        charactersInside--;
 
-        if (playersInside > 0)
-            return;
+        if (charactersInside <= 0)
+        {
+            charactersInside = 0;
+            closeRoutine = StartCoroutine(CloseAfterDelay());
+        }
+    }
 
-        if (door != null)
-            door.CloseDoor();
+    private IEnumerator CloseAfterDelay()
+    {
+        yield return new WaitForSeconds(closeDelay);
 
-        if (leftDoor != null)
-            leftDoor.CloseDoor();
-
-        if (rightDoor != null)
-            rightDoor.CloseDoor();
+        if (charactersInside == 0)
+        {
+            if (door != null) door.CloseDoor();
+            if (leftDoor != null) leftDoor.CloseDoor();
+            if (rightDoor != null) rightDoor.CloseDoor();
+        }
     }
 }

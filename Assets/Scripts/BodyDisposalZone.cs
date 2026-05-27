@@ -210,4 +210,4 @@ public class BodyDisposalZone : MonoBehaviour
 
         return ps;
     }
-}
+}git add Assets/Scenes/Levels/Level3.unity Assets/Scripts/BodyDisposalZone.cs
