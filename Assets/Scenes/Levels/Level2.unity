@@ -117206,7 +117206,7 @@ MonoBehaviour:
   sparkles: {fileID: 0}
   sparkleLight: {fileID: 0}
   promptUI: {fileID: 0}
-  disposalSoundSource: {fileID: 0}
+  disposalSoundSource: {fileID: 538965476}
 --- !u!114 &538965474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117254,7 +117254,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 2106257a7ff6d7c43bb5de9e31e21f6a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -168728,6 +168728,7 @@ MonoBehaviour:
   messageText: {fileID: 1808058969}
   tasksNotDoneMessage: Complete all tasks first!
   allDoneMessage: ALL DONE! Go to the Truck!
+  allDoneBannerDuration: 4
 --- !u!65 &796169582
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -308862,6 +308863,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 16119
   canSeePlayer: 0
+  lastSpottedTarget: {fileID: 0}
 --- !u!95 &1459633485
 Animator:
   serializedVersion: 7
