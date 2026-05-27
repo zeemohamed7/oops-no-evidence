@@ -11,7 +11,52 @@ public class WeaponDisposalZone : MonoBehaviour
     [Header("Prompt")]
     public GameObject promptUI;   // optional "Press E to dispose" world UI
 
+    [Header("Highlight (while carrying a weapon)")]
+    [Range(1f, 20f)] public float highlightWidth = 10f;
+
     private bool completed;
+    private Outline _outline;
+
+    void Awake()
+    {
+        _outline = transform.root.GetComponentInChildren<Outline>();
+        if (_outline == null)
+        {
+            MeshRenderer mr = transform.root.GetComponentInChildren<MeshRenderer>();
+            if (mr != null)
+            {
+                _outline = mr.gameObject.AddComponent<Outline>();
+                _outline.OutlineMode = Outline.Mode.OutlineAll;
+                _outline.OutlineWidth = highlightWidth;
+            }
+        }
+        if (_outline != null) _outline.enabled = false;
+    }
+
+    void OnEnable()
+    {
+        GameEvents.OnCarryStart += OnCarryStart;
+        GameEvents.OnCarryStop  += OnCarryStop;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnCarryStart -= OnCarryStart;
+        GameEvents.OnCarryStop  -= OnCarryStop;
+    }
+
+    void OnCarryStart(bool isBody)
+    {
+        if (isBody || completed || _outline == null) return;
+        _outline.OutlineColor = new Color32(157, 0, 255, 255);
+        _outline.OutlineWidth = highlightWidth;
+        _outline.enabled = true;
+    }
+
+    void OnCarryStop()
+    {
+        if (_outline != null) _outline.enabled = false;
+    }
 
     void Start()
     {
@@ -28,6 +73,7 @@ public class WeaponDisposalZone : MonoBehaviour
         if (!other.CompareTag("Weapon")) return;
 
         completed = true;
+        OnCarryStop();
         GameEvents.OnTaskCompleted?.Invoke("dispose_weapon");
         PlaySparkle();
 
