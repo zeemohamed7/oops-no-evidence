@@ -370,6 +370,8 @@ MonoBehaviour:
   crouchingHeight: 1
   isCarrying: 0
   carryMultiplier: 0.5
+  sprintSusPerSecond: 5
+  sprintSusSpeedThreshold: 7
   footstepSource: {fileID: 5696224311678582357}
 --- !u!54 &7506477137112495180
 Rigidbody:
@@ -1042,7 +1044,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: c785cf31ee95ce447bad7652a4dc0a4a, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 1
   Mute: 0
