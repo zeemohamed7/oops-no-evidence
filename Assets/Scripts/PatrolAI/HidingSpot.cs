@@ -6,30 +6,61 @@ public class HidingSpot : MonoBehaviour
     private bool isOccupied;
     private Vector3 playerReturnPos; // To save player originally was
 
+    [Header("Audio Settings")]
+    [Tooltip("Sound that plays when entering the hiding spot")]
+    public AudioClip enterSound;
+    [Tooltip("Sound that plays when leaving the hiding spot")]
+    public AudioClip exitSound;
+
+    private AudioSource _audioSource;
+
+    private void Start()
+    {
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+        {
+            _audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        _audioSource.playOnAwake = false;
+        _audioSource.spatialBlend = 0f; // Clean 2D sound
+    }
+
     public void ToggleHide(GameObject player)
     {
         var controller = player.GetComponent<TopDownPlayerController>();
-        // Get ALL visual parts so nothing stays visible
         var renderers = player.GetComponentsInChildren<Renderer>();
 
         if (!isOccupied)
         {
             // --- ENTERING HIDING ---
 
-            playerReturnPos = player.transform.position; // Save current position to put player back
+            playerReturnPos = player.transform.position; 
+
+            // // 🛑 FIX: Silence the footsteps on the player before freezing the controller component
+            // if (controller != null && controller.footstepSource != null)
+            // {
+            //     controller.footstepSource.Stop();
+            // }
 
             if (player.TryGetComponent(out CharacterController cc))
-                cc.enabled = false; // Disable unity character controller
+                cc.enabled = false; 
             if (player.TryGetComponent(out Rigidbody rb))
-                rb.isKinematic = true; // Ignore gravity and collisions for a bit
+                rb.isKinematic = true; 
 
             player.transform.position = hidePosition.position;
             player.transform.rotation = hidePosition.rotation;
 
             foreach (var r in renderers) r.enabled = false;
 
-            controller.enabled = false; // Turns off TopDownPlayerController
+            controller.enabled = false; // Turns off TopDownPlayerController smoothly now!
             player.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+            if (_audioSource != null && enterSound != null)
+            {
+                _audioSource.PlayOneShot(enterSound);
+            }
+
             isOccupied = true;
         }
         else
@@ -37,19 +68,22 @@ public class HidingSpot : MonoBehaviour
             // --- EXITING HIDING ---
 
             if (player.TryGetComponent(out CharacterController cc))
-                cc.enabled = true; // Turns physics collision back on
+                cc.enabled = true; 
             if (player.TryGetComponent(out Rigidbody rb))
-                rb.isKinematic = false; // Gives player back to physics engine so gravity can work again
+                rb.isKinematic = false; 
 
             foreach (var r in renderers) r.enabled = true;
 
-            // Return to the exact spot we were standing before hiding
             player.transform.position = playerReturnPos;
 
             controller.enabled = true;
 
-
             player.layer = LayerMask.NameToLayer("Target");
+
+            if (_audioSource != null && exitSound != null)
+            {
+                _audioSource.PlayOneShot(exitSound);
+            }
 
             isOccupied = false;
         }

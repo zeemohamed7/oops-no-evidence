@@ -171,8 +171,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20078c77005944d6eb5eef0fe989acac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 3
-  angle: 73
+  radius: 10
+  angle: 118
   playerRef: {fileID: 0}
   targetMask:
     serializedVersion: 2
@@ -220,7 +220,8 @@ MonoBehaviour:
   chaseSpeed: 5
   losePlayerTime: 3
   postEvictionGrace: 3
-  suspicionIncreaseRate: 25
+  footprintSuspicionPenalty: 7
+  suspicionBuildSpeed: 10
   OnPlayerDetected:
     m_PersistentCalls:
       m_Calls: []
@@ -244,7 +245,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: cfc6cbc8bcebb45da91b646135e9e52e, type: 3}
   - {fileID: 8300000, guid: 9f309700a8afb4857b70fece7efce6b2, type: 3}
   footprintDetectionRadius: 3
-  suspicionPerPrint: 15
   stopDuration: 2
   ewSound: {fileID: 0}
   currentState: 0
@@ -720,8 +720,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ee4fd0ece1b9742fb96cd0fb6d9fa80d, type: 2}
+  m_sharedMaterial: {fileID: 1420798233752909783, guid: ee4fd0ece1b9742fb96cd0fb6d9fa80d, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1537,8 +1537,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.393}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: 3.329}
+  m_SizeDelta: {x: 200, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7438953577039417203
 Canvas:

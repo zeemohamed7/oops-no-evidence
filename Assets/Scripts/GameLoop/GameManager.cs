@@ -26,7 +26,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Win/Lose Panel")]
     public WinLoseScreenManager winLosePanel;   // drag manager-win-lose here
-
+    public TMPro.TextMeshProUGUI hintTextElement;
+    
     [Header("Level Setup")]
     public Transform truckSpawnPoint;
 
@@ -98,6 +99,9 @@ public class GameManager : MonoBehaviour
         LastFailureReasons.Clear();
         UnlockNextLevel();
         OnWin.Invoke();
+        
+        if (hintTextElement != null) hintTextElement.text = "All tasks complete! Get to the truck to escape!";
+        
         Debug.Log($"WIN — Grade: {CalculateGrade()} | Time left: {FormatTime(TimeRemaining)}");
         LoadWinLoseScene(isWin: true, failures: null);
     }
@@ -135,6 +139,8 @@ public class GameManager : MonoBehaviour
             State = GameState.Won;
             UnlockNextLevel();
             OnWin.Invoke();
+            
+            if (hintTextElement != null) hintTextElement.text = "All tasks complete! Get to the truck to escape!";
         }
         else
         {
