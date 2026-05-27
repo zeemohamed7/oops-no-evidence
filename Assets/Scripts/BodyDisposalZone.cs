@@ -3,19 +3,16 @@ using UnityEngine;
 
 public class BodyDisposalZone : MonoBehaviour
 {
-    [Header("Sparkle")]
-    public ParticleSystem sparkles;
+    [Header("Sparkle")] public ParticleSystem sparkles;
     public Light sparkleLight;
 
-    [Header("Prompt")]
-    public GameObject promptUI;
+    [Header("Prompt")] public GameObject promptUI;
 
     //malak
-    [Header("Disposal Sound")]
-    public AudioSource disposalSoundSource;
+    [Header("Disposal Sound")] public AudioSource disposalSoundSource;
 
-    [Header("Highlight (while carrying a body)")]
-    [Range(1f, 20f)] public float highlightWidth = 10f;
+    [Header("Highlight (while carrying a body)")] [Range(1f, 20f)]
+    public float highlightWidth = 10f;
 
     private bool completed;
     private Outline _outline;
@@ -33,19 +30,20 @@ public class BodyDisposalZone : MonoBehaviour
                 _outline.OutlineWidth = highlightWidth;
             }
         }
+
         if (_outline != null) _outline.enabled = false;
     }
 
     void OnEnable()
     {
         GameEvents.OnCarryStart += OnCarryStart;
-        GameEvents.OnCarryStop  += OnCarryStop;
+        GameEvents.OnCarryStop += OnCarryStop;
     }
 
     void OnDisable()
     {
         GameEvents.OnCarryStart -= OnCarryStart;
-        GameEvents.OnCarryStop  -= OnCarryStop;
+        GameEvents.OnCarryStop -= OnCarryStop;
     }
 
     void OnCarryStart(bool isBody)
@@ -74,8 +72,8 @@ public class BodyDisposalZone : MonoBehaviour
         {
             disposalSoundSource.playOnAwake = false;
             disposalSoundSource.loop = false;
-        } 
-        
+        }
+
     }
 
     void OnTriggerEnter(Collider other)
@@ -101,7 +99,7 @@ public class BodyDisposalZone : MonoBehaviour
         //     playerAnim.SetCarrying(false);
         //     playerAnim.PlayDrop();
         // }
-    
+
         // Logic to DROP body before destroying it
         DeadbodyCarry carryScript = grabbable.GetComponentInParent<DeadbodyCarry>();
 
@@ -109,14 +107,14 @@ public class BodyDisposalZone : MonoBehaviour
         {
             // Find every single player script currently tracking carrying mechanics
             Grab[] allActiveGrabbers = FindObjectsByType<Grab>(FindObjectsSortMode.None);
-    
+
             foreach (Grab grabber in allActiveGrabbers)
             {
                 // If this specific player is holding the object currently being vaporized
                 if (grabber.GetHeldObject() == grabbable.gameObject)
                 {
                     // Force them to drop to bring back normal speed 
-                    grabber.Drop(); 
+                    grabber.Drop();
                 }
             }
         }
@@ -130,7 +128,7 @@ public class BodyDisposalZone : MonoBehaviour
                 playerAnim.PlayDrop();
             }
         }
-        
+
         grabbable.transform.SetParent(null);
         Destroy(grabbable.gameObject);
 
@@ -153,6 +151,7 @@ public class BodyDisposalZone : MonoBehaviour
             sparkles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             sparkles.Play();
         }
+
         if (sparkleLight != null)
             StartCoroutine(FlashLight());
     }
@@ -168,6 +167,7 @@ public class BodyDisposalZone : MonoBehaviour
             sparkleLight.intensity = Mathf.Lerp(startIntensity, 0f, t / duration);
             yield return null;
         }
+
         sparkleLight.enabled = false;
         sparkleLight.intensity = startIntensity;
     }
@@ -210,4 +210,4 @@ public class BodyDisposalZone : MonoBehaviour
 
         return ps;
     }
-}git add Assets/Scenes/Levels/Level3.unity Assets/Scripts/BodyDisposalZone.cs
+}
