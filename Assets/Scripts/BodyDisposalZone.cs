@@ -14,7 +14,52 @@ public class BodyDisposalZone : MonoBehaviour
     [Header("Disposal Sound")]
     public AudioSource disposalSoundSource;
 
+    [Header("Highlight (while carrying a body)")]
+    [Range(1f, 20f)] public float highlightWidth = 10f;
+
     private bool completed;
+    private Outline _outline;
+
+    void Awake()
+    {
+        _outline = transform.root.GetComponentInChildren<Outline>();
+        if (_outline == null)
+        {
+            MeshRenderer mr = transform.root.GetComponentInChildren<MeshRenderer>();
+            if (mr != null)
+            {
+                _outline = mr.gameObject.AddComponent<Outline>();
+                _outline.OutlineMode = Outline.Mode.OutlineAll;
+                _outline.OutlineWidth = highlightWidth;
+            }
+        }
+        if (_outline != null) _outline.enabled = false;
+    }
+
+    void OnEnable()
+    {
+        GameEvents.OnCarryStart += OnCarryStart;
+        GameEvents.OnCarryStop  += OnCarryStop;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnCarryStart -= OnCarryStart;
+        GameEvents.OnCarryStop  -= OnCarryStop;
+    }
+
+    void OnCarryStart(bool isBody)
+    {
+        if (!isBody || completed || _outline == null) return;
+        _outline.OutlineColor = new Color32(157, 0, 255, 255);
+        _outline.OutlineWidth = highlightWidth;
+        _outline.enabled = true;
+    }
+
+    void OnCarryStop()
+    {
+        if (_outline != null) _outline.enabled = false;
+    }
 
     void Start()
     {
@@ -41,6 +86,7 @@ public class BodyDisposalZone : MonoBehaviour
         if (grabbable == null || !grabbable.isRagdoll) return;
 
         completed = true;
+        OnCarryStop();
         GameEvents.OnTaskCompleted?.Invoke("dispose_body");
         PlaySparkle();
         PlayDisposalSound(); //malak
@@ -164,4 +210,4 @@ public class BodyDisposalZone : MonoBehaviour
 
         return ps;
     }
-}
+}git add Assets/Scenes/Levels/Level3.unity Assets/Scripts/BodyDisposalZone.cs

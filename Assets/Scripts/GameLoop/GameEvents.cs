@@ -9,6 +9,10 @@ public static class GameEvents
     // Tasks
     public static Action<string> OnTaskCompleted;
 
+    // Carrying — true = body, false = weapon
+    public static Action<bool> OnCarryStart;
+    public static Action       OnCarryStop;
+
     // Optional (future)
     public static Action OnAllTasksCompleted;
-}   
+}
