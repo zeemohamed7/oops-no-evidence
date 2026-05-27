@@ -199,25 +199,53 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         if (taskRows == null || taskRows.Length == 0) return;
 
-        int taskCount = tasks != null ? tasks.Length : 0;
+        // How many tasks does this level actually have?
+        // If fetch failed, fall back to however many rows have text in the Inspector.
+        int taskCount = 0;
+        if (tasks != null && tasks.Length > 0)
+        {
+            taskCount = tasks.Length;
+        }
+        else
+        {
+            foreach (var r in taskRows)
+                if (r != null && !string.IsNullOrWhiteSpace(r.text)) taskCount++;
+        }
+
         int doneCount = 0;
 
         for (int i = 0; i < taskRows.Length; i++)
         {
             if (taskRows[i] == null) continue;
 
-            if (tasks != null && i < tasks.Length)
+            if (i < taskCount)
             {
                 taskRows[i].gameObject.SetActive(true);
-                taskRows[i].color = tasks[i].done ? taskDoneColor : taskPendingColor;
-                taskRows[i].text  = tasks[i].done
-                    ? $"<s>{tasks[i].label}</s>"
-                    : tasks[i].label;
-                if (tasks[i].done) doneCount++;
+
+                bool   done;
+                string rawLabel;
+
+                if (tasks != null && i < tasks.Length)
+                {
+                    done     = tasks[i].done;
+                    // Use fetched label if non-empty, else keep Inspector text
+                    rawLabel = !string.IsNullOrWhiteSpace(tasks[i].label)
+                        ? tasks[i].label
+                        : taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
+                }
+                else
+                {
+                    done     = false;
+                    rawLabel = taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
+                }
+
+                taskRows[i].color = done ? taskDoneColor : taskPendingColor;
+                taskRows[i].text  = done ? $"<s>{rawLabel}</s>" : rawLabel;
+                if (done) doneCount++;
             }
             else
             {
-                // This level has fewer tasks than rows wired — hide the extra row
+                // Hide rows that this level doesn't use
                 taskRows[i].gameObject.SetActive(false);
             }
         }

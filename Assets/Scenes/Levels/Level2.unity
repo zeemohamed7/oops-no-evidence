@@ -118368,6 +118368,7 @@ GameObject:
   - component: {fileID: 538965475}
   - component: {fileID: 538965474}
   - component: {fileID: 538965473}
+  - component: {fileID: 538965476}
   m_Layer: 0
   m_Name: gunDisposeZone
   m_TagString: Untagged
@@ -118405,6 +118406,7 @@ MonoBehaviour:
   sparkles: {fileID: 0}
   sparkleLight: {fileID: 0}
   promptUI: {fileID: 0}
+  disposalSoundSource: {fileID: 538965476}
 --- !u!114 &538965474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118441,6 +118443,103 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.5129964, y: 1, z: 3.503811}
   m_Center: {x: 0.30924222, y: 0.000000009216135, z: 0.35676882}
+--- !u!82 &538965476
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 538965471}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 2106257a7ff6d7c43bb5de9e31e21f6a, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &538970881
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -119199,7 +119298,7 @@ MonoBehaviour:
   taskDoneColor: {r: 0.2509804, g: 0.08235294, b: 0.40784314, a: 1}
   taskPendingColor: {r: 1, g: 1, b: 1, a: 1}
   listText: {fileID: 0}
-  susText: {fileID: 0}
+  susText: {fileID: 1987102927}
   timeText: {fileID: 1601517455}
   susFillImage: {fileID: 953312829}
   gradeS: {fileID: 1473259036}
@@ -162267,7 +162366,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 5644b34a02acc4e4bae2fcbf563910e2, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -323046,7 +323145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseCanvas: {fileID: 1847223261}
-  soundIcon: {fileID: 0}
+  soundIcon: {fileID: 1106858523}
   soundOnSprite: {fileID: 21300000, guid: 7befbb9b0f5b64dc18a1aed48bad6584, type: 3}
   soundOffSprite: {fileID: 21300000, guid: 0b0cfb4342c334c09b96bb8ec9659d4f, type: 3}
 --- !u!4 &1528182663

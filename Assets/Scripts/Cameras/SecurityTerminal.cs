@@ -6,6 +6,7 @@ public class SecurityTerminal : MonoBehaviour
 {
     [Header("Hacking Settings")]
     public float hackDuration = 15f;
+    public string completionTaskId = "disable_cameras";
 
     [Header("Cameras to Disable on Completion")]
     public SecurityCamera[] targetCameras;
@@ -24,6 +25,8 @@ public class SecurityTerminal : MonoBehaviour
     private float _progress;
     private bool  _complete;
     private bool  _hacking;
+
+    public bool IsComplete => _complete;
 
     private void Start()
     {
@@ -100,7 +103,7 @@ public class SecurityTerminal : MonoBehaviour
         UpdateBar();
         SetStatus("ACCESS GRANTED");
 
-        GameEvents.OnTaskCompleted?.Invoke("disable_cameras");
+        GameEvents.OnTaskCompleted?.Invoke(completionTaskId);
 
         foreach (var cam in targetCameras)
         {

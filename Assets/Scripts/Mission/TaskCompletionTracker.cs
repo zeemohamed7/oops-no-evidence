@@ -1,21 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Add one of these to each level scene. Enable only the tasks that appear
-/// in that level's HUD task list. It polls gameplay state and fires
-/// GameEvents.OnTaskCompleted so the HUD checkmarks update in real-time.
-///
-/// Level 1: trackBlood only
-/// Level 2: trackBlood (furniture is handled automatically by FurnitureSnap)
-/// Level 3: trackBlood + trackFingerprints
-/// Level 4: trackBlood + trackFingerprints (cameras handled by teammate)
-/// </summary>
 public class TaskCompletionTracker : MonoBehaviour
 {
     [Header("Tasks to track for this level")]
     public bool trackBlood = false;
     public bool trackFingerprints = false;
+    public bool trackCameras = false;
 
     [Header("Blood Scan (GPU readback — keep interval >= 2s)")]
     public float bloodPollInterval = 2f;
@@ -26,13 +17,18 @@ public class TaskCompletionTracker : MonoBehaviour
 
     bool _bloodDone;
     bool _fingerprintsDone;
+    bool _camerasDone;
 
-    FingerprintSurface[] _fingerprints;
+    FingerprintSurface[]  _fingerprints;
+    SecurityTerminal[]    _terminals;
 
     void Start()
     {
         if (trackFingerprints)
             _fingerprints = FindObjectsByType<FingerprintSurface>(FindObjectsSortMode.None);
+
+        if (trackCameras)
+            _terminals = FindObjectsByType<SecurityTerminal>(FindObjectsSortMode.None);
 
         if (trackBlood)
             StartCoroutine(PollBlood());
@@ -43,6 +39,7 @@ public class TaskCompletionTracker : MonoBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
         if (trackFingerprints && !_fingerprintsDone) CheckFingerprintsDone();
+        if (trackCameras      && !_camerasDone)      CheckCamerasDone();
     }
 
     IEnumerator PollBlood()
@@ -80,5 +77,16 @@ public class TaskCompletionTracker : MonoBehaviour
 
         _fingerprintsDone = true;
         GameEvents.OnTaskCompleted?.Invoke("clean_fingerprints");
+    }
+
+    void CheckCamerasDone()
+    {
+        if (_terminals == null || _terminals.Length == 0) return;
+
+        foreach (var t in _terminals)
+            if (t != null && !t.IsComplete) return;
+
+        _camerasDone = true;
+        GameEvents.OnTaskCompleted?.Invoke("disable_cameras");
     }
 }

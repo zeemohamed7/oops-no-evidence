@@ -10,6 +10,10 @@ public class BodyDisposalZone : MonoBehaviour
     [Header("Prompt")]
     public GameObject promptUI;
 
+    //malak
+    [Header("Disposal Sound")]
+    public AudioSource disposalSoundSource;
+
     private bool completed;
 
     void Start()
@@ -19,6 +23,14 @@ public class BodyDisposalZone : MonoBehaviour
 
         if (promptUI != null)
             promptUI.SetActive(false);
+
+        //malak
+        if (disposalSoundSource != null)
+        {
+            disposalSoundSource.playOnAwake = false;
+            disposalSoundSource.loop = false;
+        } 
+        
     }
 
     void OnTriggerEnter(Collider other)
@@ -31,6 +43,7 @@ public class BodyDisposalZone : MonoBehaviour
         completed = true;
         GameEvents.OnTaskCompleted?.Invoke("dispose_body");
         PlaySparkle();
+        PlayDisposalSound(); //malak
 
         if (promptUI != null)
             promptUI.SetActive(false);
@@ -76,6 +89,15 @@ public class BodyDisposalZone : MonoBehaviour
         Destroy(grabbable.gameObject);
 
         Debug.Log("Body disposed");
+    }
+
+    //malak
+    void PlayDisposalSound()
+    {
+        if (disposalSoundSource != null)
+        {
+            disposalSoundSource.Play();
+        }
     }
 
     void PlaySparkle()
