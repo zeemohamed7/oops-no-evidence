@@ -199,26 +199,55 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         if (taskRows == null || taskRows.Length == 0) return;
 
-        int taskCount = tasks != null ? tasks.Length : taskRows.Length;
+        // How many tasks does this level actually have?
+        // If fetch failed, fall back to however many rows have text in the Inspector.
+        int taskCount = 0;
+        if (tasks != null && tasks.Length > 0)
+        {
+            taskCount = tasks.Length;
+        }
+        else
+        {
+            foreach (var r in taskRows)
+                if (r != null && !string.IsNullOrWhiteSpace(r.text)) taskCount++;
+        }
+
         int doneCount = 0;
 
         for (int i = 0; i < taskRows.Length; i++)
         {
             if (taskRows[i] == null) continue;
 
-            bool done = tasks != null && i < tasks.Length && tasks[i].done;
+            if (i < taskCount)
+            {
+                taskRows[i].gameObject.SetActive(true);
 
-            // Use the fetched label if available and non-empty;
-            // otherwise keep whatever text is already typed in the Inspector.
-            string rawLabel = (tasks != null && i < tasks.Length && !string.IsNullOrWhiteSpace(tasks[i].label))
-                ? tasks[i].label
-                : taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
+                bool   done;
+                string rawLabel;
 
-            taskRows[i].gameObject.SetActive(true);
-            taskRows[i].color = done ? taskDoneColor : taskPendingColor;
-            taskRows[i].text  = done ? $"<s>{rawLabel}</s>" : rawLabel;
+                if (tasks != null && i < tasks.Length)
+                {
+                    done     = tasks[i].done;
+                    // Use fetched label if non-empty, else keep Inspector text
+                    rawLabel = !string.IsNullOrWhiteSpace(tasks[i].label)
+                        ? tasks[i].label
+                        : taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
+                }
+                else
+                {
+                    done     = false;
+                    rawLabel = taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
+                }
 
-            if (done) doneCount++;
+                taskRows[i].color = done ? taskDoneColor : taskPendingColor;
+                taskRows[i].text  = done ? $"<s>{rawLabel}</s>" : rawLabel;
+                if (done) doneCount++;
+            }
+            else
+            {
+                // Hide rows that this level doesn't use
+                taskRows[i].gameObject.SetActive(false);
+            }
         }
 
         if (taskCountText != null)
