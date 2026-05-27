@@ -229,6 +229,11 @@ public class Grab : MonoBehaviour
                 toolInventory.isCarryingHeavyObject = true;
             }
 
+            if (heldGrabbable.isRagdoll)
+                GameEvents.OnCarryStart?.Invoke(true);
+            else if (grabbable.CompareTag("Weapon"))
+                GameEvents.OnCarryStart?.Invoke(false);
+
             return;
         }
     }
@@ -288,9 +293,11 @@ public class Grab : MonoBehaviour
         heldRigidbody = null;
         heldGrabbable = null;
 
+        GameEvents.OnCarryStop?.Invoke();
+
         // reset player movement speeds back to normal
         if (playerController != null)
-            playerController.ClearCarryPenalty(); 
+            playerController.ClearCarryPenalty();
 
         if (playerAnimator != null)
         {
