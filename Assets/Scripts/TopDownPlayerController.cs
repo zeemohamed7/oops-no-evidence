@@ -29,6 +29,12 @@ public class TopDownPlayerController : MonoBehaviour
     [Range(0.1f, 1f)]
     public float carryMultiplier = 0.5f;
 
+    [Header("Noise / Suspicion")]
+    [Tooltip("Sus added per second while sprinting.")]
+    public float sprintSusPerSecond = 5f;
+    [Tooltip("Player must be moving at least this fast (units/sec) to count as sprinting for sus.")]
+    public float sprintSusSpeedThreshold = 7f;
+
     //malak
     [Header("Footsteps")]
     public AudioSource footstepSource;
@@ -215,6 +221,13 @@ public class TopDownPlayerController : MonoBehaviour
         animationDriver?.SetWalking(isWalking);
 
         HandleFootsteps(isWalking);
+
+        // Sprint noise — only while actually moving fast enough
+        if (isWalking && speed >= sprintSusSpeedThreshold
+            && GameManager.Instance != null && GameManager.Instance.IsPlaying)
+        {
+            GameEvents.OnSuspicionAdded?.Invoke(sprintSusPerSecond * Time.deltaTime);
+        }
 
         controller.Move(moveDirection * speed * Time.deltaTime);
         controller.Move(Vector3.down * 30f * Time.deltaTime);
