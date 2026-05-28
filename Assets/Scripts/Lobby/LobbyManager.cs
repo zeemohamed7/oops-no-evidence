@@ -279,7 +279,14 @@ public class LobbyManager : MonoBehaviour
         _pim.onPlayerJoined -= OnPlayerJoined;
         _pim.onPlayerLeft   -= OnPlayerLeft;
 
-        SceneManager.LoadScene(selectedLevelName);
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene(selectedLevelName);
+        }
+        else
+        {
+            SceneManager.LoadScene(selectedLevelName);
+        }
     }
 
     // ─── GAMEPLAY SPAWN (called by level spawner after scene load) ────────────

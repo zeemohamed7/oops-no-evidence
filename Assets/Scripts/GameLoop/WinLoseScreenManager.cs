@@ -301,19 +301,43 @@ public class WinLoseScreenManager : MonoBehaviour
     void NextLevel()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("LevelSelection");
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection");
+        }
     }
 
     void RetryLevel()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        // 🟢 FIXED: Use the SceneTransitionManager to reload the current level smoothly
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene(currentSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(currentSceneName);
+        }
     }
 
     void QuitToMap()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("LevelSelection");
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection");
+        }
     }
 
     // ── Call this before loading the win-lose scene (separate-scene flow) ────
