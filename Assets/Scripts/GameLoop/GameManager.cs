@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     {
         TimeRemaining = levelDuration;
         State = GameState.Waiting;  // timer only starts when truck arrives
+        TryHookSuspicion();         // retry in case Instance was null during OnEnable
     }
 
     private void OnEnable()
@@ -56,8 +57,10 @@ public class GameManager : MonoBehaviour
 
     void TryHookSuspicion()
     {
-        if (SuspicionMeter.Instance != null)
-            SuspicionMeter.Instance.OnGameOver.AddListener(OnSuspicionGameOver);
+        if (SuspicionMeter.Instance == null) return;
+        // Remove first so we never add the listener twice
+        SuspicionMeter.Instance.OnGameOver.RemoveListener(OnSuspicionGameOver);
+        SuspicionMeter.Instance.OnGameOver.AddListener(OnSuspicionGameOver);
     }
 
     void OnSuspicionGameOver()
