@@ -273,13 +273,21 @@ public class WinLoseScreenManager : MonoBehaviour
     void NextLevel()
     {
         Time.timeScale = 1f;
+
+        // 🟢 FORCE DIRECT INDEX LOOKUP: Your LevelSelection scene is strictly Index 1
+        int levelSelectionIndex = 1; 
+
         if (SceneTransitionManager.Instance != null)
         {
-            SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
+            // If your manager has a function that accepts an INT index number, use it:
+            // SceneTransitionManager.Instance.SwitchToScene(levelSelectionIndex);
+        
+            // Otherwise, bypass the manager completely to stop the glitch:
+            SceneManager.LoadScene(levelSelectionIndex);
         }
         else
         {
-            SceneManager.LoadScene("LevelSelection");
+            SceneManager.LoadScene(levelSelectionIndex);
         }
     }
 

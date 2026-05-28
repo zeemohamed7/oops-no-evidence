@@ -82,7 +82,7 @@ public class WallSprayCleaner : MonoBehaviour
     void Update()
     {
         if (inventory == null || !inventory.IsSpraySelected()) return;
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.JoystickButton2))
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.JoystickButton0))
             TrySpray();
     }
 
