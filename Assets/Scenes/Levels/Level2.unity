@@ -285805,13 +285805,11 @@ MonoBehaviour:
   - {fileID: 1112293932}
   - {fileID: 1162418116}
   - {fileID: 727526456}
-  - {fileID: 1977794907}
   taskIds:
   - dispose_weapon
   - dispose_body
   - clean_blood
   - rearrange_furniture
-  - last_step_truck
   counterText: {fileID: 930151801}
   taskDoneColor: {r: 0.2509804, g: 0.08235294, b: 0.40784314, a: 1}
   pauseButton: {fileID: 0}

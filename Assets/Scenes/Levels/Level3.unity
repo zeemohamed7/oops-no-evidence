@@ -57844,14 +57844,12 @@ MonoBehaviour:
   - {fileID: 2109530105}
   - {fileID: 1531902574}
   - {fileID: 272750981}
-  - {fileID: 307764521}
   taskIds:
   - dispose_weapon
   - dispose_body
   - clean_blood
   - rearrange_furniture
   - clean_fingerprints
-  - last_step_truck
   counterText: {fileID: 427740835}
   taskDoneColor: {r: 0.2509804, g: 0.08235294, b: 0.40784314, a: 1}
   pauseButton: {fileID: 0}
