@@ -50,6 +50,9 @@ public class SecurityTerminal : MonoBehaviour
     {
         if (_complete) return;
 
+        if (!_hacking)
+            Debug.Log($"[SecurityTerminal] {gameObject.name} — hack started");
+
         // Start typing sound when hacking begins
         if (!_hacking)
         {
@@ -112,6 +115,7 @@ public class SecurityTerminal : MonoBehaviour
         bool allDone = true;
         foreach (var t in allTerminals)
             if (t != null && !t.IsComplete) { allDone = false; break; }
+        Debug.Log($"[SecurityTerminal] {gameObject.name} hacked. Total terminals: {allTerminals.Length}, all done: {allDone}");
         if (allDone)
             GameEvents.OnTaskCompleted?.Invoke("hack_cameras");
 
