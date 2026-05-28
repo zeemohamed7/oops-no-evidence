@@ -66,6 +66,13 @@ public class LevelIntroManager : MonoBehaviour
         if (isSkipping) return;
 
         isSkipping = true;
-        SceneManager.LoadScene(nextSceneName);
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene(nextSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(nextSceneName);
+        }
     }
 }
