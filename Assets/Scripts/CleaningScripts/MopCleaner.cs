@@ -88,6 +88,10 @@ public class MopCleaner : MonoBehaviour
 
     void Update()
     {
+        // Keep bucket UI in sync every frame: only visible when mop is held AND dirty
+        if (dirtyMopIndicator != null)
+            dirtyMopIndicator.SetActive(_mopIsDirty && inventory.IsMopSelected());
+
         // Lazy-find runs every frame until other players are found
         if (_otherInventories == null || _otherInventories.Length == 0)
         {
@@ -307,7 +311,7 @@ public class MopCleaner : MonoBehaviour
     void UpdateStatusUI()
     {
         if (dirtyMopIndicator != null)
-            dirtyMopIndicator.SetActive(_mopIsDirty);
+            dirtyMopIndicator.SetActive(_mopIsDirty && inventory.IsMopSelected());
 
         if (statusText == null) return;
         if (_mopIsDirty)
