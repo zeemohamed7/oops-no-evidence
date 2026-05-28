@@ -103,7 +103,17 @@ public class SecurityTerminal : MonoBehaviour
         UpdateBar();
         SetStatus("ACCESS GRANTED");
 
-        GameEvents.OnTaskCompleted?.Invoke(completionTaskId);
+        // Fire per-terminal event (kept for backwards compat)
+        if (!string.IsNullOrEmpty(completionTaskId))
+            GameEvents.OnTaskCompleted?.Invoke(completionTaskId);
+
+        // Fire the cameras task once ALL terminals in the scene are done
+        var allTerminals = FindObjectsByType<SecurityTerminal>(FindObjectsSortMode.None);
+        bool allDone = true;
+        foreach (var t in allTerminals)
+            if (t != null && !t.IsComplete) { allDone = false; break; }
+        if (allDone)
+            GameEvents.OnTaskCompleted?.Invoke("hack_cameras");
 
         foreach (var cam in targetCameras)
         {
