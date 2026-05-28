@@ -19,10 +19,16 @@ public class BodyDisposalZone : MonoBehaviour
 
     void Awake()
     {
-        _outline = transform.root.GetComponentInChildren<Outline>();
+
+        Transform searchRoot = transform.parent != null ? transform.parent : transform;
+
+        _outline = searchRoot.GetComponent<Outline>()
+                ?? searchRoot.GetComponentInChildren<Outline>();
+
         if (_outline == null)
         {
-            MeshRenderer mr = transform.root.GetComponentInChildren<MeshRenderer>();
+            MeshRenderer mr = searchRoot.GetComponent<MeshRenderer>()
+                           ?? searchRoot.GetComponentInChildren<MeshRenderer>();
             if (mr != null)
             {
                 _outline = mr.gameObject.AddComponent<Outline>();
