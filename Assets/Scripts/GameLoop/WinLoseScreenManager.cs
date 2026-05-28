@@ -273,13 +273,30 @@ public class WinLoseScreenManager : MonoBehaviour
     void NextLevel()
     {
         Time.timeScale = 1f;
-        if (SceneTransitionManager.Instance != null)
+
+        // 1. Calculate the next scene's build index
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
+        // 2. Check if the next index exists in your build list
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
-            SceneTransitionManager.Instance.SwitchToScene(SceneManager.GetActiveScene().buildIndex + 1);
+            if (SceneTransitionManager.Instance != null)
+            {
+                // 🟢 FIXED: Combine your string text with the index number directly!
+                SceneTransitionManager.Instance.SwitchToScene("Level" + nextSceneIndex);
+            }
+            else
+            {
+                SceneManager.LoadScene(nextSceneIndex);
+            }
         }
         else
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            Debug.LogWarning("No next scene found in Build Settings! Returning to Map.");
+            if (SceneTransitionManager.Instance != null) 
+                SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
+            else 
+                SceneManager.LoadScene("LevelSelection");
         }
     }
 

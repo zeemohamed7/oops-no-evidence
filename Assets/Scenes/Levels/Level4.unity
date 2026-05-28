@@ -1368,8 +1368,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
-<<<<<<< HEAD
-=======
 --- !u!1 &43944766
 GameObject:
   m_ObjectHideFlags: 0
@@ -1533,7 +1531,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1233825945}
   m_SourcePrefab: {fileID: 100100000, guid: 9d31d4795459443848fc6dfe45d7efe5, type: 3}
->>>>>>> main
 --- !u!1 &45171069 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3356290640355882972, guid: 348e3f6040ed695409477a02ecc7aa1c, type: 3}
@@ -3527,8 +3524,6 @@ MonoBehaviour:
   openAngle: 90
   speed: 4
   flipOpenDirection: 0
-<<<<<<< HEAD
-=======
 --- !u!1 &134073079
 GameObject:
   m_ObjectHideFlags: 0
@@ -3665,7 +3660,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134073079}
   m_CullTransparentMesh: 1
->>>>>>> main
 --- !u!1 &135279583
 GameObject:
   m_ObjectHideFlags: 0
@@ -17846,7 +17840,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.084054, y: 2.0352912, z: 0.045657832}
   m_Center: {x: 0.000030517578, y: 0.000015258789, z: 0}
-<<<<<<< HEAD
 --- !u!43 &598405404
 Mesh:
   m_ObjectHideFlags: 0
@@ -18013,9 +18006,6 @@ Mesh:
     size: 0
     path: 
 --- !u!1 &599561799
-=======
---- !u!1 &597166908
->>>>>>> main
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -18023,53 +18013,39 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-<<<<<<< HEAD
   - component: {fileID: 599561800}
   - component: {fileID: 599561802}
   - component: {fileID: 599561801}
   m_Layer: 16
   m_Name: Object_1066
-=======
   - component: {fileID: 597166909}
   - component: {fileID: 597166912}
   - component: {fileID: 597166911}
   - component: {fileID: 597166910}
   m_Layer: 5
   m_Name: susPanel
->>>>>>> main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
-<<<<<<< HEAD
 --- !u!4 &599561800
 Transform:
-=======
---- !u!224 &597166909
-RectTransform:
->>>>>>> main
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 599561799}
   serializedVersion: 2
-=======
-  m_GameObject: {fileID: 597166908}
->>>>>>> main
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-<<<<<<< HEAD
   m_Children: []
   m_Father: {fileID: 291156546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &599561801
 MeshRenderer:
-=======
   m_Children:
   - {fileID: 707754753}
   - {fileID: 602724530}
@@ -18083,12 +18059,10 @@ MeshRenderer:
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &597166910
 MonoBehaviour:
->>>>>>> main
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 599561799}
   m_Enabled: 1
   m_CastShadows: 1
@@ -18130,7 +18104,6 @@ MonoBehaviour:
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &599561802
 MeshFilter:
-=======
   m_GameObject: {fileID: 597166908}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -18140,15 +18113,12 @@ MeshFilter:
   fillBar: {fileID: 0}
 --- !u!114 &597166911
 MonoBehaviour:
->>>>>>> main
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 599561799}
   m_Mesh: {fileID: -2697739462412545654, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
-=======
   m_GameObject: {fileID: 597166908}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -18181,7 +18151,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 597166908}
   m_CullTransparentMesh: 1
->>>>>>> main
 --- !u!1 &600074014 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4751451486475407835, guid: 348e3f6040ed695409477a02ecc7aa1c, type: 3}
@@ -25982,7 +25951,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 838883529}
   m_Mesh: {fileID: 6522340661142599993, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
-<<<<<<< HEAD
 --- !u!1 &846796090
 GameObject:
   m_ObjectHideFlags: 0
@@ -26166,8 +26134,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 848396306}
   m_CullTransparentMesh: 1
-=======
->>>>>>> main
 --- !u!1 &852753160
 GameObject:
   m_ObjectHideFlags: 0
@@ -28971,7 +28937,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 933645123}
   m_Mesh: {fileID: -6519895540487585024, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
-<<<<<<< HEAD
 --- !u!1 &934084827
 GameObject:
   m_ObjectHideFlags: 0
@@ -29112,8 +29077,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 934381903}
   m_Mesh: {fileID: 1199069055298303986, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
-=======
->>>>>>> main
 --- !u!1 &943500869 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6573043531509044289, guid: 348e3f6040ed695409477a02ecc7aa1c, type: 3}
@@ -30702,11 +30665,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.8071623, y: 2.1628456, z: 2.3033578}
   m_Center: {x: -0.00000024171183, y: 0.5521442, z: -0.010972336}
-<<<<<<< HEAD
 --- !u!1 &987231872
-=======
---- !u!1 &985312415
->>>>>>> main
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -30714,52 +30673,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-<<<<<<< HEAD
   - component: {fileID: 987231873}
   - component: {fileID: 987231875}
   - component: {fileID: 987231874}
   m_Layer: 16
   m_Name: Object_1062
-=======
   - component: {fileID: 985312416}
   - component: {fileID: 985312418}
   - component: {fileID: 985312417}
   m_Layer: 5
   m_Name: text
->>>>>>> main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
-<<<<<<< HEAD
 --- !u!4 &987231873
 Transform:
-=======
 --- !u!224 &985312416
 RectTransform:
->>>>>>> main
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 987231872}
   serializedVersion: 2
-=======
   m_GameObject: {fileID: 985312415}
->>>>>>> main
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-<<<<<<< HEAD
   m_Father: {fileID: 1987404175}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &987231874
 MeshRenderer:
-=======
   m_Father: {fileID: 1728721648}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -30769,12 +30717,10 @@ MeshRenderer:
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &985312417
 MonoBehaviour:
->>>>>>> main
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 987231872}
   m_Enabled: 1
   m_CastShadows: 1
@@ -30816,7 +30762,6 @@ MonoBehaviour:
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &987231875
 MeshFilter:
-=======
   m_GameObject: {fileID: 985312415}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -30904,18 +30849,14 @@ MeshFilter:
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &985312418
 CanvasRenderer:
->>>>>>> main
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 987231872}
   m_Mesh: {fileID: -2367370582310309067, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
-=======
   m_GameObject: {fileID: 985312415}
   m_CullTransparentMesh: 1
->>>>>>> main
 --- !u!1 &992010545
 GameObject:
   m_ObjectHideFlags: 0
@@ -32442,7 +32383,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.5927464, y: 1.5927465, z: 1.2446069}
   m_Center: {x: 0.000003817837, y: -0.000007567899, z: -0.12297812}
-<<<<<<< HEAD
 --- !u!1 &1013496818
 GameObject:
   m_ObjectHideFlags: 0
@@ -32613,8 +32553,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
-=======
->>>>>>> main
 --- !u!1 &1015214571 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -2918696004818978503, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
@@ -36890,7 +36828,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
-<<<<<<< HEAD
 --- !u!114 &1132447551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36998,8 +36935,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
-=======
->>>>>>> main
 --- !u!1 &1135006830 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7818084492479441691, guid: 1a09bc7beb4794d86a78ad5d63d2bed0, type: 3}
@@ -61745,7 +61680,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 050d01e7959ca0f43b3351d1073c9bd8, type: 3}
-<<<<<<< HEAD
 --- !u!1 &1573756524
 GameObject:
   m_ObjectHideFlags: 0
@@ -61909,8 +61843,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1576092686}
   m_CullTransparentMesh: 1
-=======
->>>>>>> main
 --- !u!1 &1576809414
 GameObject:
   m_ObjectHideFlags: 0
@@ -72593,11 +72525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openAngle: 90
   speed: 4
-<<<<<<< HEAD
   flipOpenDirection: 0
-=======
-  flipOpenDirection: 1
->>>>>>> main
 --- !u!1 &1912435246
 GameObject:
   m_ObjectHideFlags: 0
@@ -74091,7 +74019,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.43317437, y: 0.65835243, z: 0.357741}
   m_Center: {x: 0.042187795, y: 0.04015209, z: -0.0000023841858}
-<<<<<<< HEAD
 --- !u!1 &1955424726
 GameObject:
   m_ObjectHideFlags: 0
@@ -74146,8 +74073,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
->>>>>>> main
 --- !u!1 &1956979643
 GameObject:
   m_ObjectHideFlags: 0
@@ -75172,7 +75097,6 @@ Transform:
   - {fileID: 1903348938}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!1 &1985003763
 GameObject:
   m_ObjectHideFlags: 0
@@ -75361,8 +75285,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
-=======
->>>>>>> main
 --- !u!1 &1989318295
 GameObject:
   m_ObjectHideFlags: 0
@@ -77063,7 +76985,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.43317437, y: 0.65835243, z: 0.357741}
   m_Center: {x: 0.04219161, y: 0.04015221, z: 0.0000019073486}
-<<<<<<< HEAD
 --- !u!1 &2030740867
 GameObject:
   m_ObjectHideFlags: 0
@@ -77304,8 +77225,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
-=======
->>>>>>> main
 --- !u!1001 &2033261537
 PrefabInstance:
   m_ObjectHideFlags: 0
