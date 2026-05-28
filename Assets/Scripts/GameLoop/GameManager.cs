@@ -270,8 +270,7 @@ public class GameManager : MonoBehaviour
         State = GameState.Playing;
         TimeRemaining = levelDuration;
 
-        if (SuspicionMeter.Instance != null)
-            SuspicionMeter.Instance.globalSuspicion = 0f;
+        SuspicionMeter.Instance?.ResetMeter();
 
         // Grab every single player controller in the scene
         TopDownPlayerController[] movementControllers = FindObjectsByType<TopDownPlayerController>(FindObjectsSortMode.None);
