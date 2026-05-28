@@ -274,15 +274,12 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        // 1. Calculate the next scene's build index
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
 
-        // 2. Check if the next index exists in your build list
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             if (SceneTransitionManager.Instance != null)
             {
-                // 🟢 FIXED: Combine your string text with the index number directly!
                 SceneTransitionManager.Instance.SwitchToScene("Level" + nextSceneIndex);
             }
             else
