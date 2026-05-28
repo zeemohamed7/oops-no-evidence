@@ -111,14 +111,22 @@ public class LevelSelectManager : MonoBehaviour
 
     void TryStartLevel()
     {
-        // 🟢 FIX: Use cached memory index tracking instead of polling storage files
+        // Use cached memory index tracking instead of polling storage files
         if (currentIndex + 1 > cachedUnlockedLevel) return;
 
         // Tell LobbyManager which level index is being played
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.SetCurrentLevel(currentIndex);
 
-        // Load intro scene dynamically based on current index selection layout rules
-        SceneManager.LoadScene("Level" + (currentIndex + 1) + "_Intro");
+        string targetSceneName = "Level" + (currentIndex + 1) + "_Intro";
+
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene(targetSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(targetSceneName);
+        }
     }
 }

@@ -452,17 +452,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""cbac6039-9c09-46a1-b5f2-4e5124ccb5ed"",
-                    ""path"": ""<Keyboard>/r"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardWASD"",
-                    ""action"": ""Next"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""e15ca19d-e649-4852-97d5-7fe8ccc44e94"",
                     ""path"": ""<Gamepad>/rightShoulder"",
                     ""interactions"": """",
@@ -540,17 +529,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""1534dc16-a6aa-499d-9c3a-22b47347b52a"",
-                    ""path"": ""<Keyboard>/q"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardWASD"",
-                    ""action"": ""Previous"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""25060bbd-a3a6-476e-8fba-45ae484aad05"",
                     ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
@@ -584,22 +562,22 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""4f4649ac-64a8-4a73-af11-b3faef356a4d"",
-                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""id"": ""36e52cba-0905-478e-a818-f4bfcb9f3b9a"",
+                    ""path"": ""<Keyboard>/c"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Gamepad;Gamepad1;Gamepad2;Gamepad3;Gamepad4"",
+                    ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Crouch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""36e52cba-0905-478e-a818-f4bfcb9f3b9a"",
-                    ""path"": ""<Keyboard>/c"",
+                    ""id"": ""4f4649ac-64a8-4a73-af11-b3faef356a4d"",
+                    ""path"": ""<Gamepad>/buttonEast"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Gamepad;Gamepad1;Gamepad2;Gamepad3;Gamepad4"",
                     ""action"": ""Crouch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -1250,15 +1228,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Back"",
-                    ""type"": ""Button"",
-                    ""id"": ""f0cdbe9a-398e-40c7-a6de-29a752c094ac"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Leave"",
                     ""type"": ""Button"",
                     ""id"": ""8d88809a-4749-4fb7-afcf-8aca5129a161"",
@@ -1365,28 +1334,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Ready"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""51003508-9aba-4008-bb6a-443fffa4fed0"",
-                    ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Back"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c3a1143a-809b-408c-8927-a3474d8327db"",
-                    ""path"": ""<Gamepad>/buttonEast"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1557,7 +1504,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_LobbyUI = asset.FindActionMap("LobbyUI", throwIfNotFound: true);
         m_LobbyUI_Navigate = m_LobbyUI.FindAction("Navigate", throwIfNotFound: true);
         m_LobbyUI_Ready = m_LobbyUI.FindAction("Ready", throwIfNotFound: true);
-        m_LobbyUI_Back = m_LobbyUI.FindAction("Back", throwIfNotFound: true);
         m_LobbyUI_Leave = m_LobbyUI.FindAction("Leave", throwIfNotFound: true);
     }
 
@@ -2174,7 +2120,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private List<ILobbyUIActions> m_LobbyUIActionsCallbackInterfaces = new List<ILobbyUIActions>();
     private readonly InputAction m_LobbyUI_Navigate;
     private readonly InputAction m_LobbyUI_Ready;
-    private readonly InputAction m_LobbyUI_Back;
     private readonly InputAction m_LobbyUI_Leave;
     /// <summary>
     /// Provides access to input actions defined in input action map "LobbyUI".
@@ -2195,10 +2140,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "LobbyUI/Ready".
         /// </summary>
         public InputAction @Ready => m_Wrapper.m_LobbyUI_Ready;
-        /// <summary>
-        /// Provides access to the underlying input action "LobbyUI/Back".
-        /// </summary>
-        public InputAction @Back => m_Wrapper.m_LobbyUI_Back;
         /// <summary>
         /// Provides access to the underlying input action "LobbyUI/Leave".
         /// </summary>
@@ -2235,9 +2176,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Ready.started += instance.OnReady;
             @Ready.performed += instance.OnReady;
             @Ready.canceled += instance.OnReady;
-            @Back.started += instance.OnBack;
-            @Back.performed += instance.OnBack;
-            @Back.canceled += instance.OnBack;
             @Leave.started += instance.OnLeave;
             @Leave.performed += instance.OnLeave;
             @Leave.canceled += instance.OnLeave;
@@ -2258,9 +2196,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Ready.started -= instance.OnReady;
             @Ready.performed -= instance.OnReady;
             @Ready.canceled -= instance.OnReady;
-            @Back.started -= instance.OnBack;
-            @Back.performed -= instance.OnBack;
-            @Back.canceled -= instance.OnBack;
             @Leave.started -= instance.OnLeave;
             @Leave.performed -= instance.OnLeave;
             @Leave.canceled -= instance.OnLeave;
@@ -2634,13 +2569,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnReady(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Back" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnBack(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Leave" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

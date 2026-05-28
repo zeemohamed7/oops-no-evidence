@@ -34,7 +34,7 @@ public class WinLoseScreenManager : MonoBehaviour
     [Header("Task Panel")]
     public TextMeshProUGUI[] taskRows;       // task-1 … task-N TMPs (supports 4–7+)
     public TextMeshProUGUI taskCountText;    // "0/3" counter TMP
-    public Color taskDoneColor    = new Color(0.4f, 0.9f, 0.4f);
+    public Color taskDoneColor = new Color(0.4f, 0.9f, 0.4f);
     public Color taskPendingColor = Color.white;
 
     [Header("Info Texts")]
@@ -59,19 +59,19 @@ public class WinLoseScreenManager : MonoBehaviour
     public Button quitButton;       // home — always visible
 
     // PlayerPrefs keys — written by SaveResultToPrefs() before loading this scene
-    const string KEY_WIN        = "Result_IsWin";
-    const string KEY_GRADE      = "Result_Grade";
-    const string KEY_TIME       = "Result_TimeRemaining";
-    const string KEY_SUS        = "Result_Suspicion";      // stored as 0-1 ratio
-    const string KEY_FAILURES   = "Result_Failures";       // pipe-separated
+    const string KEY_WIN = "Result_IsWin";
+    const string KEY_GRADE = "Result_Grade";
+    const string KEY_TIME = "Result_TimeRemaining";
+    const string KEY_SUS = "Result_Suspicion";      // stored as 0-1 ratio
+    const string KEY_FAILURES = "Result_Failures";       // pipe-separated
     const string KEY_TASK_NAMES = "Result_TaskNames";      // pipe-separated task labels
-    const string KEY_TASK_DONE  = "Result_TaskDone";       // pipe-separated 0/1
+    const string KEY_TASK_DONE = "Result_TaskDone";       // pipe-separated 0/1
 
     void Start()
     {
         if (nextLevelButton != null) nextLevelButton.onClick.AddListener(NextLevel);
-        if (retryButton     != null) retryButton.onClick.AddListener(RetryLevel);
-        if (quitButton      != null) quitButton.onClick.AddListener(QuitToMap);
+        if (retryButton != null) retryButton.onClick.AddListener(RetryLevel);
+        if (quitButton != null) quitButton.onClick.AddListener(QuitToMap);
 
         // In-scene overlay: already shown by direct call — don't hide it again.
         if (_shown) return;
@@ -85,12 +85,12 @@ public class WinLoseScreenManager : MonoBehaviour
 
         // Separate scene: read everything from PlayerPrefs
         PopulateUI(
-            isWin:         PlayerPrefs.GetInt(KEY_WIN, 0) == 1,
-            grade:         PlayerPrefs.GetString(KEY_GRADE, "F"),
+            isWin: PlayerPrefs.GetInt(KEY_WIN, 0) == 1,
+            grade: PlayerPrefs.GetString(KEY_GRADE, "F"),
             timeRemaining: PlayerPrefs.GetFloat(KEY_TIME, 0f),
-            suspicion01:   PlayerPrefs.GetFloat(KEY_SUS, 0f),
-            failures:      SplitPipe(PlayerPrefs.GetString(KEY_FAILURES, "")),
-            tasks:         LoadTasksFromPrefs()
+            suspicion01: PlayerPrefs.GetFloat(KEY_SUS, 0f),
+            failures: SplitPipe(PlayerPrefs.GetString(KEY_FAILURES, "")),
+            tasks: LoadTasksFromPrefs()
         );
     }
 
@@ -117,10 +117,10 @@ public class WinLoseScreenManager : MonoBehaviour
     public void ShowWin(GameManager gm, GameHUD hud)
     {
         _shown = true;
-        float  sus01  = CaptureSus();                    // read BEFORE hiding anything
-        string grade  = gm?.CalculateGrade() ?? "S";
-        float  time   = gm?.TimeRemaining ?? 0f;
-        var    tasks  = hud?.GetTaskSnapshot();
+        float sus01 = CaptureSus();                    // read BEFORE hiding anything
+        string grade = gm?.CalculateGrade() ?? "S";
+        float time = gm?.TimeRemaining ?? 0f;
+        var tasks = hud?.GetTaskSnapshot();
 
         if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
         ActivateHierarchy();
@@ -133,11 +133,11 @@ public class WinLoseScreenManager : MonoBehaviour
     public void ShowLoss(GameManager gm, GameHUD hud)
     {
         _shown = true;
-        float  sus01    = CaptureSus();                  // read BEFORE hiding anything
-        string grade    = gm?.CalculateGrade() ?? "F";
-        float  time     = gm?.TimeRemaining ?? 0f;
-        var    failures = gm?.LastFailureReasons;
-        var    tasks    = hud?.GetTaskSnapshot();
+        float sus01 = CaptureSus();                  // read BEFORE hiding anything
+        string grade = gm?.CalculateGrade() ?? "F";
+        float time = gm?.TimeRemaining ?? 0f;
+        var failures = gm?.LastFailureReasons;
+        var tasks = hud?.GetTaskSnapshot();
 
         if (gamePlayCanvas != null) gamePlayCanvas.SetActive(false);
         ActivateHierarchy();
@@ -151,7 +151,7 @@ public class WinLoseScreenManager : MonoBehaviour
                     List<string> failures, (string label, bool done)[] tasks)
     {
         // Titles
-        if (winTitle  != null) winTitle.SetActive(isWin);
+        if (winTitle != null) winTitle.SetActive(isWin);
         if (loseTitle != null) loseTitle.SetActive(!isWin);
 
         // Grade bubble
@@ -172,10 +172,10 @@ public class WinLoseScreenManager : MonoBehaviour
         // Suspicion fill bar — force Filled/Horizontal so fillAmount actually clips the image
         if (susFillImage != null)
         {
-            susFillImage.type        = Image.Type.Filled;
-            susFillImage.fillMethod  = Image.FillMethod.Horizontal;
-            susFillImage.fillOrigin  = (int)Image.OriginHorizontal.Left;
-            susFillImage.fillAmount  = Mathf.Clamp01(suspicion01);
+            susFillImage.type = Image.Type.Filled;
+            susFillImage.fillMethod = Image.FillMethod.Horizontal;
+            susFillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+            susFillImage.fillAmount = Mathf.Clamp01(suspicion01);
         }
 
         // Task rows — show only as many as the level has, hide the rest
@@ -192,7 +192,7 @@ public class WinLoseScreenManager : MonoBehaviour
 
         // Next level on win, retry on loss; home always visible
         if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(isWin);
-        if (retryButton     != null) retryButton.gameObject.SetActive(!isWin);
+        if (retryButton != null) retryButton.gameObject.SetActive(!isWin);
     }
 
     void PopulateTaskRows((string label, bool done)[] tasks)
@@ -210,7 +210,7 @@ public class WinLoseScreenManager : MonoBehaviour
             {
                 taskRows[i].gameObject.SetActive(true);
                 taskRows[i].color = tasks[i].done ? taskDoneColor : taskPendingColor;
-                taskRows[i].text  = tasks[i].done
+                taskRows[i].text = tasks[i].done
                     ? $"<s>{tasks[i].label}</s>"
                     : tasks[i].label;
                 if (tasks[i].done) doneCount++;
@@ -257,7 +257,7 @@ public class WinLoseScreenManager : MonoBehaviour
     static (string label, bool done)[] LoadTasksFromPrefs()
     {
         string namesRaw = PlayerPrefs.GetString(KEY_TASK_NAMES, "");
-        string doneRaw  = PlayerPrefs.GetString(KEY_TASK_DONE,  "");
+        string doneRaw = PlayerPrefs.GetString(KEY_TASK_DONE, "");
         if (string.IsNullOrEmpty(namesRaw)) return null;
 
         string[] names = namesRaw.Split('|');
@@ -273,19 +273,43 @@ public class WinLoseScreenManager : MonoBehaviour
     void NextLevel()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
     }
 
     void RetryLevel()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        // 🟢 FIXED: Use the SceneTransitionManager to reload the current level smoothly
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene(currentSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(currentSceneName);
+        }
     }
 
     void QuitToMap()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Lobby");
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.SwitchToScene("Lobby");
+        }
+        else
+        {
+            SceneManager.LoadScene("Lobby");
+        }
     }
 
     // ── Call this before loading the win-lose scene (separate-scene flow) ────
@@ -297,10 +321,10 @@ public class WinLoseScreenManager : MonoBehaviour
                                          float suspicion01, List<string> failures,
                                          (string label, bool done)[] tasks)
     {
-        PlayerPrefs.SetInt(KEY_WIN,      isWin ? 1 : 0);
+        PlayerPrefs.SetInt(KEY_WIN, isWin ? 1 : 0);
         PlayerPrefs.SetString(KEY_GRADE, grade);
-        PlayerPrefs.SetFloat(KEY_TIME,   timeRemaining);
-        PlayerPrefs.SetFloat(KEY_SUS,    suspicion01);
+        PlayerPrefs.SetFloat(KEY_TIME, timeRemaining);
+        PlayerPrefs.SetFloat(KEY_SUS, suspicion01);
         PlayerPrefs.SetString(KEY_FAILURES, failures != null ? string.Join("|", failures) : "");
 
         if (tasks != null && tasks.Length > 0)
@@ -313,12 +337,12 @@ public class WinLoseScreenManager : MonoBehaviour
                 dones[i] = tasks[i].done ? "1" : "0";
             }
             PlayerPrefs.SetString(KEY_TASK_NAMES, string.Join("|", names));
-            PlayerPrefs.SetString(KEY_TASK_DONE,  string.Join("|", dones));
+            PlayerPrefs.SetString(KEY_TASK_DONE, string.Join("|", dones));
         }
         else
         {
             PlayerPrefs.SetString(KEY_TASK_NAMES, "");
-            PlayerPrefs.SetString(KEY_TASK_DONE,  "");
+            PlayerPrefs.SetString(KEY_TASK_DONE, "");
         }
 
         PlayerPrefs.Save();
