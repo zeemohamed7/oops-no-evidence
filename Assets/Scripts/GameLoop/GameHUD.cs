@@ -92,6 +92,14 @@ public class GameHUD : MonoBehaviour
         }
         RefreshCounter();
 
+        // Force sus fill image to Filled type (fillAmount has no effect otherwise)
+        if (susFill != null)
+        {
+            susFill.type       = Image.Type.Filled;
+            susFill.fillMethod = Image.FillMethod.Horizontal;
+            susFill.fillOrigin = (int)Image.OriginHorizontal.Left;
+        }
+
         // Panels off
         if (pausePanel  != null) pausePanel.SetActive(false);
         if (resultPanel != null) resultPanel.SetActive(false);
@@ -225,7 +233,7 @@ public class GameHUD : MonoBehaviour
     {
         var result = new (string, bool)[taskTexts.Length];
         for (int i = 0; i < taskTexts.Length; i++)
-            result[i] = (taskOriginalLabels != null ? taskOriginalLabels[i] : "", taskDone[i]);
+            result[i] = (taskOriginalLabels?[i] ?? "", taskDone[i]);
         return result;
     }
 
