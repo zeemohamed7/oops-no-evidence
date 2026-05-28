@@ -88,6 +88,10 @@ public class MopCleaner : MonoBehaviour
 
     void Update()
     {
+        // Keep bucket UI in sync every frame: only visible when mop is held AND dirty
+        if (dirtyMopIndicator != null)
+            dirtyMopIndicator.SetActive(_mopIsDirty && inventory.IsMopSelected());
+
         // Lazy-find runs every frame until other players are found
         if (_otherInventories == null || _otherInventories.Length == 0)
         {
@@ -223,12 +227,12 @@ public class MopCleaner : MonoBehaviour
 
     void SpawnDirtyMark(Vector3 worldPos)
     {
-        Collider playerCol = GetComponent<Collider>()
-            ?? GetComponentInParent<Collider>()
-            ?? GetComponentInChildren<Collider>();
-        float floorY = playerCol != null ? playerCol.bounds.min.y : worldPos.y;
+        float floorY = worldPos.y;
+        if (Physics.Raycast(worldPos + Vector3.up * 1f, Vector3.down, out RaycastHit floorHit, 5f, ~0, QueryTriggerInteraction.Ignore))
+            floorY = floorHit.point.y;
+
         GameObject mark = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.106f, worldPos.z);
+        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.01f, worldPos.z);
         mark.transform.rotation   = Quaternion.Euler(90f, Random.Range(0f, 360f), 0f);
         float randomSize = dirtyMarkSize * Random.Range(0.6f, 1.4f);
         mark.transform.localScale = new Vector3(randomSize, randomSize * Random.Range(0.6f, 1f), 1f);
@@ -307,7 +311,7 @@ public class MopCleaner : MonoBehaviour
     void UpdateStatusUI()
     {
         if (dirtyMopIndicator != null)
-            dirtyMopIndicator.SetActive(_mopIsDirty);
+            dirtyMopIndicator.SetActive(_mopIsDirty && inventory.IsMopSelected());
 
         if (statusText == null) return;
         if (_mopIsDirty)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Attach to the Player. Spray (slot 4) + Interact (Y / E) cleans wall blood
@@ -51,11 +52,18 @@ public class WallSprayCleaner : MonoBehaviour
     static readonly int ID_Spread  = Shader.PropertyToID("_Spread");
 
     private PlayerAnimationDriver animationDriver;
+    private InputAction _interactAction;
 
     void Start()
     {
         _fingerprints = FindObjectsOfType<FingerprintSurface>();
         animationDriver = GetComponent<PlayerAnimationDriver>();
+
+        var playerInput = GetComponent<PlayerInput>() ?? GetComponentInParent<PlayerInput>();
+        if (playerInput != null)
+            _interactAction = playerInput.actions["Interact"];
+        else
+            Debug.LogWarning("[WallSpray] No PlayerInput found — spray interact won't work.");
 
         //malak
         if (spraySoundSource != null)
@@ -82,7 +90,7 @@ public class WallSprayCleaner : MonoBehaviour
     void Update()
     {
         if (inventory == null || !inventory.IsSpraySelected()) return;
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.JoystickButton2))
+        if (_interactAction != null && _interactAction.WasPressedThisFrame())
             TrySpray();
     }
 
