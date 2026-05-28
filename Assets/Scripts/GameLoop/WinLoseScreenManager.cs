@@ -199,53 +199,25 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         if (taskRows == null || taskRows.Length == 0) return;
 
-        // How many tasks does this level actually have?
-        // If fetch failed, fall back to however many rows have text in the Inspector.
-        int taskCount = 0;
-        if (tasks != null && tasks.Length > 0)
-        {
-            taskCount = tasks.Length;
-        }
-        else
-        {
-            foreach (var r in taskRows)
-                if (r != null && !string.IsNullOrWhiteSpace(r.text)) taskCount++;
-        }
-
+        int taskCount = tasks != null ? tasks.Length : 0;
         int doneCount = 0;
 
         for (int i = 0; i < taskRows.Length; i++)
         {
             if (taskRows[i] == null) continue;
 
-            if (i < taskCount)
+            if (tasks != null && i < tasks.Length)
             {
                 taskRows[i].gameObject.SetActive(true);
-
-                bool   done;
-                string rawLabel;
-
-                if (tasks != null && i < tasks.Length)
-                {
-                    done     = tasks[i].done;
-                    // Use fetched label if non-empty, else keep Inspector text
-                    rawLabel = !string.IsNullOrWhiteSpace(tasks[i].label)
-                        ? tasks[i].label
-                        : taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
-                }
-                else
-                {
-                    done     = false;
-                    rawLabel = taskRows[i].text.Replace("<s>", "").Replace("</s>", "");
-                }
-
-                taskRows[i].color = done ? taskDoneColor : taskPendingColor;
-                taskRows[i].text  = done ? $"<s>{rawLabel}</s>" : rawLabel;
-                if (done) doneCount++;
+                taskRows[i].color = tasks[i].done ? taskDoneColor : taskPendingColor;
+                taskRows[i].text  = tasks[i].done
+                    ? $"<s>{tasks[i].label}</s>"
+                    : tasks[i].label;
+                if (tasks[i].done) doneCount++;
             }
             else
             {
-                // Hide rows that this level doesn't use
+                // This level has fewer tasks than rows wired — hide the extra row
                 taskRows[i].gameObject.SetActive(false);
             }
         }
@@ -301,7 +273,7 @@ public class WinLoseScreenManager : MonoBehaviour
     void NextLevel()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("LevelSelection");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     void RetryLevel()
@@ -313,7 +285,7 @@ public class WinLoseScreenManager : MonoBehaviour
     void QuitToMap()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("LevelSelection");
+        SceneManager.LoadScene("Lobby");
     }
 
     // ── Call this before loading the win-lose scene (separate-scene flow) ────

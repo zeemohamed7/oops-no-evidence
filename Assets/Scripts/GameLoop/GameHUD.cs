@@ -260,8 +260,15 @@ public class GameHUD : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    bool _soundOn = true;
+    public void ToggleSound()
+    {
+        _soundOn = !_soundOn;
+        AudioListener.volume = _soundOn ? 1f : 0f;
+    }
+
     void RestartLevel() { Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
-    void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("OverworldMap"); }
+    void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("Lobby"); }
     void LoadNextLevel(){ Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); }
 
     // ── Result Screens ────────────────────────────────────────────────────

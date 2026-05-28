@@ -61,7 +61,7 @@ public class LevelIntroManager : MonoBehaviour
         }
     }
 
-    void LoadNextScene()
+    public void LoadNextScene()
     {
         if (isSkipping) return;
 
