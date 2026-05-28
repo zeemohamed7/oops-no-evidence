@@ -9,16 +9,38 @@ public class FurnitureOrganizationChecker : MonoBehaviour
     [Header("Debug")]
     public bool showGizmosInEditor = true;
     
-    public bool IsOrganized(float posTolerance, float rotTolerance)
+    /// <param name="verbose">Set true only for one-shot checks (e.g. extraction). Leave false for every-frame polling to avoid console spam.</param>
+    public bool IsOrganized(float posTolerance, float rotTolerance, bool verbose = false)
     {
+        if (items.Count == 0)
+        {
+            if (verbose)
+                Debug.LogWarning($"[FurnitureOrganizationChecker] '{name}': items list is EMPTY — check passes vacuously. " +
+                                 "Drag all FurnitureItem scene objects into the 'Items' list in the Inspector.");
+            return true;
+        }
+
+        bool allGood = true;
         foreach (FurnitureItem item in items)
         {
             if (item == null) continue;
-            if (!item.IsInOriginalPosition(posTolerance, rotTolerance))
-                return false;
+
+            FurnitureSnap snap = item.GetComponent<FurnitureSnap>();
+
+            if (snap != null && !snap.IsBeingRearranged && !snap.IsSolved)
+                continue;
+
+            float dist = Vector3.Distance(item.transform.position, item.OriginalPosition);
+            float angle = Quaternion.Angle(item.transform.rotation, item.OriginalRotation);
+
+            bool pass = dist <= posTolerance && angle <= rotTolerance;
+
+            if (!pass)
+                allGood = false;
         }
-        return true;
+        return allGood;
     }
+
     public List<FurnitureItem> GetDisorganizedItems(float posTolerance, float rotTolerance)
     {
         var result = new List<FurnitureItem>();

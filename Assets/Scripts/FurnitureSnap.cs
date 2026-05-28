@@ -16,6 +16,7 @@ public class FurnitureSnap : MonoBehaviour
     public Color correctColor = Color.green;
 
     public bool IsSolved { get; private set; }
+    public bool IsBeingRearranged => isBeingRearranged;
     private bool isBeingRearranged = false;
 
         public enum RearrangeType
