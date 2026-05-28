@@ -47,12 +47,20 @@ public class MissionResultManager : MonoBehaviour
         if (_evaluated) return;
         _evaluated = true;
 
+        Debug.Log("[MissionResultManager] *** EvaluateMission called ***");
+
         if (conditions == null)
         {
             Debug.LogWarning("[MissionResultManager] No MissionConditions assigned — defaulting to Win.");
             FireWin();
             return;
         }
+
+        Debug.Log($"[MissionResultManager] Conditions: checkTasks={conditions.checkTasks}, checkTimer={conditions.checkTimer}, " +
+                  $"checkSuspicion={conditions.checkSuspicion}, checkBlood={conditions.checkBlood}, " +
+                  $"checkFootprints={conditions.checkFootprints}, checkFurnitureOrganization={conditions.checkFurnitureOrganization}, " +
+                  $"checkWallFingerprints={conditions.checkWallFingerprints}");
+        Debug.Log($"[MissionResultManager] furnitureGroups assigned in Inspector: {furnitureGroups.Count}");
 
         List<string> failures = CollectFailures();
 
@@ -146,13 +154,24 @@ public class MissionResultManager : MonoBehaviour
 
     bool CheckFurniture()
     {
+        if (furnitureGroups.Count == 0)
+        {
+            Debug.LogWarning("[MissionResultManager] CheckFurniture — furnitureGroups list is EMPTY! " +
+                             "Assign at least one FurnitureOrganizationChecker to MissionResultManager in the Inspector. " +
+                             "Returning true (pass) vacuously — furniture condition will never fail.");
+            return true;
+        }
+
+        bool overallResult = true;
         foreach (FurnitureOrganizationChecker group in furnitureGroups)
         {
             if (group == null) continue;
-            if (!group.IsOrganized(conditions.furniturePositionTolerance, conditions.furnitureRotationTolerance))
-                return false;
+            bool organized = group.IsOrganized(conditions.furniturePositionTolerance, conditions.furnitureRotationTolerance, verbose: true);
+            Debug.Log($"[MissionResultManager] FurnitureGroup '{group.name}': IsOrganized = {(organized ? "PASS ✓" : "FAIL ✗")}");
+            if (!organized) overallResult = false;
         }
-        return true;
+        Debug.Log($"[MissionResultManager] CheckFurniture overall result: {(overallResult ? "PASS ✓" : "FAIL ✗")}");
+        return overallResult;
     }
 
     bool CheckWallFingerprints()
