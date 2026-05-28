@@ -273,27 +273,13 @@ public class WinLoseScreenManager : MonoBehaviour
     void NextLevel()
     {
         Time.timeScale = 1f;
-
-        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        if (SceneTransitionManager.Instance != null)
         {
-            if (SceneTransitionManager.Instance != null)
-            {
-                SceneTransitionManager.Instance.SwitchToScene("Level" + nextSceneIndex);
-            }
-            else
-            {
-                SceneManager.LoadScene(nextSceneIndex);
-            }
+            SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
         }
         else
         {
-            Debug.LogWarning("No next scene found in Build Settings! Returning to Map.");
-            if (SceneTransitionManager.Instance != null) 
-                SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
-            else 
-                SceneManager.LoadScene("LevelSelection");
+            SceneManager.LoadScene("LevelSelection");
         }
     }
 
@@ -302,7 +288,6 @@ public class WinLoseScreenManager : MonoBehaviour
         Time.timeScale = 1f;
         string currentSceneName = SceneManager.GetActiveScene().name;
 
-        // 🟢 FIXED: Use the SceneTransitionManager to reload the current level smoothly
         if (SceneTransitionManager.Instance != null)
         {
             SceneTransitionManager.Instance.SwitchToScene(currentSceneName);

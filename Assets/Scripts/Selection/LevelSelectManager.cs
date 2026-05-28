@@ -66,7 +66,7 @@ public class LevelSelectManager : MonoBehaviour
         // ─── EXECUTE MOVE (FIXED NAVIGATION MATHEMATICS HERE) ───
         if (moveRight && currentIndex < waypoints.Length - 1)
         {
-            // 🟢 FIX: Check if the destination waypoint index (currentIndex + 1) is unlocked!
+            // Check if the destination waypoint index (currentIndex + 1) is unlocked!
             int targetLevelNumber = currentIndex + 2; // (0-indexed to 1-indexed conversion + next slot)
             if (targetLevelNumber <= cachedUnlockedLevel)
             {
@@ -120,13 +120,15 @@ public class LevelSelectManager : MonoBehaviour
 
         string targetSceneName = "Level" + (currentIndex + 1) + "_Intro";
 
-        if (SceneTransitionManager.Instance != null)
-        {
-            SceneTransitionManager.Instance.SwitchToScene(targetSceneName);
-        }
-        else
-        {
             SceneManager.LoadScene(targetSceneName);
-        }
+        
+        // if (SceneTransitionManager.Instance != null)
+        // {
+        //     SceneTransitionManager.Instance.SwitchToScene(targetSceneName);
+        // }
+        // else
+        // {
+        //     SceneManager.LoadScene(targetSceneName);
+        // }
     }
 }
