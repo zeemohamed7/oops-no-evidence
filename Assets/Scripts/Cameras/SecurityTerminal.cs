@@ -6,7 +6,7 @@ public class SecurityTerminal : MonoBehaviour
 {
     [Header("Hacking Settings")]
     public float hackDuration = 15f;
-    public string completionTaskId = "disable_cameras";
+    public string completionTaskId = "hack_cameras";
 
     [Header("Cameras to Disable on Completion")]
     public SecurityCamera[] targetCameras;
@@ -49,6 +49,9 @@ public class SecurityTerminal : MonoBehaviour
     public void AddProgress(float delta)
     {
         if (_complete) return;
+
+        if (!_hacking)
+            Debug.Log($"[SecurityTerminal] {gameObject.name} — hack started");
 
         // Start typing sound when hacking begins
         if (!_hacking)
@@ -103,7 +106,8 @@ public class SecurityTerminal : MonoBehaviour
         UpdateBar();
         SetStatus("ACCESS GRANTED");
 
-        GameEvents.OnTaskCompleted?.Invoke(completionTaskId);
+        Debug.Log($"[SecurityTerminal] {gameObject.name} hacked — firing hack_cameras task.");
+        GameEvents.OnTaskCompleted?.Invoke("hack_cameras");
 
         foreach (var cam in targetCameras)
         {
