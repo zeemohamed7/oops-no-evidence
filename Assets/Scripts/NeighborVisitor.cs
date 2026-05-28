@@ -190,40 +190,23 @@ public class NeighborVisitor : MonoBehaviour
             _pathGraceTimer += Time.deltaTime;
             if (_pathGraceTimer < PathGrace) return;
             _pathGraceTimer = 0f;
-            // Can't reach destination — skip to next step
-            AdvanceLeaving();
+            ReturnToStart();
             return;
         }
 
         _pathGraceTimer = 0f;
         if (_agent.remainingDistance > _agent.stoppingDistance + 0.3f) return;
 
-        AdvanceLeaving();
-    }
-
-    void AdvanceLeaving()
-    {
-        if (_waypointIndex > 0)
-        {
-            // Still have waypoints to walk back through — go to the next one
-            _waypointIndex--;
-            _agent.SetDestination(waypoints[_waypointIndex].position);
-        }
-        else
-        {
-            // Reached waypoints[0] — arrived at neighbor villa
-            _agent.isStopped = true;
-            _state     = State.Waiting;
-            _waitTimer = waitBetweenVisits;
-            SetAnim(false);
-        }
+        ReturnToStart();
     }
 
     void ReturnToStart()
     {
+        _agent.isStopped = true;
         _state     = State.Waiting;
         _waitTimer = waitBetweenVisits;
-        _agent.isStopped = true;
+        if (waypoints != null && waypoints.Length > 0 && waypoints[0] != null)
+            _agent.Warp(waypoints[0].position);
         SetAnim(false);
     }
 
@@ -233,10 +216,8 @@ public class NeighborVisitor : MonoBehaviour
     {
         _state = State.Leaving;
         _agent.isStopped = false;
-        // Walk back through waypoints from door to neighbor villa
-        _waypointIndex = doorWaypointIndex;
-        _agent.SetDestination(waypoints[_waypointIndex].position);
         SetAnim(true);
+        _agent.SetDestination(waypoints[0].position);
     }
 
     void OpenDoors()
