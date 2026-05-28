@@ -74,18 +74,18 @@ public class NeighborVisitor : MonoBehaviour
     {
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying) return;
 
-        // Open doors only when entering — leaving uses the same baked NavMesh gap, no visual reopen needed
-        if (_state == State.Entering && !_doorOpened
-            && waypoints != null && doorWaypointIndex < waypoints.Length
-            && waypoints[doorWaypointIndex] != null)
-        {
-            float dist = Vector3.Distance(transform.position, waypoints[doorWaypointIndex].position);
-            if (dist <= doorOpenRadius)
-            {
-                _doorOpened = true;
-                OpenDoors();
-            }
-        }
+        // // Open doors only when entering — leaving uses the same baked NavMesh gap, no visual reopen needed
+        // if (_state == State.Entering && !_doorOpened
+        //     && waypoints != null && doorWaypointIndex < waypoints.Length
+        //     && waypoints[doorWaypointIndex] != null)
+        // {
+        //     float dist = Vector3.Distance(transform.position, waypoints[doorWaypointIndex].position);
+        //     if (dist <= doorOpenRadius)
+        //     {
+        //         _doorOpened = true;
+        //         OpenDoors();
+        //     }
+        // }
 
         switch (_state)
         {
@@ -220,26 +220,26 @@ public class NeighborVisitor : MonoBehaviour
         _agent.SetDestination(waypoints[0].position);
     }
 
-    void OpenDoors()
-    {
-        if (doors == null) return;
-        foreach (var d in doors)
-            if (d != null) d.OpenFromSide(true);
-
-        // Cancel any existing close timer so the door doesn't snap shut mid-open
-        if (_closeDoorsCoroutine != null)
-            StopCoroutine(_closeDoorsCoroutine);
-        _closeDoorsCoroutine = StartCoroutine(CloseDoorsDelayed());
-    }
-
-    IEnumerator CloseDoorsDelayed()
-    {
-        yield return new WaitForSeconds(doorOpenDuration);
-        if (doors == null) yield break;
-        foreach (var d in doors)
-            if (d != null) d.CloseDoor();
-        _closeDoorsCoroutine = null;
-    }
+    // void OpenDoors()
+    // {
+    //     if (doors == null) return;
+    //     foreach (var d in doors)
+    //         if (d != null) d.OpenFromSide(true);
+    //
+    //     // Cancel any existing close timer so the door doesn't snap shut mid-open
+    //     if (_closeDoorsCoroutine != null)
+    //         StopCoroutine(_closeDoorsCoroutine);
+    //     _closeDoorsCoroutine = StartCoroutine(CloseDoorsDelayed());
+    // }
+    //
+    // IEnumerator CloseDoorsDelayed()
+    // {
+    //     yield return new WaitForSeconds(doorOpenDuration);
+    //     if (doors == null) yield break;
+    //     foreach (var d in doors)
+    //         if (d != null) d.CloseDoor();
+    //     _closeDoorsCoroutine = null;
+    // }
 
     void CheckForBlood()
     {

@@ -14,7 +14,7 @@ public class DoorProximityTrigger : MonoBehaviour
 
     private bool IsAllowed(Collider other)
     {
-        return other.CompareTag("Player") || other.CompareTag("Guard");
+        return other.CompareTag("Player") || other.CompareTag("Guard")  || other.CompareTag("Visitor");
     }
 
     private void OnTriggerEnter(Collider other)

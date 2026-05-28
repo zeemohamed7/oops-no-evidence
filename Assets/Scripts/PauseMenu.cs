@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem; // 🟢 Added to support controllers
 
 public class PauseMenu : MonoBehaviour
 {
@@ -26,7 +27,23 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // ─── CHECK INPUTS (Keyboard & Controller) ───
+        bool pressedPause = false;
+
+        // Check Keyboard (Escape key)
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            pressedPause = true;
+        }
+
+        // Check Gamepad (Start / Menu / Options button)
+        if (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+        {
+            pressedPause = true;
+        }
+
+        // ─── EXECUTE PAUSE ───
+        if (pressedPause)
         {
             // Don't pause if the win/lose panel is showing
             if (WinLoseScreenManager.Instance != null &&
@@ -79,10 +96,9 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-        public void ReplayLevel()
+    public void ReplayLevel()
     {
         Time.timeScale = 1f;
-
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 

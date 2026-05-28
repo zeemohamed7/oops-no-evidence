@@ -274,27 +274,7 @@ public class WinLoseScreenManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            if (SceneTransitionManager.Instance != null)
-            {
-                SceneTransitionManager.Instance.SwitchToScene("Level" + nextSceneIndex);
-            }
-            else
-            {
-                SceneManager.LoadScene(nextSceneIndex);
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No next scene found in Build Settings! Returning to Map.");
-            if (SceneTransitionManager.Instance != null) 
-                SceneTransitionManager.Instance.SwitchToScene("LevelSelection");
-            else 
-                SceneManager.LoadScene("LevelSelection");
-        }
+        SceneManager.LoadScene("LevelSelection");
     }
 
     void RetryLevel()
