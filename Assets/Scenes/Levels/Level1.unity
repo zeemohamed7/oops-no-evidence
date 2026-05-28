@@ -166776,7 +166776,7 @@ MonoBehaviour:
   taskDoneColor: {r: 0.2509804, g: 0.08235294, b: 0.40784314, a: 1}
   taskPendingColor: {r: 1, g: 1, b: 1, a: 1}
   listText: {fileID: 0}
-  susText: {fileID: 0}
+  susText: {fileID: 826528609}
   timeText: {fileID: 989457266}
   susFillImage: {fileID: 2046407571}
   gradeS: {fileID: 1623304853}

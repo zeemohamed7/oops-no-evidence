@@ -92,6 +92,14 @@ public class GameHUD : MonoBehaviour
         }
         RefreshCounter();
 
+        // Force sus fill image to Filled type (fillAmount has no effect otherwise)
+        if (susFill != null)
+        {
+            susFill.type       = Image.Type.Filled;
+            susFill.fillMethod = Image.FillMethod.Horizontal;
+            susFill.fillOrigin = (int)Image.OriginHorizontal.Left;
+        }
+
         // Panels off
         if (pausePanel  != null) pausePanel.SetActive(false);
         if (resultPanel != null) resultPanel.SetActive(false);
@@ -225,7 +233,7 @@ public class GameHUD : MonoBehaviour
     {
         var result = new (string, bool)[taskTexts.Length];
         for (int i = 0; i < taskTexts.Length; i++)
-            result[i] = (taskOriginalLabels != null ? taskOriginalLabels[i] : "", taskDone[i]);
+            result[i] = (taskOriginalLabels?[i] ?? "", taskDone[i]);
         return result;
     }
 
@@ -260,15 +268,8 @@ public class GameHUD : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    bool _soundOn = true;
-    public void ToggleSound()
-    {
-        _soundOn = !_soundOn;
-        AudioListener.volume = _soundOn ? 1f : 0f;
-    }
-
     void RestartLevel() { Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
-    void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("Lobby"); }
+    void QuitToMap()    { Time.timeScale = 1f; SceneManager.LoadScene("OverworldMap"); }
     void LoadNextLevel(){ Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); }
 
     // ── Result Screens ────────────────────────────────────────────────────
