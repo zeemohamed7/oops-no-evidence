@@ -227,12 +227,12 @@ public class MopCleaner : MonoBehaviour
 
     void SpawnDirtyMark(Vector3 worldPos)
     {
-        Collider playerCol = GetComponent<Collider>()
-            ?? GetComponentInParent<Collider>()
-            ?? GetComponentInChildren<Collider>();
-        float floorY = playerCol != null ? playerCol.bounds.min.y : worldPos.y;
+        float floorY = worldPos.y;
+        if (Physics.Raycast(worldPos + Vector3.up * 1f, Vector3.down, out RaycastHit floorHit, 5f, ~0, QueryTriggerInteraction.Ignore))
+            floorY = floorHit.point.y;
+
         GameObject mark = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.106f, worldPos.z);
+        mark.transform.position   = new Vector3(worldPos.x, floorY + 0.01f, worldPos.z);
         mark.transform.rotation   = Quaternion.Euler(90f, Random.Range(0f, 360f), 0f);
         float randomSize = dirtyMarkSize * Random.Range(0.6f, 1.4f);
         mark.transform.localScale = new Vector3(randomSize, randomSize * Random.Range(0.6f, 1f), 1f);
