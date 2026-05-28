@@ -61,18 +61,16 @@ public class SceneTransitionManager : MonoBehaviour
 
         StartCoroutine(LoadSceneSequence(sceneName));
     }
-
-    private IEnumerator LoadSceneSequence(string sceneName)
+private IEnumerator LoadSceneSequence(string sceneName)
     {
         // 1. Enable the Image component so the black panel can be seen rendering
         fadeImage.enabled = true;
 
         // 2. Teleport the animator straight into the "FadeOut" state box instantly
-        // (Arguments: "StateName", LayerIndex, NormalizedTime)
         transitionAnimator.Play("FadeOut", 0, 0f);
 
-        // 3. Wait for the screen to turn completely pitch black
-        yield return new WaitForSeconds(transitionTime);
+        // 🟢 FIXED: Changed to WaitForSecondsRealtime so it works even when Time.timeScale = 0
+        yield return new WaitForSecondsRealtime(transitionTime);
 
         // 4. Load the next scene behind the dark screen veil
         SceneManager.LoadScene(sceneName);
@@ -83,8 +81,8 @@ public class SceneTransitionManager : MonoBehaviour
         // 6. Teleport the animator straight into the "FadeIn" state box to reveal the new level
         transitionAnimator.Play("FadeIn", 0, 0f);
 
-        // 7. Wait for the screen to blend back from black to fully clear
-        yield return new WaitForSeconds(transitionTime);
+        // 🟢 FIXED: Changed to WaitForSecondsRealtime so the fade-in animation clears smoothly
+        yield return new WaitForSecondsRealtime(transitionTime);
 
         // 8. Turn the Image component back OFF so it doesn't block player clicks/raycasts in gameplay
         fadeImage.enabled = false;

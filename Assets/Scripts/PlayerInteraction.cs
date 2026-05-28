@@ -102,12 +102,15 @@ public class PlayerInteraction : MonoBehaviour
 
     private void PerformHidingCheck()
     {
-        var mask = LayerMask.GetMask("Interactable");
+        // Include multiple fallback layers so hiding spots are always detectable
+        var mask = LayerMask.GetMask("Interactable", "Default");
         var hitColliders = Physics.OverlapSphere(transform.position, reach, mask);
 
         foreach (var hitCollider in hitColliders)
         {
-            if (hitCollider.TryGetComponent(out HidingSpot spot))
+            // Check the object itself or its parent container
+            HidingSpot spot = hitCollider.GetComponent<HidingSpot>() ?? hitCollider.GetComponentInParent<HidingSpot>();
+            if (spot != null)
             {
                 spot.ToggleHide(gameObject);
                 return;

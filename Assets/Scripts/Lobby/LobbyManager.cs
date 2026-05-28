@@ -60,19 +60,11 @@ public class LobbyManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        Instance = this;
 
         _pim = GetComponent<PlayerInputManager>();
         _pim.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
+ 
     }
 
     private void Start()
@@ -261,47 +253,48 @@ public class LobbyManager : MonoBehaviour
     private void CommitAndLoad()
     {
         _isTransitioning = true;
-        playersToSpawn.Clear();
 
-        foreach (LobbyGhost ghost in _activeGhosts.Values.Where(g => g != null))
+        // 🟢 Save choices to the carrier before this manager gets destroyed
+        if (LobbyDataCarrier.Instance != null)
         {
-            playersToSpawn.Add(new PlayerSelectionData
+            LobbyDataCarrier.Instance.playersToSpawn.Clear();
+            foreach (LobbyGhost ghost in _activeGhosts.Values.Where(g => g != null))
             {
-                playerIndex   = ghost.PlayerIndex,
-                characterId   = ghost.SelectedCharacterId,
-                controlScheme = ghost.ControlScheme,
-                deviceId      = ghost.DeviceId
-            });
+                LobbyDataCarrier.Instance.playersToSpawn.Add(new PlayerSelectionData
+                {
+                    playerIndex   = ghost.PlayerIndex,
+                    characterId   = ghost.SelectedCharacterId,
+                    controlScheme = ghost.ControlScheme,
+                    deviceId      = ghost.DeviceId
+                });
+            }
+            LobbyDataCarrier.Instance.currentLevelIndex = currentLevelIndex;
         }
 
-        // Shut down joining cleanly — never disable the component itself
-        _pim.DisableJoining();
-        _pim.onPlayerJoined -= OnPlayerJoined;
-        _pim.onPlayerLeft   -= OnPlayerLeft;
+        // Shut down joining cleanly
+        if (_pim != null)
+        {
+            _pim.DisableJoining();
+        }
 
-        if (SceneTransitionManager.Instance != null)
-        {
-            SceneTransitionManager.Instance.SwitchToScene(selectedLevelName);
-        }
-        else
-        {
-            SceneManager.LoadScene(selectedLevelName);
-        }
+        SceneManager.LoadScene(selectedLevelName);
     }
-
     // ─── GAMEPLAY SPAWN (called by level spawner after scene load) ────────────
 
     public void SpawnAllPlayers(Transform spawnPoint)
     {
-        if (playersToSpawn.Count == 0) return;
+        // 🟢 Read choices straight from the safe data carrier
+        if (LobbyDataCarrier.Instance == null || LobbyDataCarrier.Instance.playersToSpawn.Count == 0) return;
+
+        var spawnList = LobbyDataCarrier.Instance.playersToSpawn;
 
         Vector3 camForward = Camera.main.transform.forward;
         camForward.y = 0;
         camForward.Normalize();
 
-        for (int i = 0; i < playersToSpawn.Count; i++)
+        for (int i = 0; i < spawnList.Count; i++)
         {
-            PlayerSelectionData data = playersToSpawn[i];
+            PlayerSelectionData data = spawnList[i];
 
             GameObject prefab = characterPrefabs.FirstOrDefault(m => m.id == data.characterId).prefab
                                 ?? ghostPrefab;
@@ -317,24 +310,21 @@ public class LobbyManager : MonoBehaviour
 
             if (pi == null) continue;
 
-            // Strip any lingering lobby logic from the spawned prefab
             LobbyGhost lg = pi.GetComponentInChildren<LobbyGhost>();
             if (lg != null) Destroy(lg);
 
-            // Lock the device and switch to gameplay actions before any script wakes up
             pi.neverAutoSwitchControlSchemes = true;
             pi.notificationBehavior = PlayerNotifications.SendMessages;
             pi.SwitchCurrentActionMap("Player");
             pi.camera = Camera.main;
 
-            // Disable physics while we place the character, then re-enable
             CharacterController cc     = pi.GetComponentInChildren<CharacterController>();
             TopDownPlayerController mv = pi.GetComponentInChildren<TopDownPlayerController>();
 
             if (cc) cc.enabled = false;
             if (mv) mv.enabled = false;
 
-            float xOffset = (i - (playersToSpawn.Count - 1) / 2f) * 1.5f;
+            float xOffset = (i - (spawnList.Count - 1) / 2f) * 1.5f;
             pi.transform.position = spawnPoint.position + Camera.main.transform.right * xOffset;
             pi.transform.rotation = Quaternion.LookRotation(camForward);
 
