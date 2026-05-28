@@ -360191,7 +360191,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 0/4
+  m_text: 0/3
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ee4fd0ece1b9742fb96cd0fb6d9fa80d, type: 2}
   m_sharedMaterial: {fileID: 1420798233752909783, guid: ee4fd0ece1b9742fb96cd0fb6d9fa80d, type: 2}
@@ -388952,12 +388952,10 @@ MonoBehaviour:
   - {fileID: 252417262}
   - {fileID: 625661181}
   - {fileID: 1138213351}
-  - {fileID: 1584375684}
   taskIds:
   - dispose_weapon
   - dispose_body
   - clean_blood
-  - last_step_truck
   counterText: {fileID: 1363233509}
   taskDoneColor: {r: 0.2509804, g: 0.08235294, b: 0.40784314, a: 1}
   pauseButton: {fileID: 0}

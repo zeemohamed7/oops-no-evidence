@@ -6,7 +6,7 @@ public class SecurityTerminal : MonoBehaviour
 {
     [Header("Hacking Settings")]
     public float hackDuration = 15f;
-    public string completionTaskId = "disable_cameras";
+    public string completionTaskId = "hack_cameras";
 
     [Header("Cameras to Disable on Completion")]
     public SecurityCamera[] targetCameras;

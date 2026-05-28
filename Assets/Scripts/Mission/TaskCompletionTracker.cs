@@ -103,7 +103,7 @@ public class TaskCompletionTracker : MonoBehaviour
             if (t != null && !t.IsComplete) return;
 
         _camerasDone = true;
-        GameEvents.OnTaskCompleted?.Invoke("disable_cameras");
+        GameEvents.OnTaskCompleted?.Invoke("hack_cameras");
     }
 
     void CheckFurnitureDone()
